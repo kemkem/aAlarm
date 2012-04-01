@@ -57,7 +57,7 @@ while (1) {
 		#$year += 1900;
 		$curDate = $mon."/".$mday."/".$year." ".$hour.":".$min.":".$sec;
 		print $curDate." - changed to state ".$currentState."\n";
-		open LOG, ">>alarm.log";
+		open LOG, ">>/home/marc/alarm.log";
 		print LOG $curDate." - changed to state ".$currentState."\n";
 		close LOG;
 	}
