@@ -4,52 +4,85 @@ use Device::SerialPort;
 use MIME::Lite;
 use Time::HiRes qw(usleep);
 
-# Set up the serial port
-# 19200, 81N on the USB ftdi driver
-my $port = Device::SerialPort->new("/dev/ttyACM0") or die "cannot create port";
-$port->databits(8);
-#$port->baudrate(19200);
-$port->baudrate(9600);
-$port->parity("none");
-$port->stopbits(1);
+my $port;
+my $status = "OFFLINE";
+my $sensor = "CLOSE";
+my $lastStatus = "NONE";
+my $ready = 0;
 
-my $count = 0;
-my $maildone = 0;
-my $currentState = "";
-my $lastState = "";
-
-while (1) {
-    # Poll to see if any data is coming in
-    my $response = $port->lookfor();
-
-    # If we get data, then print it
-    # Send a number to the arduino
-    if ($response) {
-	chop $response;
-       print "R [" . $response . "]\n";
-
-	
-    } else {
-	sleep(1);
-	#usleep(50000);
-	if ($count == 0)
+while (1)
+{
+	print ">Trying to connect...\n";
+	if ($port = Device::SerialPort->new("/dev/ttyACM0"))
 	{
-		$count = 1;
-		$send = "LEDOn";
-	}
-	elsif ($count == 1)
-	{
-		$count = 2;
-		$send = "STATUS";
+		print ">Success\n";
+		$port->databits(8);	
+		$port->baudrate(9600);
+		#$port->baudrate(19200);
+		$port->parity("none");
+		$port->stopbits(1);
+
+		my $count = 0;
+		my $connection = 5;
+
+		while ($connection > 1) {
+		    my $response = $port->lookfor();
+
+		    if ($response) {
+			chop $response;
+			$connection++;
+			print "R [".$response."]\n";
+			if($response =~ /READY/)
+			{
+				$ready = 1;
+			}
+			else
+			{
+				$response =~ /STATUS:(.*)\|(.*)/;
+				open FILE, ">/home/kemkem/Work/arduino/web/state";
+				print FILE $response;
+				close FILE;
+				$status = $1;
+				$sensor = $2;
+			}
+		    } else {
+			sleep(1);
+			#usleep(50000);
+
+			$nextCommand = "status";
+			open COMMAND_FILE, "/home/kemkem/Work/arduino/web/command/command";
+			while(<COMMAND_FILE>)
+			{
+				$nextCommand = "setOnline" if (/setOnline/);
+			}
+			close COMMAND_FILE;
+			unlink "/home/kemkem/Work/arduino/web/command/command" or print "cannot delete\n";
+			
+
+			if ($lastStatus =~ /ONLINE/ && $ready == 1)
+			{
+				$send = "setOnline";
+				$lastStatus = "NONE";
+			}
+			else
+			{
+				$send = $nextCommand;
+			}
+			$port->write($send."\n");
+			print "S [".$send."]\n";
+			$connection--;
+		    }						
+		}
+		print "Connection has been lost!\n";
+		print "last state was $status\n";
+		$lastStatus = $status;
+		$ready = 0;
 	}
 	else
 	{
-		$count = 0;
-		$send = "LEDOff";
+		print ">Cannot connect, retrying in 1 second...\n";
+		sleep(1);
 	}
-	$port->write($send."\n");
-	print "S [".$send."]\n";
-    }
-}
 
+}
 

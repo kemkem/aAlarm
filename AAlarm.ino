@@ -18,7 +18,7 @@
 #define timeout2Siren 8000
 #define timeout2WarningStop 1000
 #define timeout2SirenStop 5000
-#define timeout2Online 10000
+#define timeout2Online 1000
 #define timeout2OnlineWarningStop 1000
 
 /*
@@ -88,6 +88,7 @@ int timerIdOnline;
 void setup()
 {
   Serial.begin(9600);
+  //Serial.begin(19200);
   
   pinMode(buzzerPin, OUTPUT);  
   pinMode(sirenPin, OUTPUT);  
@@ -136,11 +137,7 @@ void executeCommand(char *serialReadString)
     if (status != STATE_ONLINE)
     {
       setOnline();
-      cmdOk();
-    }
-    else
-    {
-      cmdKo();
+      //cmdOk();
     }
   }
   else if(strcmp(serialReadString, CMD_SET_OFFLINE) == 0)
@@ -148,15 +145,13 @@ void executeCommand(char *serialReadString)
     if (status != STATE_OFFLINE)
     {
       setOffline();
-      cmdOk();
-    }
-    else
-    {
-      cmdKo();
+      //cmdOk();
     }
   }
   else if(strcmp(serialReadString, CMD_STATUS) == 0)
   {
+    Serial.println(getFinalStatus());
+    /*
     if (status == STATE_OFFLINE)
     {
       Serial.println("STATUS OFFLINE");
@@ -180,16 +175,46 @@ void executeCommand(char *serialReadString)
     else if (status == STATE_INTRUSION_ALARM)
     {
       Serial.println("STATUS INTRUSION_ALARM");
-    }
-  }
-  else if(strcmp(serialReadString, CMD_SENSOR) == 0)
-  {
-    Serial.println(getSensorStatus(sensorValue));
+    }*/
   }
   else
   {
     Serial.println("UNKNOWN CMD");
   }
+}
+
+String getFinalStatus()
+{
+    String statusStr;
+    if (status == STATE_OFFLINE)
+    {
+      statusStr = "OFFLINE";
+    }
+    else if (status == STATE_ONLINE_TIMED)
+    {
+      statusStr = "ONLINE_TIMED";
+    }
+    else if (status == STATE_ONLINE)
+    {
+      statusStr = "ONLINE";
+    }
+    else if (status == STATE_INTRUSION)
+    {
+      statusStr = "INTRUSION";
+    }
+    else if (status == STATE_INTRUSION_WARNING)
+    {
+      statusStr = "INTRUSION_WARNING";
+    }
+    else if (status == STATE_INTRUSION_ALARM)
+    {
+      statusStr = "INTRUSION_ALARM";
+    }
+    statusStr.concat("|");
+    statusStr.concat(getSensorStatus(sensorValue));
+    String final = "STATUS:";
+    final.concat(statusStr);
+    return final;
 }
 
 void setOnlineTimed()
