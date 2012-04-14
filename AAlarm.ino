@@ -13,27 +13,29 @@
 #define aBuzz 0xC0
 
 //TEST VALUES
-/*
-#define timeout2Warning 4000
-#define timeout2Siren 8000
+
+#define timeout2Warning 8000
+#define timeout2Siren 16000
 #define timeout2WarningStop 1000
 #define timeout2SirenStop 5000
-#define timeout2Online 1000
+#define timeout2Online 8000
 #define timeout2OnlineWarningStop 1000
-*/
 
+/*
 #define timeout2Warning             20000
 #define timeout2Siren               45000
 #define timeout2WarningStop         3000
 #define timeout2SirenStop           60000
 #define timeout2Online              45000
 #define timeout2OnlineWarningStop   1000
-
+*/
 
 #define CMD_SET_ONLINE "setOnline"
+#define CMD_SET_ONLINE_TIMED "setOnlineTimed"
 #define CMD_SET_OFFLINE "setOffline"
-#define CMD_SET_WARNING "setWarning"
-#define CMD_SET_ALARM "setAlarm"
+#define CMD_SET_INTRUSION "setOnlineIntrusion"
+#define CMD_SET_WARNING "setOnlineWarning"
+#define CMD_SET_ALARM "setOnlineAlarm"
 
 #define CMD_SIREN_ON "sirenOn"
 #define CMD_SIREN_OFF "sirenOff"
@@ -137,7 +139,13 @@ void executeCommand(char *serialReadString)
     if (status != STATE_ONLINE)
     {
       setOnline();
-      //cmdOk();
+    }
+  }
+  else if(strcmp(serialReadString, CMD_SET_ONLINE_TIMED) == 0)
+  {
+    if (status != STATE_ONLINE_TIMED)
+    {
+      setOnlineTimed();
     }
   }
   else if(strcmp(serialReadString, CMD_SET_OFFLINE) == 0)
@@ -145,37 +153,32 @@ void executeCommand(char *serialReadString)
     if (status != STATE_OFFLINE)
     {
       setOffline();
-      //cmdOk();
+    }
+  }
+  else if(strcmp(serialReadString, CMD_SET_INTRUSION) == 0)
+  {
+    if (status != STATE_INTRUSION)
+    {
+      instrusion();
+    }
+  }
+  else if(strcmp(serialReadString, CMD_SET_WARNING) == 0)
+  {
+    if (status != STATE_INTRUSION_WARNING)
+    {
+      instrusionWarning();
+    }
+  }
+  else if(strcmp(serialReadString, CMD_SET_ALARM) == 0)
+  {
+    if (status != STATE_INTRUSION_ALARM)
+    {
+      instrusionAlarm();
     }
   }
   else if(strcmp(serialReadString, CMD_STATUS) == 0)
   {
     Serial.println(getFinalStatus());
-    /*
-    if (status == STATE_OFFLINE)
-    {
-      Serial.println("STATUS OFFLINE");
-    }
-    else if (status == STATE_ONLINE_TIMED)
-    {
-      Serial.println("STATUS ONLINE_TIMED");
-    }
-    else if (status == STATE_ONLINE)
-    {
-      Serial.println("STATUS ONLINE");
-    }
-    else if (status == STATE_INTRUSION)
-    {
-      Serial.println("STATUS INTRUSION");
-    }
-    else if (status == STATE_INTRUSION_WARNING)
-    {
-      Serial.println("STATUS INTRUSION_WARNING");
-    }
-    else if (status == STATE_INTRUSION_ALARM)
-    {
-      Serial.println("STATUS INTRUSION_ALARM");
-    }*/
   }
   else
   {
@@ -267,6 +270,17 @@ void instrusion()
   timerIdSiren = timer.setTimeout(timeout2Siren, raiseSiren);
 }
 
+void instrusionWarning()
+{
+  raiseWarning();
+  timerIdSiren = timer.setTimeout(timeout2Siren, raiseSiren);
+}
+
+void instrusionAlarm()
+{
+  raiseSiren();
+}
+
 void raiseOnlineWarning()
 {
   ledRedBuz();
@@ -351,13 +365,13 @@ void cmdKo()
 
 char* getSensorStatus(int statusValue)
 {
-  if(statusValue == HIGH) //if sensor connected to "T" (high when pressed)
-  //if(statusValue == LOW) //if sensor connected to "R" (low when pressed)
+  //if(statusValue == HIGH) //if sensor connected to "T" (high when pressed)
+  if(statusValue == LOW) //if sensor connected to "R" (low when pressed)
   {
     return SENSOR_OPEN;
   }
-  else if (statusValue == LOW) //if sensor connected to "T" (high when pressed)
-  //else if (statusValue == HIGH) //if sensor connected to "R" (low when pressed)
+  //else if (statusValue == LOW) //if sensor connected to "T" (high when pressed)
+  else if (statusValue == HIGH) //if sensor connected to "R" (low when pressed)
   {
     return SENSOR_CLOSED;
   }
@@ -425,51 +439,3 @@ void sirenOff()
   digitalWrite(sirenPin, LOW);
 }
 
-
-
-/*old
-void normal()
-{
-  //timer
-  timer.run();
-  
-  //keypad section
-  char key = kpd.get_key();
-  if(key != '\0')
-  {
-    //Serial.println(key);
-    switch (key)
-    {
-      case '*':
-        checkPwd();
-        break;
-      default:
-        password.append(key);  
-    }
-  }
-  
-  //sensor section
-  if (isSensorStateChanged() && isOnline)
-  {
-    //Serial.println("changed state");
-    hasDoorBeenOpened = true;
-    timerIdWarning = timer.setTimeout(timeout2Warning, raiseWarning);
-    timerIdSiren = timer.setTimeout(timeout2Siren, raiseSiren);
-  }
-  
-  setOnline();
-}
-
-boolean isSensorStateChanged()
-{
-  boolean hasChanged = false;
-  sensorValue = digitalRead(sensorPin);
-  if (sensorValue != lastSensorValue) {
-    if (sensorValue == HIGH) {
-       hasChanged = true;
-    }
-  }
-  lastSensorValue = sensorValue;
-  return hasChanged;  
-}
-*/

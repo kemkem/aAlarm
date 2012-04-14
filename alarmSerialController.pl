@@ -67,9 +67,29 @@ while (1)
 			}
 			
 
-			if ($lastStatus =~ /ONLINE/ && $ready == 1)
+			if ($lastStatus =~ /ONLINE$/ && $ready == 1)
 			{
 				$send = "setOnline";
+				$lastStatus = "NONE";
+			}
+			elsif ($lastStatus =~ /ONLINE_TIMED$/ && $ready == 1)
+			{
+				$send = "setOnlineTimed";
+				$lastStatus = "NONE";
+			}
+			elsif ($lastStatus =~ /INTRUSION$/ && $ready == 1)
+			{
+				$send = "setOnlineIntrusion";
+				$lastStatus = "NONE";
+			}
+			elsif ($lastStatus =~ /INTRUSION_WARNING/ && $ready == 1)
+			{
+				$send = "setOnlineWarning";
+				$lastStatus = "NONE";
+			}
+			elsif ($lastStatus =~ /INTRUSION_ALARM/ && $ready == 1)
+			{
+				$send = "setOnlineAlarm";
 				$lastStatus = "NONE";
 			}
 			else
