@@ -10,6 +10,9 @@ my $sensor = "CLOSE";
 my $lastStatus = "NONE";
 my $ready = 0;
 
+my $pathWebCommand = "/home/kemkem/Work/arduino/web/command/command";
+my $pathWebStatus = "/home/kemkem/Work/arduino/web/state";
+
 while (1)
 {
 	print ">Trying to connect...\n";
@@ -39,7 +42,7 @@ while (1)
 			else
 			{
 				$response =~ /STATUS:(.*)\|(.*)/;
-				open FILE, ">/home/kemkem/Work/arduino/web/state";
+				open FILE, ">".$pathWebStatus;
 				print FILE $response;
 				close FILE;
 				$status = $1;
@@ -50,13 +53,18 @@ while (1)
 			#usleep(50000);
 
 			$nextCommand = "status";
-			open COMMAND_FILE, "/home/kemkem/Work/arduino/web/command/command";
-			while(<COMMAND_FILE>)
+			if(-f $pathWebCommand)
 			{
-				$nextCommand = "setOnline" if (/setOnline/);
+				print "C [reading command]\n";
+				open COMMAND_FILE, $pathWebCommand;
+				while(<COMMAND_FILE>)
+				{
+					$nextCommand = "setOnline" if (/setOnline/);
+					$nextCommand = "setOffline" if (/setOffline/);
+				}
+				close COMMAND_FILE;
+				unlink $pathWebCommand or die "Error : cannot delete command file\n";
 			}
-			close COMMAND_FILE;
-			unlink "/home/kemkem/Work/arduino/web/command/command" or print "cannot delete\n";
 			
 
 			if ($lastStatus =~ /ONLINE/ && $ready == 1)

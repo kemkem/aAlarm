@@ -15,7 +15,8 @@ $(document).ready(function(){
 	</div>
 
 	<form name="adminForm" action="index.php" method="GET">
-		<input type="submit" name="setOnline" value="online"/>
+		<input type="submit" name="setOnline" value="Online"/>
+		<input type="submit" name="setOffline" value="Offline"/>
 	</form>
 <?php
 
@@ -27,7 +28,16 @@ $(document).ready(function(){
 		$data = 'setOnline';
 		fwrite($handle, $data);
 	}
+	if(isset($_GET["setOffline"]))
+	{
+		print "Setting to offline";
+		$my_file = 'command/command';
+		$handle = fopen($my_file, 'w') or die('Cannot open file:  '.$my_file);
+		$data = 'setOffline';
+		fwrite($handle, $data);
+	}
 
 ?>
 	</body>
 </html>
+
