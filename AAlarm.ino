@@ -13,22 +13,22 @@
 #define aBuzz 0xC0
 
 //TEST VALUES
-
+/*
 #define timeout2Warning 4000
 #define timeout2Siren 8000
 #define timeout2WarningStop 1000
 #define timeout2SirenStop 5000
 #define timeout2Online 1000
 #define timeout2OnlineWarningStop 1000
+*/
 
-/*
 #define timeout2Warning             20000
 #define timeout2Siren               45000
-#define timeout2WarningStop         4000
+#define timeout2WarningStop         3000
 #define timeout2SirenStop           60000
-#define timeout2Online              20000
-#define timeout2OnlineWarningStop   3000
-*/
+#define timeout2Online              45000
+#define timeout2OnlineWarningStop   1000
+
 
 #define CMD_SET_ONLINE "setOnline"
 #define CMD_SET_OFFLINE "setOffline"
@@ -225,8 +225,7 @@ void setOnlineTimed()
 
 void setOnline()
 {
-  status = STATE_ONLINE;
-  ledRed();
+  raiseOnlineWarning();
 }
 
 void setOffline()
@@ -270,13 +269,14 @@ void instrusion()
 
 void raiseOnlineWarning()
 {
-  ledGreenBuz();
+  ledRedBuz();
   timerId2OnlineWarningStop = timer.setTimeout(timeout2OnlineWarningStop, stopOnlineWarning);
 }
 
 void stopOnlineWarning()
 {
-  setOnline();
+  status = STATE_ONLINE;
+  ledRed();
 }
 
 void raiseWarning()
@@ -351,13 +351,13 @@ void cmdKo()
 
 char* getSensorStatus(int statusValue)
 {
-  //if(statusValue == HIGH) //if sensor connected to "T" (high when pressed)
-  if(statusValue == LOW) //if sensor connected to "R" (low when pressed)
+  if(statusValue == HIGH) //if sensor connected to "T" (high when pressed)
+  //if(statusValue == LOW) //if sensor connected to "R" (low when pressed)
   {
     return SENSOR_OPEN;
   }
-  //else if (statusValue == HIGH) //if sensor connected to "T" (high when pressed)
-  else if (statusValue == HIGH) //if sensor connected to "R" (low when pressed)
+  else if (statusValue == LOW) //if sensor connected to "T" (high when pressed)
+  //else if (statusValue == HIGH) //if sensor connected to "R" (low when pressed)
   {
     return SENSOR_CLOSED;
   }
