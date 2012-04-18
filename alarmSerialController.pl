@@ -72,27 +72,27 @@ while (1)
 				#record status in db
 				if ($status =~ /OFFLINE$/)
 				{
-					$statusLevel = 1;
+					$statusLevel = 2;
 				}
 				elsif ($status =~ /ONLINE$/)
 				{
-					$statusLevel = 2;
+					$statusLevel = 3;
 				}
 				elsif ($status =~ /ONLINE_TIMED$/)
 				{
-					$statusLevel = 6;
+					$statusLevel = 7;
 				}
 				elsif ($status =~ /INTRUSION$/)
 				{
-					$statusLevel = 3;
+					$statusLevel = 4;
 				}
 				elsif ($status =~ /INTRUSION_WARNING/)
 				{
-					$statusLevel = 4;
+					$statusLevel = 5;
 				}
 				elsif ($status =~ /INTRUSION_ALARM/)
 				{
-					$statusLevel = 5;
+					$statusLevel = 6;
 				}
 				#record sensor in db
 				if ($sensor =~ /CLOSE$/)
