@@ -3,15 +3,36 @@
 use Device::SerialPort;
 use MIME::Lite;
 use Time::HiRes qw(usleep);
+use DBI;
 
 my $port;
 my $status = "OFFLINE";
 my $sensor = "CLOSE";
 my $lastStatus = "NONE";
 my $ready = 0;
+my $dbUrl = "DBI:mysql:database=aalarm;host=localhost";
+my $dbLogin = "aalarm";
+my $dbPasswd = "wont6Oc`";
+my $statusLevel = 1;
+my $sensorState = 1;
+my $lastStatusLevel = 1;
+my $lastSensorState = 1;
+my $pathWebCommand = "/home/kemkem/AAlarm/web/command/command";
+my $pathWebStatus = "/home/kemkem/AAlarm/web/state";
+my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
 
-my $pathWebCommand = "/home/kemkem/Work/arduino/web/command/command";
-my $pathWebStatus = "/home/kemkem/Work/arduino/web/state";
+sub recordLevelChange
+{
+        my $status = shift;
+        $dbh->do("insert into LevelStatus (idRefLevelStatus, date) values ($status, now())");
+}
+
+sub recordSensorChange
+{
+        my $state = shift;
+        $dbh->do("insert into SensorState (idRefSensorState, date) values ($state, now())");
+}
+
 
 while (1)
 {
@@ -21,7 +42,6 @@ while (1)
 		print ">Success\n";
 		$port->databits(8);	
 		$port->baudrate(9600);
-		#$port->baudrate(19200);
 		$port->parity("none");
 		$port->stopbits(1);
 
@@ -47,10 +67,57 @@ while (1)
 				close FILE;
 				$status = $1;
 				$sensor = $2;
+				$statusLevel = 1;
+				$sensorState = 1;
+				#record status in db
+				if ($status =~ /OFFLINE$/)
+				{
+					$statusLevel = 1;
+				}
+				elsif ($status =~ /ONLINE$/)
+				{
+					$statusLevel = 2;
+				}
+				elsif ($status =~ /ONLINE_TIMED$/)
+				{
+					$statusLevel = 6;
+				}
+				elsif ($status =~ /INTRUSION$/)
+				{
+					$statusLevel = 3;
+				}
+				elsif ($status =~ /INTRUSION_WARNING/)
+				{
+					$statusLevel = 4;
+				}
+				elsif ($status =~ /INTRUSION_ALARM/)
+				{
+					$statusLevel = 5;
+				}
+				#record sensor in db
+				if ($sensor =~ /CLOSE$/)
+				{
+					$sensorState = 2;
+				}
+				elsif ($sensor =~ /OPEN$/)
+				{
+					$sensorState = 3;
+				}
+				
+				if ($lastStatusLevel != $statusLevel)
+				{
+					recordLevelChange($statusLevel);
+				}
+				if ($lastSensorState != $sensorState)
+				{
+					recordSensorChange($sensorState);
+				}
+				$lastStatusLevel = $statusLevel;
+				$lastSensorState = $sensorState;
+				
 			}
 		    } else {
 			sleep(1);
-			#usleep(50000);
 
 			$nextCommand = "status";
 			if(-f $pathWebCommand)
