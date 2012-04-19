@@ -10,8 +10,9 @@
     <script class="include" type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 </head>
 <body>
+<div id="main">
 
-
+<h2>Last 24h status change events</h2>
 <?php
 	$strDateToday = date("Y-m-d H:i:s", time());
 	$yesterday = strtotime('-1 day', time());
@@ -21,7 +22,8 @@
 	$reqStatusLast24H = "SELECT s.date as eDate, s.idRefLevelStatus as eStatusNb, ref.status AS eStatus
 	FROM LevelStatus s, RefLevelStatus ref
 	WHERE s.date BETWEEN '$strDateYesterday' AND '$strDateToday'
-	AND s.idRefLevelStatus = ref.id";
+	AND s.idRefLevelStatus = ref.id
+	order by s.id desc";
 	
 	$results = $db->selectLinesObjects($reqStatusLast24H);
 
@@ -51,7 +53,7 @@
 		<?php print $strTableLines;?>
 	</tbody>
 </table>	
-
+</div>
 	
 </body>
 </html>
