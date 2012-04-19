@@ -17,6 +17,30 @@ $(document).ready(function(){
 	<div id="result">
 	</div>
 
+<h2>CURRENT STATUS</h2>
+<?php
+	$reqCurrentSatuts = "SELECT s.date AS eDate, ref.status AS eStatus
+	FROM LevelStatus s, RefLevelStatus ref
+	WHERE s.idRefLevelStatus = ref.id
+	ORDER BY s.id DESC
+	LIMIT 0 , 1";
+	
+	$result = $db->selectLineObject($reqCurrentSatuts);
+	if($db->getNbRows())
+	{
+		print $result->eStatus." since ".$result->eDate."<BR/>"; 
+	}
+?>
+<h2>CURRENT DATE</h2>
+<?php
+print date("Y-m-d H:i:s", time())."<br>";
+$yesterday = strtotime('-1 day', time());
+print date("Y-m-d H:i:s", $yesterday)."<br>";
+$lastweek = strtotime('-1 week', time());
+print date("Y-m-d H:i:s", $lastweek)."<br>";
+
+"SELECT * FROM LevelStatus s WHERE s.date BETWEEN '2012-04-18 00:00:00' AND '2012-04-18 23:59:59'";
+?>
 	<h2>STATUS EVENTS</h2>
 <?php
 	$reqStatusEvents = "select s.date as eDate, ref.status as eStatus from LevelStatus s, RefLevelStatus ref where s.idRefLevelStatus = ref.id";
