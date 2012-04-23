@@ -78,18 +78,13 @@
 			</div>
 		</div>
       </div>
-		
 
-      <div class="row">
-        <div class="span6">
-          <h2>Latest status changes</h2>
-		  <div id="idTargetTableStatus"></div>
-        </div>
-        <div class="span6">
-          <h2>Latest sensor activity</h2>
-		  <div id="idTargetTableState"></div>
-       </div>
-      </div>
+	<div class="row">
+		<div class="span12">
+			<h2>Latest events</h2>	
+		</div>
+	</div>
+	
 	  
 	  <div class="row">
         <div class="span3">
@@ -102,6 +97,15 @@
 			<a class="btn" id="btChangePeriod" href="#">Change period »</a>
 		</div>
 	  </div>
+
+	<div class="row">
+		<div class="span8">
+		  <div id="idTargetTableHistory">
+		  </div>
+		</div>
+	  </div>
+	  
+	  
       <hr>
 
       <footer>
@@ -145,21 +149,16 @@
 		$("#btChangePeriod").click(function(){
 			var statusDateTSStart = $("#statusDateTSStart").val();
 			var statusDateTSEnd = $("#statusDateTSEnd").val();
-			$.post("ajaxStatusHistory.php", { statusDateTSStart: statusDateTSStart, statusDateTSEnd: statusDateTSEnd },
+			$.post("ajaxHistory.php", { statusDateTSStart: statusDateTSStart, statusDateTSEnd: statusDateTSEnd },
 				function(data) {
-				$("#idTargetTableStatus").html(data);
+				$("#idTargetTableHistory").html(data);
 			});		
-			$.post("ajaxStateHistory.php", { statusDateTSStart: statusDateTSStart, statusDateTSEnd: statusDateTSEnd },
-				function(data) {
-				$("#idTargetTableState").html(data);
-			});
 			
 		});
 		
+		$("#idTargetTableHistory").load("ajaxHistory.php");
 		$("#idTargetStatus").load("ajaxCurrentStatus.php");
 		$("#idTargetSensor").load("ajaxSensorState.php");
-		$("#idTargetTableStatus").load("ajaxStatusHistory.php");
-		$("#idTargetTableState").load("ajaxStateHistory.php");
 		
 	});
 	</script>

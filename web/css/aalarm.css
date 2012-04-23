@@ -8,6 +8,10 @@
 	margin:1em 0;
 }
 
+.mainMargin{
+	margin:0 1em;
+}
+
 table.historyTable {
 	border-width: 1px;
 	border-spacing: 2px;
