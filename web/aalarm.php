@@ -247,8 +247,8 @@
 			refresh();
 		});
 		
-		//$("#idTargetTableHistory").load("ajaxHistory.php");
 		refresh();
+		setInterval(refresh, 5000);
 		
 	});
 	</script>
