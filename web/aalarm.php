@@ -76,6 +76,9 @@
 			<div class="span3">
 				<input class="btn btn-danger btn-large" type="button" value="Set Offline">
 			</div>
+			<div class="span3">
+				<input id="btRefresh" class="btn btn-large" type="button" value="Refresh">
+			</div>
 		</div>
       </div>
 
@@ -87,14 +90,26 @@
 	
 	  
 	  <div class="row">
-        <div class="span3">
-		  <input type="text" id="statusDateStart" /><input type="hidden" id="statusDateTSStart" />
+        <div class="span2">
+		  <input type="text" id="statusDateStart" class="input-small"/><input type="hidden" id="statusDateTSStart" />
 		</div>
-		<div class="span3">
-		  <input type="text" id="statusDateEnd" /><input type="hidden" id="statusDateTSEnd" />
+		<div class="span2">
+		  <input type="text" id="statusDateEnd" class="input-small"/><input type="hidden" id="statusDateTSEnd" />
 		</div>
-		<div class="span3">
-			<a class="btn" id="btChangePeriod" href="#">Change period »</a>
+		<div class="span2">
+		    <div class="btn-group">
+				<button id="btChangePeriod" class="btn">Change Period</button>
+				<button class="btn dropdown-toggle" data-toggle="dropdown">
+				<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu">
+					<li><a href="#" id="btShowLast">Last 10 events</a></li>
+					<li><a href="#" id="btShowLast24h">Last 24h</a></li>
+					<li><a href="#" id="btShowLastWeek">Last Week</a></li>
+					<li><a href="#" id="btShowLastMonth">Last Month</a></li>
+					<li><a href="#" id="btShowLastYear">Last Year</a></li>
+				</ul>
+			</div>
 		</div>
 	  </div>
 
@@ -129,13 +144,58 @@
     <script src="js/bootstrap/bootstrap-carousel.js"></script>
     <script src="js/bootstrap/bootstrap-typeahead.js"></script>
 	
-	<?php
-	$strDateToday = date("Y-m-d H:i:s", time());
-	$yesterday = strtotime('-1 day', time());
-	$strDateYesterday = date("Y-m-d H:i:s", $yesterday);
-	?>
+<?php
+	$strDateNow = time();
+	$last24h = strtotime('-1 day', time());
+	$lastWeek = strtotime('-1 week', time());
+	$lastMonth = strtotime('-1 month', time());
+	$lastYear = strtotime('-1 year', time());
+?>
 	
 	<script type="text/javascript">
+	var lastHistory = "last";
+	function showPeriodMs(statusDateTSStart, statusDateTSEnd)
+	{
+		$.post("ajaxHistory.php", { statusDateTSStart: statusDateTSStart, statusDateTSEnd: statusDateTSEnd, ms: "true" },
+			function(data) {
+			$("#idTargetTableHistory").html(data);
+		});	
+	}
+	
+	function showPeriod(statusDateTSStart, statusDateTSEnd)
+	{
+		$.post("ajaxHistory.php", { statusDateTSStart: statusDateTSStart, statusDateTSEnd: statusDateTSEnd},
+			function(data) {
+			$("#idTargetTableHistory").html(data);
+		});	
+	}
+	
+	function refresh()
+	{
+		$("#idTargetStatus").load("ajaxCurrentStatus.php");
+		$("#idTargetSensor").load("ajaxSensorState.php");
+		if(lastHistory == "last")
+		{
+			$("#btShowLast").trigger('click');
+		}
+		else if (lastHistory == "24h")
+		{
+			$("#btShowLast24h").trigger('click');
+		}
+		else if (lastHistory == "week")
+		{
+			$("#btShowLastWeek").trigger('click');
+		}
+		else if (lastHistory == "month")
+		{
+			$("#btShowLastMonth").trigger('click');
+		}
+		else if (lastHistory == "year")
+		{
+			$("#btShowLastYear").trigger('click');
+		}
+	}
+	
 	$(document).ready(function(){
 		$("#statusDateStart").datepicker({
 			altField: "#statusDateTSStart",
@@ -149,16 +209,46 @@
 		$("#btChangePeriod").click(function(){
 			var statusDateTSStart = $("#statusDateTSStart").val();
 			var statusDateTSEnd = $("#statusDateTSEnd").val();
-			$.post("ajaxHistory.php", { statusDateTSStart: statusDateTSStart, statusDateTSEnd: statusDateTSEnd },
-				function(data) {
-				$("#idTargetTableHistory").html(data);
-			});		
-			
+			showPeriodMs(statusDateTSStart, statusDateTSEnd);
 		});
 		
-		$("#idTargetTableHistory").load("ajaxHistory.php");
-		$("#idTargetStatus").load("ajaxCurrentStatus.php");
-		$("#idTargetSensor").load("ajaxSensorState.php");
+		$("#btShowLast").click(function(){
+			lastHistory = "last";
+			$("#idTargetTableHistory").load("ajaxHistory.php");
+		});
+		
+		$("#btShowLast24h").click(function(){
+			var statusDateTSStart = <?php print $last24h;?>;
+			var statusDateTSEnd = <?php print $strDateNow;?>;
+			lastHistory = "24h";
+			showPeriod(statusDateTSStart, statusDateTSEnd);
+		});
+		
+		$("#btShowLastWeek").click(function(){
+			var statusDateTSStart = <?php print $lastWeek;?>;
+			var statusDateTSEnd = <?php print $strDateNow;?>;
+			lastHistory = "week";
+			showPeriod(statusDateTSStart, statusDateTSEnd);
+		});
+		$("#btShowLastMonth").click(function(){
+			var statusDateTSStart = <?php print $lastMonth;?>;
+			var statusDateTSEnd = <?php print $strDateNow;?>;
+			lastHistory = "month";
+			showPeriod(statusDateTSStart, statusDateTSEnd);
+		});
+		$("#btShowLastYear").click(function(){
+			var statusDateTSStart = <?php print $lastYear;?>;
+			var statusDateTSEnd = <?php print $strDateNow;?>;
+			lastHistory = "year";
+			showPeriod(statusDateTSStart, statusDateTSEnd);
+		});
+		
+		$("#btRefresh").click(function(){
+			refresh();
+		});
+		
+		//$("#idTargetTableHistory").load("ajaxHistory.php");
+		refresh();
 		
 	});
 	</script>

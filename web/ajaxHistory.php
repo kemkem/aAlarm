@@ -4,6 +4,7 @@
 <?php
 	$statusDateTSStart = -1;
 	$statusDateTSEnd = -1;
+	$factor = 1;
 	if(isset($_POST["statusDateTSStart"]))
 	{
 		$statusDateTSStart = $_POST["statusDateTSStart"];
@@ -12,6 +13,11 @@
 	{
 		$statusDateTSEnd = $_POST["statusDateTSEnd"];
 	}
+	if(isset($_POST["ms"]))
+	{
+		$factor = 1000;
+	}
+	
 	
 	$reqStatus = "
 	SELECT e.date as eDate, e.status as eStatusNb, refStatus.status as eStatus, e.sensor as eSensorNb, refSensor.sensor as eSensor
@@ -22,8 +28,10 @@
 	
 	if ($statusDateTSStart != -1 && $statusDateTSEnd != -1)
 	{
-		$statusDateSQLStart = date("Y-m-d H:i:s", $statusDateTSStart / 1000);
-		$statusDateSQLEnd = date("Y-m-d H:i:s", $statusDateTSEnd / 1000);
+		print "from ".date("Y-m-d H:i:s", $statusDateTSStart / $factor);
+		print " to ".date("Y-m-d H:i:s", $statusDateTSEnd / $factor);
+		$statusDateSQLStart = date("Y-m-d H:i:s", $statusDateTSStart / $factor);
+		$statusDateSQLEnd = date("Y-m-d H:i:s", $statusDateTSEnd / $factor);
 		$reqStatus .= "
 		AND e.date BETWEEN '$statusDateSQLStart' AND '$statusDateSQLEnd'
 		";
