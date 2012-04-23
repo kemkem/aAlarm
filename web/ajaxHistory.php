@@ -34,11 +34,13 @@
 		$statusDateSQLEnd = date("Y-m-d H:i:s", $statusDateTSEnd / $factor);
 		$reqStatus .= "
 		AND e.date BETWEEN '$statusDateSQLStart' AND '$statusDateSQLEnd'
+		ORDER BY e.id DESC
 		";
 	}
 	else
 	{
 		$reqStatus .= "
+		ORDER BY e.id DESC
 		limit 0,10";
 	}
 	$results = $db->selectLinesObjects($reqStatus);

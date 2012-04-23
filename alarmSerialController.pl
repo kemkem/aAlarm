@@ -53,17 +53,44 @@ sub recordLog
 {
 	my $log = shift;
 	open LOG, ">>".$pathLog;
-	print LOG getCurDate()." ".$log;
+	print LOG getCurDate()." ".$log."\n";
 	close LOG;
 }
 
+sub getCommand
+{
+	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+        my $prepare = $dbh->prepare("
+	select c.command as command
+	from Commands c
+	where c.completed  = 0
+	ORDER BY c.id DESC
+	LIMIT 0 , 1");
+	$prepare->execute() or die("cannot execute request\n");
+	my $result = $prepare->fetchrow_hashref();
+	if ($result)
+	{
+		my $command = $result->{command};
+		recordLog("C [".$command."]");
+
+	        $dbh->do("update Commands set completed=1 where completed=0");
+
+		return "setOnline" if ($command =~ /setOnline/);
+		return "setOffline" if ($command =~ /setOffline/);
+	}
+	else
+	{
+		return "status";
+	}
+	
+}
 
 while (1)
 {
-	recordLog ">Trying to connect...\n";
+	recordLog ">Trying to connect...";
 	if ($port = Device::SerialPort->new("/dev/ttyACM0"))
 	{
-		recordLog ">Success\n";
+		recordLog ">Success";
 		$port->databits(8);	
 		$port->baudrate(9600);
 		$port->parity("none");
@@ -88,7 +115,8 @@ while (1)
 				$response =~ /STATUS:(.*)\|(.*)/;
 				open FILE, ">".$pathWebStatus;
 				print FILE $response;
-				close FILE;
+				close FILE;	
+				
 				$status = $1;
 				$sensor = $2;
 				$statusLevel = 1;
@@ -131,12 +159,12 @@ while (1)
 				if ($lastStatusLevel != $statusLevel)
 				{
 					recordEvent($statusLevel, $sensorState);
-					recordLog "R [STATUS $status]\n";
+					recordLog "R [STATUS $status]";
 				}
 				if ($lastSensorState != $sensorState)
 				{
 					recordEvent($statusLevel, $sensorState);
-					recordLog "R [STATE $sensor]\n";
+					recordLog "R [STATE $sensor]";
 				}
 				$lastStatusLevel = $statusLevel;
 				$lastSensorState = $sensorState;
@@ -145,20 +173,20 @@ while (1)
 		    } else {
 			sleep(1);
 
-			$nextCommand = "status";
-			if(-f $pathWebCommand)
-			{
-				recordLog "C [reading command]\n";
-				open COMMAND_FILE, $pathWebCommand;
-				while(<COMMAND_FILE>)
-				{
-					$nextCommand = "setOnline" if (/setOnline/);
-					$nextCommand = "setOffline" if (/setOffline/);
-				}
-				close COMMAND_FILE;
-				unlink $pathWebCommand or die "Error : cannot delete command file\n";
-			}
-			
+			$nextCommand = getCommand();
+
+			#if(-f $pathWebCommand)
+			#{
+			#	recordLog "C [reading command]\n";
+			#	open COMMAND_FILE, $pathWebCommand;
+			#	while(<COMMAND_FILE>)
+			#	{
+			#		$nextCommand = "setOnline" if (/setOnline/);
+			#		$nextCommand = "setOffline" if (/setOffline/);
+			#	}
+			#	close COMMAND_FILE;
+			#	unlink $pathWebCommand or die "Error : cannot delete command file\n";
+			#}
 
 			if ($lastStatus =~ /ONLINE$/ && $ready == 1)
 			{
@@ -194,8 +222,8 @@ while (1)
 			$connection--;
 		    }						
 		}
-		recordLog "Connection has been lost!\n";
-		recordLog "last state was $status\n";
+		recordLog "Connection has been lost!";
+		recordLog "last state was $status";
 		recordFailure();
 		$statusLevel = 1;
 		$sensorState = 1;
@@ -208,7 +236,7 @@ while (1)
 	}
 	else
 	{
-		recordLog ">Cannot connect, retrying in $reconnectTimeout second...\n";
+		recordLog ">Cannot connect, retrying in $reconnectTimeout second...";
 		sleep($reconnectTimeout);
 	}
 

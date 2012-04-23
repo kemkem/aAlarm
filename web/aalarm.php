@@ -71,10 +71,10 @@
 
 		<div class="row">
 			<div class="span3">
-				<input class="btn btn-success btn-large" type="button" value="Set Online">
+				<input id="btSetOnline" class="btn btn-success btn-large" type="button" value="Set Online">
 			</div>
 			<div class="span3">
-				<input class="btn btn-danger btn-large" type="button" value="Set Offline">
+				<input id="btSetOffline" class="btn btn-danger btn-large" type="button" value="Set Offline">
 			</div>
 			<div class="span3">
 				<input id="btRefresh" class="btn btn-large" type="button" value="Refresh">
@@ -246,6 +246,20 @@
 		$("#btRefresh").click(function(){
 			refresh();
 		});
+	
+		$("#btSetOnline").click(function(){
+			$.post("ajaxCommand.php", { command: "setOnline"},
+			function(data) {
+				//alert("command "+data);
+			});
+		});
+		$("#btSetOffline").click(function(){
+			$.post("ajaxCommand.php", { command: "setOffline"},
+			function(data) {
+				//alert("command "+data);
+			});
+		});
+		
 		
 		refresh();
 		setInterval(refresh, 5000);
