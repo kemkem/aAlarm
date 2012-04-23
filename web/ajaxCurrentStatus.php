@@ -4,9 +4,9 @@
 <?php
 	//CURRENT STATUS
 	$reqCurrentSatuts = 
-	"SELECT s.date AS eDate, ref.status AS eStatus, s.idRefLevelStatus as eStatusNb
-	FROM LevelStatus s, RefLevelStatus ref
-	WHERE s.idRefLevelStatus = ref.id
+	"SELECT s.date AS eDate, ref.status AS eStatus, s.status as eStatusNb
+	FROM Event s, RefStatus ref
+	WHERE s.status = ref.id
 	ORDER BY s.id DESC
 	LIMIT 0 , 1";
 

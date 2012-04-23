@@ -4,9 +4,9 @@
 <?php
 	//SENSOR STATE
 	$reqCurrentState = 
-	"SELECT s.date AS eDate, ref.state AS eState, s.idRefSensorState as eStateNb
-	FROM SensorState s, RefSensorState ref
-	WHERE s.idRefSensorState = ref.id
+	"SELECT s.date AS eDate, ref.sensor AS eState, s.sensor as eStateNb
+	FROM Event s, RefSensor ref
+	WHERE s.sensor = ref.id
 	ORDER BY s.id DESC
 	LIMIT 0 , 1";
 

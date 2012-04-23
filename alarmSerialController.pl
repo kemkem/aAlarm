@@ -22,25 +22,18 @@ my $pathWebStatus = "/home/kemkem/AAlarm/web/state";
 my $pathLog = "/home/kemkem/AAlarm/log";
 my $reconnectTimeout = 5;
 
-sub recordLevelChange
+sub recordEvent
 {
-        my $status = shift;
+	my $status = shift;
+	my $state = shift;
 	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-        $dbh->do("insert into LevelStatus (idRefLevelStatus, date) values ($status, now())");
-}
-
-sub recordSensorChange
-{
-        my $state = shift;
-	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-        $dbh->do("insert into SensorState (idRefSensorState, date) values ($state, now())");
+        $dbh->do("insert into Event (date, status, sensor) values (now(), $status, $state)");
 }
 
 sub recordFailure
 {
 	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-        $dbh->do("insert into LevelStatus (idRefLevelStatus, date) values (1, now())");
-        $dbh->do("insert into SensorState (idRefSensorState, date) values (1, now())");
+        $dbh->do("insert into Event (date, status, sensor) values (now(), 1, 1)");
 }
 
 sub getCurDate
@@ -137,12 +130,12 @@ while (1)
 				
 				if ($lastStatusLevel != $statusLevel)
 				{
-					recordLevelChange($statusLevel);
+					recordEvent($statusLevel, $sensorState);
 					recordLog "R [STATUS $status]\n";
 				}
 				if ($lastSensorState != $sensorState)
 				{
-					recordSensorChange($sensorState);
+					recordEvent($statusLevel, $sensorState);
 					recordLog "R [STATE $sensor]\n";
 				}
 				$lastStatusLevel = $statusLevel;
