@@ -4,6 +4,9 @@
 	font-size: 2em;
 }
 
+.statusBlock{
+	margin:1em 0;
+}
 
 table.historyTable {
 	border-width: 1px;

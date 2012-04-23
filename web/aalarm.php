@@ -11,6 +11,7 @@
     <meta name="author" content="">
 
     <link href="css/bootstrap.css" rel="stylesheet">
+	<link href="css/jqueryUi/jquery-ui-1.8.19.custom.css" rel="stylesheet">
 	<link href="css/aalarm.css" rel="stylesheet">
 	<link href="css/colors.css" rel="stylesheet">
     <style type="text/css">
@@ -56,43 +57,51 @@
 
       <div class="hero-unit">
         <h1>AAlarm Monitor</h1>
-        
 		
 		<div class="row">
-			<div class="span4">
+			<div class="span3">
 				<p>Current Status </p>
-				<div id="idTargetStatus"></div>
+				<div id="idTargetStatus" class="statusBlock"></div>
 			</div>
-			<div class="span4">
+			<div class="span3">
 				<p>Sensor State </p>
-				<div id="idTargetSensor"></div>
+				<div id="idTargetSensor" class="statusBlock"></div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="span3">
+				<input class="btn btn-success btn-large" type="button" value="Set Online">
+			</div>
+			<div class="span3">
+				<input class="btn btn-danger btn-large" type="button" value="Set Offline">
 			</div>
 		</div>
       </div>
 		
-	<div class="row">
-		<div class="span1">
-			<input class="btn btn-success" type="button" value="Set Offline">
-		</div>
-		<div class="span1">
-			<input class="btn btn-danger" type="button" value="Set Online">
-		</div>
-	</div>
 
-      <!-- Example row of columns -->
       <div class="row">
-        <div class="span5">
-          <h2>Lastest status changes</h2>
+        <div class="span6">
+          <h2>Latest status changes</h2>
 		  <div id="idTargetTableStatus"></div>
-          <p><a class="btn" href="#">Change period »</a></p>
         </div>
         <div class="span6">
-          <h2>Lastest sensor activity</h2>
+          <h2>Latest sensor activity</h2>
 		  <div id="idTargetTableState"></div>
-          <p><a class="btn" href="#">Change period »</a></p>
        </div>
       </div>
-
+	  
+	  <div class="row">
+        <div class="span3">
+		  <input type="text" id="statusDateStart" /><input type="hidden" id="statusDateTSStart" />
+		</div>
+		<div class="span3">
+		  <input type="text" id="statusDateEnd" /><input type="hidden" id="statusDateTSEnd" />
+		</div>
+		<div class="span3">
+			<a class="btn" id="btChangePeriod" href="#">Change period »</a>
+		</div>
+	  </div>
       <hr>
 
       <footer>
@@ -102,6 +111,7 @@
     </div>
 
     <script src="js/jquery-1.7.2.min.js"></script>
+	<script src="js/jquery-ui-1.8.19.custom.min.js"></script>
     <script src="js/bootstrap/bootstrap-transition.js"></script>
     <script src="js/bootstrap/bootstrap-alert.js"></script>
     <script src="js/bootstrap/bootstrap-modal.js"></script>
@@ -114,9 +124,38 @@
     <script src="js/bootstrap/bootstrap-collapse.js"></script>
     <script src="js/bootstrap/bootstrap-carousel.js"></script>
     <script src="js/bootstrap/bootstrap-typeahead.js"></script>
-
+	
+	<?php
+	$strDateToday = date("Y-m-d H:i:s", time());
+	$yesterday = strtotime('-1 day', time());
+	$strDateYesterday = date("Y-m-d H:i:s", $yesterday);
+	?>
+	
 	<script type="text/javascript">
 	$(document).ready(function(){
+		$("#statusDateStart").datepicker({
+			altField: "#statusDateTSStart",
+			altFormat: "@"
+		});
+		$("#statusDateEnd").datepicker({
+			altField: "#statusDateTSEnd",
+			altFormat: "@"
+		});
+		
+		$("#btChangePeriod").click(function(){
+			var statusDateTSStart = $("#statusDateTSStart").val();
+			var statusDateTSEnd = $("#statusDateTSEnd").val();
+			$.post("ajaxStatusHistory.php", { statusDateTSStart: statusDateTSStart, statusDateTSEnd: statusDateTSEnd },
+				function(data) {
+				$("#idTargetTableStatus").html(data);
+			});		
+			$.post("ajaxStateHistory.php", { statusDateTSStart: statusDateTSStart, statusDateTSEnd: statusDateTSEnd },
+				function(data) {
+				$("#idTargetTableState").html(data);
+			});
+			
+		});
+		
 		$("#idTargetStatus").load("ajaxCurrentStatus.php");
 		$("#idTargetSensor").load("ajaxSensorState.php");
 		$("#idTargetTableStatus").load("ajaxStatusHistory.php");

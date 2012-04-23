@@ -19,27 +19,58 @@ my $lastStatusLevel = 1;
 my $lastSensorState = 1;
 my $pathWebCommand = "/home/kemkem/AAlarm/web/command/command";
 my $pathWebStatus = "/home/kemkem/AAlarm/web/state";
-my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+my $pathLog = "/home/kemkem/AAlarm/log";
+my $reconnectTimeout = 5;
 
 sub recordLevelChange
 {
         my $status = shift;
+	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
         $dbh->do("insert into LevelStatus (idRefLevelStatus, date) values ($status, now())");
 }
 
 sub recordSensorChange
 {
         my $state = shift;
+	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
         $dbh->do("insert into SensorState (idRefSensorState, date) values ($state, now())");
+}
+
+sub recordFailure
+{
+	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+        $dbh->do("insert into LevelStatus (idRefLevelStatus, date) values (1, now())");
+        $dbh->do("insert into SensorState (idRefSensorState, date) values (1, now())");
+}
+
+sub getCurDate
+{
+	($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+	$mon = sprintf("%02d", $mon);
+	$mday = sprintf("%02d", $mday);
+	$year = sprintf("%02d", $year % 100);
+	$hour = sprintf("%02d", $hour);
+	$min = sprintf("%02d", $min);
+	$sec = sprintf("%02d", $sec);
+	#$year += 1900;
+	return $mon."/".$mday."/".$year." ".$hour.":".$min.":".$sec;
+}
+
+sub recordLog
+{
+	my $log = shift;
+	open LOG, ">>".$pathLog;
+	print LOG getCurDate()." ".$log;
+	close LOG;
 }
 
 
 while (1)
 {
-	print ">Trying to connect...\n";
+	recordLog ">Trying to connect...\n";
 	if ($port = Device::SerialPort->new("/dev/ttyACM0"))
 	{
-		print ">Success\n";
+		recordLog ">Success\n";
 		$port->databits(8);	
 		$port->baudrate(9600);
 		$port->parity("none");
@@ -54,7 +85,7 @@ while (1)
 		    if ($response) {
 			chop $response;
 			$connection++;
-			print "R [".$response."]\n";
+			#print "R [".$response."]\n";
 			if($response =~ /READY/)
 			{
 				$ready = 1;
@@ -107,10 +138,12 @@ while (1)
 				if ($lastStatusLevel != $statusLevel)
 				{
 					recordLevelChange($statusLevel);
+					recordLog "R [STATUS $status]\n";
 				}
 				if ($lastSensorState != $sensorState)
 				{
 					recordSensorChange($sensorState);
+					recordLog "R [STATE $sensor]\n";
 				}
 				$lastStatusLevel = $statusLevel;
 				$lastSensorState = $sensorState;
@@ -122,7 +155,7 @@ while (1)
 			$nextCommand = "status";
 			if(-f $pathWebCommand)
 			{
-				print "C [reading command]\n";
+				recordLog "C [reading command]\n";
 				open COMMAND_FILE, $pathWebCommand;
 				while(<COMMAND_FILE>)
 				{
@@ -164,19 +197,26 @@ while (1)
 				$send = $nextCommand;
 			}
 			$port->write($send."\n");
-			print "S [".$send."]\n";
+			#print "S [".$send."]\n";
 			$connection--;
 		    }						
 		}
-		print "Connection has been lost!\n";
-		print "last state was $status\n";
+		recordLog "Connection has been lost!\n";
+		recordLog "last state was $status\n";
+		recordFailure();
+		$statusLevel = 1;
+		$sensorState = 1;
+		$lastStatusLevel = 1;
+		$lastSensorState = 1;
+		#$status = "UNK";
+		#$sensor = "UNK";
 		$lastStatus = $status;
 		$ready = 0;
 	}
 	else
 	{
-		print ">Cannot connect, retrying in 1 second...\n";
-		sleep(1);
+		recordLog ">Cannot connect, retrying in $reconnectTimeout second...\n";
+		sleep($reconnectTimeout);
 	}
 
 }
