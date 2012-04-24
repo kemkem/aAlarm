@@ -13,6 +13,10 @@
 	{
 		$statusDateTSEnd = $_POST["statusDateTSEnd"];
 	}
+	else
+	{
+		$statusDateTSEnd = time();
+	}
 	if(isset($_POST["ms"]))
 	{
 		$factor = 1000;
@@ -26,7 +30,7 @@
 	AND e.sensor = refSensor.id
 	";
 	
-	if ($statusDateTSStart != -1 && $statusDateTSEnd != -1)
+	if ($statusDateTSStart != -1)
 	{
 		print "from ".date("Y-m-d H:i:s", $statusDateTSStart / $factor);
 		print " to ".date("Y-m-d H:i:s", $statusDateTSEnd / $factor);
