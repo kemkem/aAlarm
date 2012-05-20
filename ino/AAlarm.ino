@@ -2,7 +2,9 @@
 #include <i2ckeypadMod.h>
 #include <Password.h>
 #include <SimpleTimer.h>
-#include <SoftwareSerial.h>
+//not in use ?
+//#include <SoftwareSerial.h>
+
 
 #define ROWS 4
 #define COLS 3
