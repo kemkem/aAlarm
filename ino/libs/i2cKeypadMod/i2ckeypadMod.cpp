@@ -1,8 +1,11 @@
 /*
+ *  quickly adapted to AAlarm
+ * 
  *  i2ckeypad.cpp v0.1 - keypad/I2C expander interface for Arduino
  *
  *  Copyright (c) 2009 Angel Sancho <angelitodeb@gmail.com>
  *  All rights reserved.
+ *  http://arduino.cc/playground/Main/I2CPortExpanderAndKeypads
  *
  *  Original source from keypad v0.3 of Mark Stanley <mstanley@technologist.com>
  *  (http://www.arduino.cc/playground/Main/KeypadTutorial)
@@ -41,13 +44,9 @@
  *  ... and sorry for my poor english!
  */
 
-#include "i2ckeypad.h"
-#include <Wire.h>
-
-extern "C" {
-  #include "WConstants.h"
-}
-
+#include "i2ckeypadMod.h"
+#include "Wire.h"
+#include "Arduino.h"
 
 /*
  *  PIN MAPPING
@@ -56,14 +55,13 @@ extern "C" {
  *  Default mapping is for sparkfun 4x3 keypad
  */
 
-#define COL0  2  // P2 of PCF8574, col0 is usually pin 3 of 4x3 keypads
-#define COL1  0  // P0 of PCF8574, col1 is usually pin 1 of 4x3 keypads
-#define COL2  4  // P4 of PCF8574, col2 is usually pin 5 of 4x3 keypads
-#define COL3  7  // sorry, don't have a 4x4 keypad to try it
-#define ROW0  1  // P1 of PCF8574, row0 is usually pin 2 of 4x3 keypads
-#define ROW1  6  // P6 of PCF8574, row1 is usually pin 7 of 4x3 keypads
+#define COL0  0  // P2 of PCF8574, col0 is usually pin 3 of 4x3 keypads
+#define COL1  1  // P0 of PCF8574, col1 is usually pin 1 of 4x3 keypads
+#define COL2  2  // P4 of PCF8574, col2 is usually pin 5 of 4x3 keypads
+#define ROW0  3  // P1 of PCF8574, row0 is usually pin 2 of 4x3 keypads
+#define ROW1  4  // P6 of PCF8574, row1 is usually pin 7 of 4x3 keypads
 #define ROW2  5  // P5 of PCF8574, row2 is usually pin 6 of 4x3 keypads
-#define ROW3  3  // P3 of PCF8574, row3 is usually pin 4 of 4x3 keypads
+#define ROW3  6  // P3 of PCF8574, row3 is usually pin 4 of 4x3 keypads
 
 
 /*
@@ -73,12 +71,12 @@ extern "C" {
  *  like different keys
  */
 
-const char keymap[4][5] =
+const char keymap[4][4] =
 {
-  "123A",
-  "456B",
-  "789C",
-  "*0#D"
+  "123",
+  "456",
+  "789",
+  "*0#"
 };
 
 
@@ -101,23 +99,23 @@ static int row_select;
 static int current_data;
 
 // Hex byte statement for each port of PCF8574
-const int hex_data[8] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
+const int hex_data[8] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40};
 
 // Hex data for each row of keypad in PCF8574
 const int pcf8574_row_data[4] = 
 {
   hex_data[ROW1] | hex_data[ROW2] | hex_data[ROW3] |
-  hex_data[COL0] | hex_data[COL1] | hex_data[COL2] | hex_data[COL3],
+  hex_data[COL0] | hex_data[COL1] | hex_data[COL2],
   hex_data[ROW0] | hex_data[ROW2] | hex_data[ROW3] |
-  hex_data[COL0] | hex_data[COL1] | hex_data[COL2] | hex_data[COL3],
+  hex_data[COL0] | hex_data[COL1] | hex_data[COL2],
   hex_data[ROW0] | hex_data[ROW1] | hex_data[ROW3] |
-  hex_data[COL0] | hex_data[COL1] | hex_data[COL2] | hex_data[COL3],
+  hex_data[COL0] | hex_data[COL1] | hex_data[COL2],
   hex_data[ROW0] | hex_data[ROW1] | hex_data[ROW2] |
-  hex_data[COL0] | hex_data[COL1] | hex_data[COL2] | hex_data[COL3],
+  hex_data[COL0] | hex_data[COL1] | hex_data[COL2],
 };
 
 // Hex data for each col of keypad in PCF8574
-int col[4] = {hex_data[COL0], hex_data[COL1], hex_data[COL2], hex_data[COL3]};
+int col[3] = {hex_data[COL0], hex_data[COL1], hex_data[COL2]};
 
 
 /*
@@ -144,6 +142,7 @@ i2ckeypad::i2ckeypad(int addr, int r, int c)
 void i2ckeypad::init()
 {
   // All PCF8574 ports high
+  //pcf8574_write(pcf8574_i2c_addr, 0x7f);
   pcf8574_write(pcf8574_i2c_addr, 0xff);
 
   // Start with the first row
@@ -186,7 +185,8 @@ char i2ckeypad::get_key()
   }
 
   // All PCF8574 ports high again
-  pcf8574_write(pcf8574_i2c_addr, 0xff);
+  //pcf8574_write(pcf8574_i2c_addr, 0x7f);
+  pcf8574_write(pcf8574_i2c_addr, 0x7f);
 
   // Next row
   row_select++;
@@ -204,15 +204,15 @@ char i2ckeypad::get_key()
 void i2ckeypad::pcf8574_write(int addr, int data)
 {
   current_data = data;
-
   Wire.beginTransmission(addr);
-  Wire.send(data);
+  Wire.write(data & 0x7F);
   Wire.endTransmission();
+
 }
 
 int i2ckeypad::pcf8574_byte_read(int addr)
 {
   Wire.requestFrom(addr, 1);
 
-  return Wire.receive();
+  return Wire.read();
 }
