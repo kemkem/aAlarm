@@ -1,324 +1,61 @@
 #include <Wire.h>
 #include <i2ckeypadMod.h>
-#include <Password.h>
-#include <SimpleTimer.h>
-//not in use ?
-//#include <SoftwareSerial.h>
 
-
+//Keypad
 #define ROWS 4
 #define COLS 3
 
+//Adresses
 #define I2Ck 0x20
 #define aLedRed 0xA0
 #define aLedGreen 0x90
 #define aBuzz 0xC0
 
-//TEST VALUES
-
-#define timeout2Warning 8000
-#define timeout2Siren 16000
-#define timeout2WarningStop 1000
-#define timeout2SirenStop 5000
-#define timeout2Online 8000
-#define timeout2OnlineWarningStop 1000
-
-/*
-#define timeout2Warning             20000
-#define timeout2Siren               45000
-#define timeout2WarningStop         3000
-#define timeout2SirenStop           60000
-#define timeout2Online              45000
-#define timeout2OnlineWarningStop   1000
-*/
-
-#define CMD_SET_ONLINE "setOnline"
-#define CMD_SET_ONLINE_TIMED "setOnlineTimed"
-#define CMD_SET_OFFLINE "setOffline"
-#define CMD_SET_INTRUSION "setOnlineIntrusion"
-#define CMD_SET_WARNING "setOnlineWarning"
-#define CMD_SET_ALARM "setOnlineAlarm"
-
-#define CMD_SIREN_ON "sirenOn"
-#define CMD_SIREN_OFF "sirenOff"
-
-#define CMD_BUZZER_ON "buzzerOn"
-#define CMD_BUZZER_OFF "buzzerOff"
-
-#define CMD_KEYB_ENABLE "setKeybEnable"
-#define CMD_KEYB_DISABLED "setKeybDisabled"
-
-#define CMD_SENSOR "sensor"
-#define CMD_STATUS "status"
-
-#define CMD_MOD_PWD "passwd_"
-
-i2ckeypad kpd = i2ckeypad(I2Ck, ROWS, COLS);
-Password password = Password("4578");
-SimpleTimer timer;
-
-//States
-#define STATE_OFFLINE 0
-#define STATE_ONLINE_TIMED 1
-#define STATE_ONLINE 2
-#define STATE_INTRUSION 3
-#define STATE_INTRUSION_WARNING 4
-#define STATE_INTRUSION_ALARM 5
-int status = STATE_OFFLINE;
-
-//Sensor
+//Sensor states
 #define SENSOR_OPEN  "OPEN"
 #define SENSOR_CLOSED  "CLOSE"
 #define SENSOR_UNKNOWN  "UNKNOWN"
 
-//sensorState
+//SensorState
 int lastSensorValue = 0; 
 
-//pins
+//Pins
 int buzzerPin = 3;
-
-//siren pin
 int sirenPin = 3;
 int sensorPin = 2;
 
-//timer id
-int timerIdWarning;
-int timerIdSiren;
-int timerIdWarningStop;
-int timerIdSirenStop;
-int timerId2OnlineWarningStop;
-int timerIdOnline;
+i2ckeypad kpd = i2ckeypad(I2Ck, ROWS, COLS);
+int sensorValue = -1;
 
 void setup()
 {
   Serial.begin(9600);
-  //Serial.begin(19200);
   
   pinMode(buzzerPin, OUTPUT);  
   pinMode(sirenPin, OUTPUT);  
   pinMode(sensorPin, INPUT);  
   Wire.begin();
   kpd.init();
-  setOffline();
-  Serial.println("READY");
 }
 
-int sensorValue = -1;
 
 void loop()
 {
   readSensor();
   serialReader();
 
-  //timer
-  timer.run();
-  
   //keypad section
   char key = kpd.get_key();
   if(key != '\0')
   {
-    //Serial.println(key);
+    Serial.println(key);
+    /*
     switch (key)
     {
-      case '*':
-        checkPwd();
-        break;
-      default:
-        password.append(key);  
     }
-  }
-  
-  if(strcmp(getSensorStatus(sensorValue), SENSOR_OPEN) == 0 && status == STATE_ONLINE)
-  {
-    instrusion();
+    */
   }
 }
-
-void executeCommand(char *serialReadString)
-{
-  if(strcmp(serialReadString, CMD_SET_ONLINE) == 0)
-  {
-    if (status != STATE_ONLINE)
-    {
-      setOnline();
-    }
-  }
-  else if(strcmp(serialReadString, CMD_SET_ONLINE_TIMED) == 0)
-  {
-    if (status != STATE_ONLINE_TIMED)
-    {
-      setOnlineTimed();
-    }
-  }
-  else if(strcmp(serialReadString, CMD_SET_OFFLINE) == 0)
-  {
-    if (status != STATE_OFFLINE)
-    {
-      setOffline();
-    }
-  }
-  else if(strcmp(serialReadString, CMD_SET_INTRUSION) == 0)
-  {
-    if (status != STATE_INTRUSION)
-    {
-      instrusion();
-    }
-  }
-  else if(strcmp(serialReadString, CMD_SET_WARNING) == 0)
-  {
-    if (status != STATE_INTRUSION_WARNING)
-    {
-      instrusionWarning();
-    }
-  }
-  else if(strcmp(serialReadString, CMD_SET_ALARM) == 0)
-  {
-    if (status != STATE_INTRUSION_ALARM)
-    {
-      instrusionAlarm();
-    }
-  }
-  else if(strcmp(serialReadString, CMD_STATUS) == 0)
-  {
-    Serial.println(getFinalStatus());
-  }
-  else
-  {
-    Serial.println("UNKNOWN CMD");
-  }
-}
-
-String getFinalStatus()
-{
-    String statusStr;
-    if (status == STATE_OFFLINE)
-    {
-      statusStr = "OFFLINE";
-    }
-    else if (status == STATE_ONLINE_TIMED)
-    {
-      statusStr = "ONLINE_TIMED";
-    }
-    else if (status == STATE_ONLINE)
-    {
-      statusStr = "ONLINE";
-    }
-    else if (status == STATE_INTRUSION)
-    {
-      statusStr = "INTRUSION";
-    }
-    else if (status == STATE_INTRUSION_WARNING)
-    {
-      statusStr = "INTRUSION_WARNING";
-    }
-    else if (status == STATE_INTRUSION_ALARM)
-    {
-      statusStr = "INTRUSION_ALARM";
-    }
-    statusStr.concat("|");
-    statusStr.concat(getSensorStatus(sensorValue));
-    String final = "STATUS:";
-    final.concat(statusStr);
-    return final;
-}
-
-void setOnlineTimed()
-{
-  status = STATE_ONLINE_TIMED;
-  timerIdOnline = timer.setTimeout(timeout2Online, setOnline);
-}
-
-void setOnline()
-{
-  raiseOnlineWarning();
-}
-
-void setOffline()
-{
-  status = STATE_OFFLINE;
-  ledGreen();
-  sirenOff();
-  timer.disable(timerIdWarning);
-  timer.disable(timerIdSiren);
-  timer.disable(timerIdOnline);
-  timer.disable(timerId2OnlineWarningStop);
-  timer.disable(timerIdWarningStop);
-  timer.disable(timerIdSirenStop);
-}
-
-void checkPwd()
-{
-  if (password.evaluate()){
-    if(status == STATE_OFFLINE)
-    {
-      setOnlineTimed();
-    }
-    else
-    {
-      setOffline();
-    }
-    password.reset();
-  }
-  else
-  {
-    password.reset();
-  }
-}
-
-void instrusion()
-{
-  status = STATE_INTRUSION;
-  timerIdWarning = timer.setTimeout(timeout2Warning, raiseWarning);
-  timerIdSiren = timer.setTimeout(timeout2Siren, raiseSiren);
-}
-
-void instrusionWarning()
-{
-  raiseWarning();
-  timerIdSiren = timer.setTimeout(timeout2Siren, raiseSiren);
-}
-
-void instrusionAlarm()
-{
-  raiseSiren();
-}
-
-void raiseOnlineWarning()
-{
-  ledRedBuz();
-  timerId2OnlineWarningStop = timer.setTimeout(timeout2OnlineWarningStop, stopOnlineWarning);
-}
-
-void stopOnlineWarning()
-{
-  status = STATE_ONLINE;
-  ledRed();
-}
-
-void raiseWarning()
-{
-  status = STATE_INTRUSION_WARNING;
-  ledRedBuz();
-  timerIdWarningStop = timer.setTimeout(timeout2WarningStop, stopWarning);
-}
-
-void raiseSiren()
-{
-  status = STATE_INTRUSION_ALARM;
-  sirenOn();
-  timerIdSirenStop = timer.setTimeout(timeout2SirenStop, stopSiren);
-}
-
-void stopWarning()
-{
-  ledRed();
-}
-
-void stopSiren()
-{
-  sirenOff();
-}
-
 
 
 /*
@@ -353,16 +90,6 @@ void serialReader()
           executeCommand(serialReadString);
 	}
   }
-}
-
-void cmdOk()
-{
-  Serial.println("OK");
-}
-
-void cmdKo()
-{
-  Serial.println("KO");
 }
 
 char* getSensorStatus(int statusValue)
