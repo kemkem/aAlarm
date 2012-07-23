@@ -92,14 +92,12 @@ void serialReader()
 	{
 	  serialReadString[makeSerialStringPosition] = 0; //Null terminate the serialReadString (Overwrites last position char (terminating char) with 0
 	  //Serial.println(serialReadString);
-          //
           execCommand(serialReadString);
-          
 	}
   }
 }
 
-//not sure of this function
+//not sure of this function, still it works :p
 int stringToNumber(String thisString) {
   int i, value = 0, length;
   length = thisString.length();
@@ -109,15 +107,45 @@ int stringToNumber(String thisString) {
   return value;
 }
 
+int getNbAfterCommand(String command, String commandString)
+{
+  String strNb = commandString.substring(command.length());
+  strNb.trim();
+  int sensorNb = stringToNumber(strNb);
+  return sensorNb;
+}
+
 void execCommand(String serialReadString)
 {
   String cmdGetSensorState = "getSensorState";
+  String cmdGetKeys = "getKeys";
+  String cmdSetLedRed = "setLedRed";
+  String cmdSetLedGreen = "setLedGreen";
+  String cmdSetBuzzer = "setBuzzer";
+  String cmdSetSiren = "setSiren";
+  
   if(serialReadString.startsWith(cmdGetSensorState))
   {
-    String strNb = serialReadString.substring(cmdGetSensorState.length());
-    strNb.trim();
-    int sensorNb = stringToNumber(strNb);
-    Serial.print(getSensorStatus(strNb));
+    int sensorNb = getNbAfterCommand(cmdGetSensorState, serialReadString);
+    //Serial.print(sensorNb);
+    Serial.println(getSensorStatus(sensorNb));
+  }
+  else if(serialReadString.startsWith(cmdGetKeys))
+  {
+   Serial.println(keys); 
+   keys = "";
+  }
+  else if(serialReadString.startsWith(cmdSetLedRed))
+  {
+  }
+  else if(serialReadString.startsWith(cmdSetLedGreen))
+  {
+  }
+  else if(serialReadString.startsWith(cmdSetBuzzer))
+  {
+  }
+  else if(serialReadString.startsWith(cmdSetSiren))
+  {
   }
 }
 

@@ -78,21 +78,40 @@ sub getCommand
 
 while (1)
 {
-	if ($port = Device::SerialPort->new("/dev/ttyACM0"))
+	print ">Trying to connect...\n";
+	if ($port = Device::SerialPort->new("/dev/ttyACM1"))
 	{
+		print ">Success\n";
 		$port->databits(8);	
 		$port->baudrate(9600);
 		$port->parity("none");
 		$port->stopbits(1);
 
-		my $response = $port->lookfor();
+		my $count = 0;
+		my $connection = 5;
 
-		if ($response) {
-			chop $response;
-			print $response."\n";
+		while ($connection > 1) {
+		    my $response = $port->lookfor();
+
+		    if ($response) {
+				chop $response;
+				#$connection++;
+				print "R [".$response."]\n";
+				
+		    }
 			sleep(1);
+			
+			$send = "getSensorState";
+			$port->write($send."\n");
+			print "send $send\n";
+			#$connection--;
+		    						
 		}
 	}
+	else
+	{
+		recordLog ">Cannot connect, retrying in $reconnectTimeout second...\n";
+		sleep($reconnectTimeout);
+	}
+
 }
-
-
