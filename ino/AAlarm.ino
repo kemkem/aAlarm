@@ -26,6 +26,7 @@ int sensorPin = 2;
 
 i2ckeypad kpd = i2ckeypad(I2Ck, ROWS, COLS);
 int sensorValue = -1;
+String keys = "";
 
 void setup()
 {
@@ -49,6 +50,7 @@ void loop()
   if(key != '\0')
   {
     Serial.println(key);
+    keys += key;
     /*
     switch (key)
     {
