@@ -17,7 +17,7 @@
 #define SENSOR_UNKNOWN  "UNKNOWN"
 
 //SensorState
-int lastSensorValue = 0; 
+int lastSensorValue = 0;
 
 //Pins
 int buzzerPin = 3;
@@ -49,8 +49,9 @@ void loop()
   char key = kpd.get_key();
   if(key != '\0')
   {
-    Serial.println(key);
+    
     keys += key;
+    Serial.println(keys);
     /*
     switch (key)
     {
@@ -89,7 +90,7 @@ void serialReader()
 	{
 	  serialReadString[makeSerialStringPosition] = 0; //Null terminate the serialReadString (Overwrites last position char (terminating char) with 0
 	  //Serial.println(serialReadString);
-          executeCommand(serialReadString);
+          //executeCommand(serialReadString);
 	}
   }
 }
