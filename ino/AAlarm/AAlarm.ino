@@ -37,12 +37,13 @@ void setup()
   pinMode(sensorPin, INPUT);  
   Wire.begin();
   kpd.init();
+  ledsAnim();
 }
 
 
 void loop()
 {
-  readSensor();
+  updateSensor();
   serialReader();
 
   //keypad section
@@ -51,7 +52,7 @@ void loop()
   {
     
     keys += key;
-    Serial.println(keys);
+    //Serial.println(key);
     /*
     switch (key)
     {
@@ -68,6 +69,7 @@ void serialReader()
 {
   int makeSerialStringPosition;
   int inByte;
+  
   char serialReadString[50];
   const int charCR = 10; //Terminate lines with CR
   const int charNL = 13; //Terminate lines with NL
@@ -90,20 +92,47 @@ void serialReader()
 	{
 	  serialReadString[makeSerialStringPosition] = 0; //Null terminate the serialReadString (Overwrites last position char (terminating char) with 0
 	  //Serial.println(serialReadString);
-          //executeCommand(serialReadString);
+          //
+          execCommand(serialReadString);
+          
 	}
   }
 }
 
-char* getSensorStatus(int statusValue)
+//not sure of this function
+int stringToNumber(String thisString) {
+  int i, value = 0, length;
+  length = thisString.length();
+  for(i=0; i<length; i++) {
+    value = (10*value) + thisString.charAt(i)-(int) '0';;
+  }
+  return value;
+}
+
+void execCommand(String serialReadString)
 {
+  String cmdGetSensorState = "getSensorState";
+  if(serialReadString.startsWith(cmdGetSensorState))
+  {
+    String strNb = serialReadString.substring(cmdGetSensorState.length());
+    strNb.trim();
+    int sensorNb = stringToNumber(strNb);
+    Serial.print(getSensorStatus(strNb));
+  }
+}
+
+String getSensorStatus(int n)
+{
+  //for now n (sensor number) is unused
+  
   //if(statusValue == HIGH) //if sensor connected to "T" (high when pressed)
-  if(statusValue == LOW) //if sensor connected to "R" (low when pressed)
+  if(sensorValue == LOW) //if sensor connected to "R" (low when pressed)
   {
     return SENSOR_OPEN;
+    
   }
   //else if (statusValue == LOW) //if sensor connected to "T" (high when pressed)
-  else if (statusValue == HIGH) //if sensor connected to "R" (low when pressed)
+  else if (sensorValue == HIGH) //if sensor connected to "R" (low when pressed)
   {
     return SENSOR_CLOSED;
   }
@@ -113,16 +142,11 @@ char* getSensorStatus(int statusValue)
   }
 }
 
-int readSensor()
+void updateSensor()
 {
   sensorValue = digitalRead(sensorPin);
   if (sensorValue != lastSensorValue) {
     lastSensorValue = sensorValue;
-    return sensorValue;
-  }
-  else
-  {
-    return -1;
   }
 }
 
@@ -149,6 +173,18 @@ void ledRed()
 void ledGreen()
 {
     i2cKeypadWrite(aLedGreen);
+}
+
+void ledsAnim()
+{
+  i2cKeypadWrite(aLedRed);
+  delay(100);
+  i2cKeypadWrite(aLedRed);
+  delay(100);
+  i2cKeypadWrite(aLedGreen);
+  delay(100);
+  i2cKeypadWrite(aLedGreen);
+  delay(100);
 }
 
 void ledRedBuz()
