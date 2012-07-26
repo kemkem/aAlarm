@@ -27,6 +27,9 @@ int sensorPin = 2;
 i2ckeypad kpd = i2ckeypad(I2Ck, ROWS, COLS);
 int sensorValue = -1;
 String keys = "";
+String keysBuffer = "";
+int nbSensors = 2;
+String sensors = "";
 
 void setup()
 {
@@ -43,6 +46,8 @@ void setup()
 
 void loop()
 {
+  
+
   updateSensor();
   serialReader();
 
@@ -51,13 +56,25 @@ void loop()
   if(key != '\0')
   {
     
-    keys += key;
+    keysBuffer += key;
+    
     //Serial.println(key);
-    /*
+    
     switch (key)
     {
+      case '*':
+        keys = keysBuffer;
+        keysBuffer = "";
+        break;
     }
-    */
+    
+  }
+  //sensors update
+  sensors = "";
+  for(int i=0;i<4;i++)
+  {
+    sensors += String(i+1) + ":" + getSensorStatus(i) + ",";
+    sensors = sensors.substring(0, sensors.length() - 1);
   }
 }
 
@@ -117,13 +134,15 @@ int getNbAfterCommand(String command, String commandString)
 
 void execCommand(String serialReadString)
 {
-  String cmdGetSensorState = "getSensorState";
-  String cmdGetKeys = "getKeys";
+  //String cmdGetSensorState = "getSensorState";
+  //String cmdGetKeys = "getKeys";
+  String cmdGetStatus = "getStatus";
   String cmdSetLedRed = "setLedRed";
   String cmdSetLedGreen = "setLedGreen";
   String cmdSetBuzzer = "setBuzzer";
   String cmdSetSiren = "setSiren";
   
+  /*
   if(serialReadString.startsWith(cmdGetSensorState))
   {
     int sensorNb = getNbAfterCommand(cmdGetSensorState, serialReadString);
@@ -134,6 +153,15 @@ void execCommand(String serialReadString)
   {
    Serial.println(keys); 
    keys = "";
+  }
+  */
+  if(serialReadString.startsWith(cmdGetStatus))
+  {
+    String strKeys = keys;
+    
+    String response = keys + "|" + sensors;
+    Serial.println(response);
+    keys = "";
   }
   else if(serialReadString.startsWith(cmdSetLedRed))
   {
@@ -149,6 +177,32 @@ void execCommand(String serialReadString)
   }
 }
 
+
+String getSensorsStatus()
+{
+  return "";
+  
+}
+
+String getSensorStatus(int n)
+{
+  if(sensorValue == LOW)
+  {
+    return "CLOSE";
+    
+  }
+  else if (sensorValue == HIGH)
+  {
+    return "OPEN";
+  }
+  else
+  {
+    return "UNK";
+  }
+
+}
+
+/*
 String getSensorStatus(int n)
 {
   //for now n (sensor number) is unused
@@ -169,6 +223,7 @@ String getSensorStatus(int n)
     return SENSOR_UNKNOWN;
   }
 }
+*/
 
 void updateSensor()
 {
@@ -177,6 +232,7 @@ void updateSensor()
     lastSensorValue = sensorValue;
   }
 }
+
 
 void i2cKeypadWrite(int data)
 {

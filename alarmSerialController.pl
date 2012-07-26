@@ -12,6 +12,9 @@ my $dbPasswd = "wont6Oc`";
 my $pathWebCommand = "/home/kemkem/AAlarm/web/command/command";
 my $pathWebStatus = "/home/kemkem/AAlarm/web/state";
 my $pathLog = "/home/kemkem/AAlarm/log";
+my $port = "/dev/ttyACM0";
+my $rate = 9600;
+my $refreshMs = 150;
 
 sub recordEvent
 {
@@ -76,14 +79,15 @@ sub getCommand
 	
 }
 
+my $refresh = $refreshMs * 1000;
 while (1)
 {
 	print ">Trying to connect...\n";
-	if ($port = Device::SerialPort->new("/dev/ttyACM1"))
+	if ($port = Device::SerialPort->new($port))
 	{
 		print ">Success\n";
 		$port->databits(8);	
-		$port->baudrate(9600);
+		$port->baudrate($rate);
 		$port->parity("none");
 		$port->stopbits(1);
 
@@ -96,12 +100,15 @@ while (1)
 		    if ($response) {
 				chop $response;
 				#$connection++;
-				print "R [".$response."]\n";
-				
+				#print "R [".$response."]\n";
+				$response =~ /(.*)\|(.*)/;
+				my $keys = $1;
+				my $sensors = $2;
+				print "keys [$keys] sensors [$sensors]\n";
 		    }
-			sleep(1);
+			usleep($refresh);
 			
-			$send = "getSensorState";
+			$send = "getStatus";
 			$port->write($send."\n");
 			print "send $send\n";
 			#$connection--;
