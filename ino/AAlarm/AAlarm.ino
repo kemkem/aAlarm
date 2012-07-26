@@ -50,7 +50,8 @@ void loop()
 
   updateSensor();
   serialReader();
-
+  sensorsUpdate();
+  
   //keypad section
   char key = kpd.get_key();
   if(key != '\0')
@@ -69,6 +70,11 @@ void loop()
     }
     
   }
+  
+}
+
+void sensorsUpdate()
+{
   //sensors update
   sensors = "";
   for(int i=0;i<4;i++)
