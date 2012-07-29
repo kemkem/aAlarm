@@ -101,6 +101,7 @@ void pollKeys()
 
 void loop()
 {
+  serialReader();
   pollSensors();
   pollKeys();    
 }
@@ -193,10 +194,12 @@ void execCommand(String serialReadString)
   }
   else if(serialReadString.startsWith(cmdSetLedRed))
   {
+    Serial.println("ledRed");
     ledRed();
   }
   else if(serialReadString.startsWith(cmdSetLedGreen))
   {
+    Serial.println("ledgreen");
     ledGreen();
   }
   else if(serialReadString.startsWith(cmdSetBuzzer))

@@ -84,7 +84,7 @@ my $refresh = $refreshMs * 1000;
 my $passwd = "1245";
 
 my $currentState = 0;
-
+my $nextCommand = "";
 
 while (1)
 {
@@ -103,10 +103,12 @@ while (1)
 		while (1) {
 		    my $response = $port->lookfor();
 
+			
 		    if ($response) {
+		    	$nextCommand = "";
 				chop $response;
 				#$connection++;
-				#print "R [".$response."]\n";
+				print "R [".$response."]\n";
 				
 				if($response =~ /sensor(\d+):(.*)/)
 				{
@@ -122,15 +124,16 @@ while (1)
 					
 					if($keys =~ /$passwd\*$/)
 					{
-						#print "pwd entered correctly\n";
+						print "pwd entered correctly\n";
 						if($currentState == 0)
 						{
 							$currentState = 1;
-							
+							$nextCommand = "setLedRed";
 						}
 						else
 						{
 							$currentState = 0;
+							$nextCommand = "setLedGreen";
 						}
 					}
 				}
@@ -140,7 +143,7 @@ while (1)
 		    {
 			usleep($refresh);
 
-			$nextCommand = "";#getCommand();
+			#$nextCommand = "";#getCommand();
 
 			$send = $nextCommand;
 			$port->write($send."\n");
