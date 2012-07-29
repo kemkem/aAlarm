@@ -108,7 +108,7 @@ while (1)
 		    	$nextCommand = "";
 				chop $response;
 				#$connection++;
-				print "R [".$response."]\n";
+				#print "R [".$response."]\n";
 				
 				if($response =~ /sensor(\d+):(.*)/)
 				{
@@ -124,17 +124,25 @@ while (1)
 					
 					if($keys =~ /$passwd\*$/)
 					{
-						print "pwd entered correctly\n";
+						
 						if($currentState == 0)
 						{
+							print "online\n";
 							$currentState = 1;
 							$nextCommand = "setLedRed";
 						}
 						else
-						{
+						{	
+							print "offline\n";
 							$currentState = 0;
 							$nextCommand = "setLedGreen";
 						}
+					}
+					
+					elsif($keys =~ /$passwd\#(\d+)\*$/)
+					{
+						print "pwd changed to $1\n";
+						$passwd = $1;
 					}
 				}
 				
@@ -142,8 +150,6 @@ while (1)
 		    else 
 		    {
 			usleep($refresh);
-
-			#$nextCommand = "";#getCommand();
 
 			$send = $nextCommand;
 			$port->write($send."\n");
