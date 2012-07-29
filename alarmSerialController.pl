@@ -81,8 +81,9 @@ my $refreshMs = 200;
 
 my $refresh = $refreshMs * 1000;
 
+my $passwd = "1245";
 
-
+my $currentState = 0;
 
 
 while (1)
@@ -90,7 +91,7 @@ while (1)
 	print ">Trying to connect...\n";
 	if ($port = Device::SerialPort->new("/dev/ttyACM0"))
 	{
-		print ">Success";
+		print ">Connected\n";
 		$port->databits(8);	
 		$port->baudrate(9600);
 		$port->parity("none");
@@ -105,14 +106,41 @@ while (1)
 		    if ($response) {
 				chop $response;
 				#$connection++;
-				print "R [".$response."]\n";
+				#print "R [".$response."]\n";
+				
+				if($response =~ /sensor(\d+):(.*)/)
+				{
+					my $sensorNb = $1;
+					my $sensorStatus = $2;
+					print("sensor $sensorNb [$sensorStatus]\n");
+				}
+				
+				if($response =~ /keys:(.*)/)
+				{
+					my $keys = $1;
+					print("keys [$keys]\n");
+					
+					if($keys =~ /$passwd\*$/)
+					{
+						#print "pwd entered correctly\n";
+						if($currentState == 0)
+						{
+							$currentState = 1;
+							
+						}
+						else
+						{
+							$currentState = 0;
+						}
+					}
+				}
 				
 			} 
 		    else 
 		    {
 			usleep($refresh);
 
-			$nextCommand = "getStatus";#getCommand();
+			$nextCommand = "";#getCommand();
 
 			$send = $nextCommand;
 			$port->write($send."\n");
@@ -122,15 +150,6 @@ while (1)
 		}
 		print "Connection has been lost!\n";
 		print "last state was $status\n";
-		#recordFailure();
-		$statusLevel = 1;
-		$sensorState = 1;
-		$lastStatusLevel = 1;
-		$lastSensorState = 1;
-		#$status = "UNK";
-		#$sensor = "UNK";
-		$lastStatus = $status;
-		$ready = 0;
 	}
 	else
 	{
@@ -140,48 +159,3 @@ while (1)
 
 }
 
-
-
-exit;
-while (1)
-{
-	print ">Trying to connect...\n";
-	if ($port = Device::SerialPort->new($port))
-	{
-		print ">Success\n";
-		$port->databits(8);	
-		$port->baudrate($rate);
-		$port->parity("none");
-		$port->stopbits(1);
-
-		my $count = 0;
-		my $connection = 5;
-
-		while ($connection > 1) {
-		    my $response = $port->lookfor();
-
-		    if ($response) {
-				chop $response;
-				#$connection++;
-				print "R [".$response."]\n";
-				#$response =~ /(.*)\|(.*)/;
-				#my $keys = $1;
-				#my $sensors = $2;
-				#print "keys [$keys] sensors [$sensors]\n";
-		    }
-			usleep($refresh);
-			
-			$send = "getStatus";
-			$port->write($send."\n");
-			print "send $send\n";
-			#$connection--;
-		    						
-		}
-	}
-	else
-	{
-		print ">Cannot connect, retrying in $reconnectTimeout second...\n";
-		sleep($reconnectTimeout);
-	}
-
-}

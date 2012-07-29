@@ -54,7 +54,7 @@ void setup()
   {
     tabSensorLast[i] = 0;
   }
-  
+  Serial.println("ready");
   ledsAnim();
 }
 
@@ -83,31 +83,26 @@ void pollSensors()
   }
 }
 
-void loop()
+void pollKeys()
 {
-  
-  
-  //keypad section
   char key = kpd.get_key();
   if(key != '\0')
   {
-    
     keysBuffer += key;
-    
-    //Serial.println(key);
-    
     switch (key)
     {
       case '*':
-        //keys = keysBuffer;
-        
-        Serial.println(keysBuffer);
+        Serial.println("keys:"+keysBuffer);
         keysBuffer = "";
         break;
     }
-    
   }
-  
+}
+
+void loop()
+{
+  pollSensors();
+  pollKeys();    
 }
 
 /*
@@ -191,19 +186,22 @@ void execCommand(String serialReadString)
     //String strKeys = keys;
     
     //String response = sensors;
-    Serial.println(keys+"|"+sensors);
-    keys="";
+    //Serial.println(keys+"|"+sensors);
+    //keys="";
     //Serial.println("response");
     //keys = "";
   }
   else if(serialReadString.startsWith(cmdSetLedRed))
   {
+    ledRed();
   }
   else if(serialReadString.startsWith(cmdSetLedGreen))
   {
+    ledGreen();
   }
   else if(serialReadString.startsWith(cmdSetBuzzer))
   {
+    buzz();
   }
   else if(serialReadString.startsWith(cmdSetSiren))
   {
