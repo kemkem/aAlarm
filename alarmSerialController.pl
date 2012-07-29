@@ -13,8 +13,6 @@ my $pathWebCommand = "/home/kemkem/AAlarm/web/command/command";
 my $pathWebStatus = "/home/kemkem/AAlarm/web/state";
 my $pathLog = "/home/kemkem/AAlarm/log";
 my $port = "/dev/ttyACM0";
-my $rate = 9600;
-my $refreshMs = 150;
 
 sub recordEvent
 {
@@ -78,8 +76,73 @@ sub getCommand
 	}
 	
 }
+my $rate = 9600;
+my $refreshMs = 300;
 
 my $refresh = $refreshMs * 1000;
+
+
+
+
+
+while (1)
+{
+	print ">Trying to connect...\n";
+	if ($port = Device::SerialPort->new("/dev/ttyACM0"))
+	{
+		print ">Success";
+		$port->databits(8);	
+		$port->baudrate(9600);
+		$port->parity("none");
+		$port->stopbits(1);
+
+		my $count = 0;
+		#my $connection = 5;
+
+		while (1) {
+		    my $response = $port->lookfor();
+
+		    if ($response) {
+				chop $response;
+				#$connection++;
+				print "R [".$response."]\n";
+				
+			} 
+		    else 
+		    {
+			sleep(1);
+
+			$nextCommand = "getStatus";#getCommand();
+
+			$send = $nextCommand;
+			$port->write($send."\n");
+			#print "S [".$send."]\n";
+			#$connection--;
+		    }						
+		}
+		print "Connection has been lost!\n";
+		print "last state was $status\n";
+		#recordFailure();
+		$statusLevel = 1;
+		$sensorState = 1;
+		$lastStatusLevel = 1;
+		$lastSensorState = 1;
+		#$status = "UNK";
+		#$sensor = "UNK";
+		$lastStatus = $status;
+		$ready = 0;
+	}
+	else
+	{
+		print ">Cannot connect, retrying in $reconnectTimeout second...\n";
+		sleep($reconnectTimeout);
+	}
+
+}
+
+
+
+exit;
 while (1)
 {
 	print ">Trying to connect...\n";
@@ -100,11 +163,11 @@ while (1)
 		    if ($response) {
 				chop $response;
 				#$connection++;
-				#print "R [".$response."]\n";
-				$response =~ /(.*)\|(.*)/;
-				my $keys = $1;
-				my $sensors = $2;
-				print "keys [$keys] sensors [$sensors]\n";
+				print "R [".$response."]\n";
+				#$response =~ /(.*)\|(.*)/;
+				#my $keys = $1;
+				#my $sensors = $2;
+				#print "keys [$keys] sensors [$sensors]\n";
 		    }
 			usleep($refresh);
 			
@@ -117,7 +180,7 @@ while (1)
 	}
 	else
 	{
-		recordLog ">Cannot connect, retrying in $reconnectTimeout second...\n";
+		print ">Cannot connect, retrying in $reconnectTimeout second...\n";
 		sleep($reconnectTimeout);
 	}
 

@@ -46,11 +46,8 @@ void setup()
 
 void loop()
 {
-  
-
-  updateSensor();
   serialReader();
-  sensorsUpdate();
+  newUpdateSensors();
   
   //keypad section
   char key = kpd.get_key();
@@ -73,6 +70,57 @@ void loop()
   
 }
 
+void newUpdateSensors0()
+{
+  sensors = "UNK0";
+  
+  sensorValue = digitalRead(sensorPin);
+  if (sensorValue != lastSensorValue) {
+    lastSensorValue = sensorValue;
+  }
+  
+  if(sensorValue == LOW)
+  {
+    sensors = "CLOSE";    
+  }
+  else if (sensorValue == HIGH)
+  {
+    sensors = "OPEN";
+  }
+  else
+  {
+    sensors = "UNK";
+  }
+
+}
+
+void newUpdateSensors()
+{
+  sensors = "UNK0";
+  
+  for(int i = 0; i < 4; i++)
+  {
+    sensorValue = digitalRead(sensorPin);
+    if (sensorValue != lastSensorValue) {
+      lastSensorValue = sensorValue;
+    }
+    
+    if(sensorValue == LOW)
+    {
+      sensors += "CLOSE";    
+    }
+    else if (sensorValue == HIGH)
+    {
+      sensors += "OPEN";
+    }
+    else
+    {
+      sensors += "UNK";
+    }
+  }
+}
+
+
 void sensorsUpdate()
 {
   //sensors update
@@ -82,6 +130,31 @@ void sensorsUpdate()
     sensors += String(i+1) + ":" + getSensorStatus(i) + ",";
     sensors = sensors.substring(0, sensors.length() - 1);
   }
+}
+
+void updateSensor()
+{
+  sensorValue = digitalRead(sensorPin);
+  if (sensorValue != lastSensorValue) {
+    lastSensorValue = sensorValue;
+  }
+}
+
+String getSensorStatus(int n)
+{
+  if(sensorValue == LOW)
+  {
+    return "CLOSE";    
+  }
+  else if (sensorValue == HIGH)
+  {
+    return "OPEN";
+  }
+  else
+  {
+    return "UNK";
+  }
+
 }
 
 
@@ -163,11 +236,13 @@ void execCommand(String serialReadString)
   */
   if(serialReadString.startsWith(cmdGetStatus))
   {
-    String strKeys = keys;
+    //String strKeys = keys;
     
-    String response = keys + "|" + sensors;
-    Serial.println(response);
-    keys = "";
+    //String response = sensors;
+    Serial.println(keys+sensors);
+    keys="";
+    //Serial.println("response");
+    //keys = "";
   }
   else if(serialReadString.startsWith(cmdSetLedRed))
   {
@@ -183,30 +258,6 @@ void execCommand(String serialReadString)
   }
 }
 
-
-String getSensorsStatus()
-{
-  return "";
-  
-}
-
-String getSensorStatus(int n)
-{
-  if(sensorValue == LOW)
-  {
-    return "CLOSE";
-    
-  }
-  else if (sensorValue == HIGH)
-  {
-    return "OPEN";
-  }
-  else
-  {
-    return "UNK";
-  }
-
-}
 
 /*
 String getSensorStatus(int n)
@@ -231,13 +282,6 @@ String getSensorStatus(int n)
 }
 */
 
-void updateSensor()
-{
-  sensorValue = digitalRead(sensorPin);
-  if (sensorValue != lastSensorValue) {
-    lastSensorValue = sensorValue;
-  }
-}
 
 
 void i2cKeypadWrite(int data)
