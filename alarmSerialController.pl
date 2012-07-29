@@ -77,7 +77,7 @@ sub getCommand
 	
 }
 my $rate = 9600;
-my $refreshMs = 300;
+my $refreshMs = 200;
 
 my $refresh = $refreshMs * 1000;
 
@@ -110,7 +110,7 @@ while (1)
 			} 
 		    else 
 		    {
-			sleep(1);
+			usleep($refresh);
 
 			$nextCommand = "getStatus";#getCommand();
 

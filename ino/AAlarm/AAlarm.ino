@@ -15,6 +15,7 @@
 #define SENSOR_OPEN  "OPEN"
 #define SENSOR_CLOSED  "CLOSE"
 #define SENSOR_UNKNOWN  "UNKNOWN"
+#define NB_SENSORS 1
 
 //SensorState
 int lastSensorValue = 0;
@@ -28,8 +29,10 @@ i2ckeypad kpd = i2ckeypad(I2Ck, ROWS, COLS);
 int sensorValue = -1;
 String keys = "";
 String keysBuffer = "";
-int nbSensors = 2;
+int nbSensors = NB_SENSORS;
 String sensors = "";
+int tabSensorCurrent[NB_SENSORS];
+int tabSensorLast[NB_SENSORS];
 
 void setup()
 {
@@ -40,14 +43,49 @@ void setup()
   pinMode(sensorPin, INPUT);  
   Wire.begin();
   kpd.init();
+  
+  //init sensor tab
+  for(int i = 0; i < NB_SENSORS; i++)
+  {
+    tabSensorCurrent[i] = 0;
+  }
+  //init sensor tab last
+  for(int i = 0; i < NB_SENSORS; i++)
+  {
+    tabSensorLast[i] = 0;
+  }
+  
   ledsAnim();
 }
 
+String pollSensor(int nb)
+{
+  String newStatus = "";
+  
+  tabSensorCurrent[nb] = digitalRead(sensorPin);
+  if (tabSensorCurrent[nb] != tabSensorLast[nb]) {
+    tabSensorLast[nb] = tabSensorCurrent[nb];
+    newStatus = getSensorStatus(tabSensorCurrent[nb]);
+  }
+  
+  return newStatus;
+}
+
+void pollSensors()
+{
+  for (int i = 0; i < NB_SENSORS; i++)
+  {
+    String sensorStatus = pollSensor(i);
+    if (sensorStatus.length() > 0)
+    {
+       Serial.println("sensor" + String(i) + ":" + sensorStatus);
+    }
+  }
+}
 
 void loop()
 {
-  serialReader();
-  newUpdateSensors();
+  
   
   //keypad section
   char key = kpd.get_key();
@@ -61,7 +99,9 @@ void loop()
     switch (key)
     {
       case '*':
-        keys = keysBuffer;
+        //keys = keysBuffer;
+        
+        Serial.println(keysBuffer);
         keysBuffer = "";
         break;
     }
@@ -69,94 +109,6 @@ void loop()
   }
   
 }
-
-void newUpdateSensors0()
-{
-  sensors = "UNK0";
-  
-  sensorValue = digitalRead(sensorPin);
-  if (sensorValue != lastSensorValue) {
-    lastSensorValue = sensorValue;
-  }
-  
-  if(sensorValue == LOW)
-  {
-    sensors = "CLOSE";    
-  }
-  else if (sensorValue == HIGH)
-  {
-    sensors = "OPEN";
-  }
-  else
-  {
-    sensors = "UNK";
-  }
-
-}
-
-void newUpdateSensors()
-{
-  sensors = "UNK0";
-  
-  for(int i = 0; i < 4; i++)
-  {
-    sensorValue = digitalRead(sensorPin);
-    if (sensorValue != lastSensorValue) {
-      lastSensorValue = sensorValue;
-    }
-    
-    if(sensorValue == LOW)
-    {
-      sensors += "CLOSE";    
-    }
-    else if (sensorValue == HIGH)
-    {
-      sensors += "OPEN";
-    }
-    else
-    {
-      sensors += "UNK";
-    }
-  }
-}
-
-
-void sensorsUpdate()
-{
-  //sensors update
-  sensors = "";
-  for(int i=0;i<4;i++)
-  {
-    sensors += String(i+1) + ":" + getSensorStatus(i) + ",";
-    sensors = sensors.substring(0, sensors.length() - 1);
-  }
-}
-
-void updateSensor()
-{
-  sensorValue = digitalRead(sensorPin);
-  if (sensorValue != lastSensorValue) {
-    lastSensorValue = sensorValue;
-  }
-}
-
-String getSensorStatus(int n)
-{
-  if(sensorValue == LOW)
-  {
-    return "CLOSE";    
-  }
-  else if (sensorValue == HIGH)
-  {
-    return "OPEN";
-  }
-  else
-  {
-    return "UNK";
-  }
-
-}
-
 
 /*
 UTILITIES
@@ -239,7 +191,7 @@ void execCommand(String serialReadString)
     //String strKeys = keys;
     
     //String response = sensors;
-    Serial.println(keys+sensors);
+    Serial.println(keys+"|"+sensors);
     keys="";
     //Serial.println("response");
     //keys = "";
@@ -259,19 +211,18 @@ void execCommand(String serialReadString)
 }
 
 
-/*
-String getSensorStatus(int n)
+String getSensorStatus(int value)
 {
   //for now n (sensor number) is unused
   
   //if(statusValue == HIGH) //if sensor connected to "T" (high when pressed)
-  if(sensorValue == LOW) //if sensor connected to "R" (low when pressed)
+  if(value == LOW) //if sensor connected to "R" (low when pressed)
   {
     return SENSOR_OPEN;
     
   }
   //else if (statusValue == LOW) //if sensor connected to "T" (high when pressed)
-  else if (sensorValue == HIGH) //if sensor connected to "R" (low when pressed)
+  else if (value == HIGH) //if sensor connected to "R" (low when pressed)
   {
     return SENSOR_CLOSED;
   }
@@ -280,7 +231,6 @@ String getSensorStatus(int n)
     return SENSOR_UNKNOWN;
   }
 }
-*/
 
 
 
