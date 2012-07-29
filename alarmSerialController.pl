@@ -4,6 +4,7 @@ use Device::SerialPort;
 use MIME::Lite;
 use Time::HiRes qw(usleep);
 use DBI;
+use AnyEvent;
 
 my $port;
 my $dbUrl = "DBI:mysql:database=aalarm;host=localhost";
@@ -81,10 +82,12 @@ my $refreshMs = 200;
 
 my $refresh = $refreshMs * 1000;
 
-my $passwd = "1245";
+my $passwd = "4578";
 
 my $currentState = 0;
 my $nextCommand = "";
+
+
 
 while (1)
 {
@@ -127,8 +130,10 @@ while (1)
 						
 						if($currentState == 0)
 						{
-							print "online\n";
+							$timestampOnlineTimed = time;
+							print "online timed @ $timestampOnlineTimed\n";
 							$currentState = 1;
+							
 							$nextCommand = "setLedRed";
 						}
 						else
