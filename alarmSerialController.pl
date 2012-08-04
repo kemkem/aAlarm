@@ -90,13 +90,16 @@ my @timers;
 
 sub online
 {
-	print "GO ONLINE !\n";
-}
-sub offline
-{
-	print "GO OFFLINE !\n";
+	print "online\n";
+	$currentState = 2;
+	setTimer(2, "onlineTimeout");
+	$nextCommand = "setLedGreenBuzzer";
 }
 
+sub onlineTimeout
+{
+	$nextCommand = "setLedRed";
+}
 
 sub setTimer
 {
@@ -116,33 +119,20 @@ sub runTimers
 		
 		my $timer = $1;
 		my $function = $2;
-		print ">timer ".$timer." ".$function."\n";
+		#print ">timer ".$timer." ".$function."\n";
 		if($curTime >= $timer)
 		{
-			print ">execute $function\n";
+			#print ">execute $function\n";
 			&{$function}();
 		}
 		else
 		{
 			push @newTimers, $timerDef;
 		}
-		print "\n";
-		
+		#print "\n";
 	}
 	@timers = @newTimers;
 }
-
-print "time   ".time."\n";
-setTimer(5, "online");
-setTimer(10, "offline");
-sleep 6;
-runTimers();
-sleep 6;
-runTimers();
-sleep 6;
-runTimers();
-
-exit;
 
 while (1)
 {
@@ -164,59 +154,60 @@ while (1)
 			
 		    if ($response) {
 		    	$nextCommand = "";
-				chop $response;
-				#$connection++;
-				#print "R [".$response."]\n";
+			chop $response;
+			#$connection++;
+			#print "R [".$response."]\n";
+			
+			#received sensors update				
+			if($response =~ /sensor(\d+):(.*)/)
+			{
+				my $sensorNb = $1;
+				my $sensorStatus = $2;
+				print("sensor $sensorNb [$sensorStatus]\n");
+			}
+			
+			#key '*' pressed
+			elsif($response =~ /keys:(.*)/)
+			{
+				my $keys = $1;
+				print("keys [$keys]\n");
 				
-				if($response =~ /sensor(\d+):(.*)/)
+				#passwd entered
+				if($keys =~ /$passwd\*$/)
 				{
-					my $sensorNb = $1;
-					my $sensorStatus = $2;
-					print("sensor $sensorNb [$sensorStatus]\n");
-				}
-				
-				if($response =~ /keys:(.*)/)
-				{
-					my $keys = $1;
-					print("keys [$keys]\n");
 					
-					if($keys =~ /$passwd\*$/)
+					if($currentState == 0)
 					{
-						
-						if($currentState == 0)
-						{
-							$timestampOnlineTimed = time;
-							print "online timed @ $timestampOnlineTimed\n";
-							$currentState = 1;
-							
-							$nextCommand = "setLedRed";
-						}
-						else
-						{	
-							print "offline\n";
-							$currentState = 0;
-							$nextCommand = "setLedGreen";
-						}
+						print "online timed\n";
+						$currentState = 1;
+						setTimer(5, "online");
 					}
-					
-					elsif($keys =~ /$passwd\#(\d+)\*$/)
-					{
-						print "pwd changed to $1\n";
-						$passwd = $1;
+					elsif($currentState >= 2)
+					{	
+						print "offline\n";
+						$currentState = 0;
+						$nextCommand = "setLedGreen";
 					}
 				}
+				#passwd change
+				elsif($keys =~ /$passwd\#(\d+)\*$/)
+				{
+					print "pwd changed to $1\n";
+					$passwd = $1;
+				}
+			}
 				
-			} 
+		    } 
 		    else 
 		    {
-			#usleep($refresh);
+			usleep($refresh);
 
 			$send = $nextCommand;
 			$port->write($send."\n");
 			#print "S [".$send."]\n";
 			#$connection--;
-		    }						
-			usleep($refresh);
+		    }
+		    runTimers();						
 		}
 		print "Connection has been lost!\n";
 		print "last state was $status\n";

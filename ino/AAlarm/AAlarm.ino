@@ -10,6 +10,7 @@
 #define aLedRed 0xA0
 #define aLedGreen 0x90
 #define aBuzz 0xC0
+#define aNone 0x00
 
 //Sensor states
 #define SENSOR_OPEN  "OPEN"
@@ -167,30 +168,21 @@ void execCommand(String serialReadString)
   String cmdSetLedRed = "setLedRed";
   String cmdSetLedGreen = "setLedGreen";
   String cmdSetBuzzer = "setBuzzer";
-  String cmdSetSiren = "setSiren";
+  String cmdSetLedRedBuzzer = "setLedRedBuzzer";
+  String cmdSetLedGreenBuzzer = "setLedGreenBuzzer";
+  String cmdSetSirenOn = "setSirenOn";
+  String cmdSetSirenOff = "setSirenOff";
   
-  /*
-  if(serialReadString.startsWith(cmdGetSensorState))
+  //this 2 statements have to be first
+  if(serialReadString.startsWith(cmdSetLedRedBuzzer))
   {
-    int sensorNb = getNbAfterCommand(cmdGetSensorState, serialReadString);
-    //Serial.print(sensorNb);
-    Serial.println(getSensorStatus(sensorNb));
+    Serial.println("ledredbuz");
+    ledRedBuz();
   }
-  else if(serialReadString.startsWith(cmdGetKeys))
+  else if(serialReadString.startsWith(cmdSetLedGreenBuzzer))
   {
-   Serial.println(keys); 
-   keys = "";
-  }
-  */
-  if(serialReadString.startsWith(cmdGetStatus))
-  {
-    //String strKeys = keys;
-    
-    //String response = sensors;
-    //Serial.println(keys+"|"+sensors);
-    //keys="";
-    //Serial.println("response");
-    //keys = "";
+    Serial.println("ledgreenbuz");
+    ledGreenBuz();
   }
   else if(serialReadString.startsWith(cmdSetLedRed))
   {
@@ -204,10 +196,16 @@ void execCommand(String serialReadString)
   }
   else if(serialReadString.startsWith(cmdSetBuzzer))
   {
+    Serial.println("buzzer");
     buzz();
   }
-  else if(serialReadString.startsWith(cmdSetSiren))
+  else if(serialReadString.startsWith(cmdSetSirenOn))
   {
+    sirenOn();
+  }
+  else if(serialReadString.startsWith(cmdSetSirenOff))
+  {
+    sirenOff();
   }
 }
 
