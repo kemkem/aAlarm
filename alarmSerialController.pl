@@ -4,8 +4,6 @@ use Device::SerialPort;
 use MIME::Lite;
 use Time::HiRes qw(usleep);
 use DBI;
-use AnyEvent;
-use EV;
 
 my $port;
 my $dbUrl = "DBI:mysql:database=aalarm;host=localhost";
@@ -88,7 +86,63 @@ my $passwd = "4578";
 my $currentState = 0;
 my $nextCommand = "";
 
+my @timers;
 
+sub online
+{
+	print "GO ONLINE !\n";
+}
+sub offline
+{
+	print "GO OFFLINE !\n";
+}
+
+
+sub setTimer
+{
+	my $delay = shift;
+	my $function = shift;
+	my $timer = time + $delay;
+	push @timers, $timer."|".$function;
+}
+
+sub runTimers
+{
+	$curTime = time;
+	my @newTimers;
+	foreach $timerDef (@timers)
+	{
+		$timerDef =~ /(.*)\|(.*)/;
+		
+		my $timer = $1;
+		my $function = $2;
+		print ">timer ".$timer." ".$function."\n";
+		if($curTime >= $timer)
+		{
+			print ">execute $function\n";
+			&{$function}();
+		}
+		else
+		{
+			push @newTimers, $timerDef;
+		}
+		print "\n";
+		
+	}
+	@timers = @newTimers;
+}
+
+print "time   ".time."\n";
+setTimer(5, "online");
+setTimer(10, "offline");
+sleep 6;
+runTimers();
+sleep 6;
+runTimers();
+sleep 6;
+runTimers();
+
+exit;
 
 while (1)
 {
@@ -155,13 +209,14 @@ while (1)
 			} 
 		    else 
 		    {
-			usleep($refresh);
+			#usleep($refresh);
 
 			$send = $nextCommand;
 			$port->write($send."\n");
 			#print "S [".$send."]\n";
 			#$connection--;
 		    }						
+			usleep($refresh);
 		}
 		print "Connection has been lost!\n";
 		print "last state was $status\n";
