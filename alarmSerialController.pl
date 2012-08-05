@@ -96,7 +96,7 @@ sub setTimer
 	my $delay = shift;
 	my $function = shift;
 	my $timer = time + $delay;
-	#push @timers, $timer."|".$function;
+	print ">new timer id $timerNextId in $delay s\n";
 	$timers{$timerNextId} = $timer."|".$function;
 	$timerNextId++;
 	return $timerNextId - 1;
@@ -105,6 +105,7 @@ sub setTimer
 sub removeTimer
 {
 	$key = shift;
+	print ">remove timer $key\n";
 	delete $timers{$key}; 
 }
 
@@ -136,22 +137,46 @@ sub runTimers
 #
 # timers callbacks
 #
-sub online
+sub ckbOnline
 {
 	print "  >function online\n";
 	$currentState = 2;
-	setTimer(2, "onlineTimeout");
+	setTimer(2, "ckbOnlineTimeout");
 	$nextCommand = "setLedGreenBuzzer";
 }
 
-sub onlineTimeout
+sub ckbOnlineTimeout
 {
 	print "  >function onlineTimeout\n";
 	$nextCommand = "setLedRed";
 }
 
+sub ckbIntrusionWarning
+{
+	print "  >function ckbIntrusionWarning\n";
+	setTimer(2, "ckbIntrusionWarningTimeout");
+}
+
+sub ckbIntrusionWarningTimeout
+{
+	print "  >function ckbIntrusionWarningTimeout\n";
+}
+
+sub ckbIntrusionAlarm
+{
+	print "  >function ckbIntrusionAlarm\n";
+	setTimer(2, "ckbIntrusionAlarmTimeout");
+}
+
+sub ckbIntrusionAlarmTimeout
+{
+	print "  >function ckbIntrusionAlarmTimeout\n";
+}
+
 
 my $tOnlineTimed;
+my $tIntrusionWarning;
+my $tIntrusionAlarm;
 
 while (1)
 {
@@ -183,6 +208,16 @@ while (1)
 				my $sensorNb = $1;
 				my $sensorStatus = $2;
 				print("sensor $sensorNb [$sensorStatus]\n");
+				#Manage alarms
+				if ($currentState >= 2)
+				{
+					if ($sensorStatus =~ /OPEN/)
+					{
+						print "[!]intrusion alert !\n";
+						$tIntrusionWarning = setTimer(8, "ckbIntrusionWarning");
+						$tIntrusionAlarm = setTimer(16, "ckbIntrusionAlarm");
+					}
+				}
 			}
 			
 			#key '*' pressed
@@ -197,14 +232,14 @@ while (1)
 					
 					if($currentState == 0)
 					{
-						print "online timed\n";
+						print "[!]online timed\n";
 						$currentState = 1;
-						$tOnlineTimed = setTimer(5, "online");
+						$tOnlineTimed = setTimer(5, "ckbOnline");
 					}
 					elsif($currentState >= 1)
 					{	
 						removeTimer($tOnlineTimed);
-						print "offline\n";
+						print "[!]offline\n";
 						$currentState = 0;
 						$nextCommand = "setLedGreen";
 					}
