@@ -86,18 +86,21 @@ my $passwd = "4578";
 my $currentState = 0;
 my $nextCommand = "";
 
-my @timers;
+#my @timers;
+my $timerNextId = 0;
+my %timers = ();
 
 sub online
 {
-	print "online\n";
-	$currentState = 2;
-	setTimer(2, "onlineTimeout");
-	$nextCommand = "setLedGreenBuzzer";
+	print "  >function online\n";
+	#$currentState = 2;
+	#setTimer(2, "onlineTimeout");
+	#$nextCommand = "setLedGreenBuzzer";
 }
 
 sub onlineTimeout
 {
+	print "  >function onlineTimeout\n";
 	$nextCommand = "setLedRed";
 }
 
@@ -106,34 +109,60 @@ sub setTimer
 	my $delay = shift;
 	my $function = shift;
 	my $timer = time + $delay;
-	push @timers, $timer."|".$function;
+	#push @timers, $timer."|".$function;
+	$timers{$timerNextId} = $timer."|".$function;
+	$timerNextId++;
+	return $timerNextId - 1;
+}
+
+sub removeTimer
+{
+	$key = shift;
+	delete $timers{$key}; 
 }
 
 sub runTimers
 {
+	print ">running timers\n";
 	$curTime = time;
 	my @newTimers;
-	foreach $timerDef (@timers)
+	foreach my $key (keys %timers)
 	{
+		my $timerDef = $timers{$key};
 		$timerDef =~ /(.*)\|(.*)/;
-		
+
 		my $timer = $1;
 		my $function = $2;
-		#print ">timer ".$timer." ".$function."\n";
+		
+		print " >timer id ".$key." time ".$timer." function ".$function."\n";
 		if($curTime >= $timer)
 		{
-			#print ">execute $function\n";
+			#print " >execute $function\n";
+			delete $timers{$key}; 
 			&{$function}();
 		}
-		else
-		{
-			push @newTimers, $timerDef;
-		}
-		#print "\n";
 	}
-	@timers = @newTimers;
+	#@timers = @newTimers;
 }
 
+#my %h;
+#$h{"key"} = "truc";
+
+setTimer(2, "online");
+setTimer(7, "onlineTimeout");
+$idTruc = setTimer(5, "online");
+
+
+runTimers();
+sleep(3);
+removeTimer($idTruc);
+runTimers();
+sleep(4);
+runTimers();
+sleep(1);
+runTimers();
+
+exit;
 while (1)
 {
 	print ">Trying to connect...\n";
