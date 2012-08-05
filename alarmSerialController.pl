@@ -90,19 +90,6 @@ my $nextCommand = "";
 my $timerNextId = 0;
 my %timers = ();
 
-sub online
-{
-	print "  >function online\n";
-	#$currentState = 2;
-	#setTimer(2, "onlineTimeout");
-	#$nextCommand = "setLedGreenBuzzer";
-}
-
-sub onlineTimeout
-{
-	print "  >function onlineTimeout\n";
-	$nextCommand = "setLedRed";
-}
 
 sub setTimer
 {
@@ -123,7 +110,7 @@ sub removeTimer
 
 sub runTimers
 {
-	print ">running timers\n";
+	#print ">running timers\n";
 	$curTime = time;
 	my @newTimers;
 	foreach my $key (keys %timers)
@@ -134,7 +121,7 @@ sub runTimers
 		my $timer = $1;
 		my $function = $2;
 		
-		print " >timer id ".$key." time ".$timer." function ".$function."\n";
+		#print " >timer id ".$key." time ".$timer." function ".$function."\n";
 		if($curTime >= $timer)
 		{
 			#print " >execute $function\n";
@@ -145,24 +132,27 @@ sub runTimers
 	#@timers = @newTimers;
 }
 
-#my %h;
-#$h{"key"} = "truc";
 
-setTimer(2, "online");
-setTimer(7, "onlineTimeout");
-$idTruc = setTimer(5, "online");
+#
+# timers callbacks
+#
+sub online
+{
+	print "  >function online\n";
+	$currentState = 2;
+	setTimer(2, "onlineTimeout");
+	$nextCommand = "setLedGreenBuzzer";
+}
+
+sub onlineTimeout
+{
+	print "  >function onlineTimeout\n";
+	$nextCommand = "setLedRed";
+}
 
 
-runTimers();
-sleep(3);
-removeTimer($idTruc);
-runTimers();
-sleep(4);
-runTimers();
-sleep(1);
-runTimers();
+my $tOnlineTimed;
 
-exit;
 while (1)
 {
 	print ">Trying to connect...\n";
@@ -209,10 +199,11 @@ while (1)
 					{
 						print "online timed\n";
 						$currentState = 1;
-						setTimer(5, "online");
+						$tOnlineTimed = setTimer(5, "online");
 					}
-					elsif($currentState >= 2)
+					elsif($currentState >= 1)
 					{	
+						removeTimer($tOnlineTimed);
 						print "offline\n";
 						$currentState = 0;
 						$nextCommand = "setLedGreen";
