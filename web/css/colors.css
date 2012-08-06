@@ -5,6 +5,7 @@
 .color_status1{
 	background-color:#b6b6b6;
 }
+
 /*green*/
 .bgcolor_status2{
 	background-color:#65a721;
@@ -12,6 +13,7 @@
 .color_status2{
 	background-color:#65a721;
 }
+
 /*yellow*/
 .bgcolor_status3{
 	background-color:#f3ca4d;
@@ -56,16 +58,16 @@
 	background-color:#b6b6b6;
 }
 /*red*/
-.bgcolor_state3{
+.bgcolor_state0{
 	background-color:#f13428;
 }
-.color_state3{
+.color_state0{
 	background-color:#f13428;
 }
 /*green*/
-.bgcolor_state2{
+.bgcolor_state1{
 	background-color:#65a721;
 }
-.color_state2{
+.color_state1{
 	background-color:#65a721;
 }

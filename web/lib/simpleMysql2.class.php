@@ -7,7 +7,7 @@ by Marc
 A tiny PHP / MySQL class.
 
 connect($host, $database, $username, $password)
-	Connexion à la base de donnée
+	Connexion ï¿½ la base de donnï¿½e
 	Connect to database
 
 close()
@@ -15,58 +15,58 @@ close()
 	Close connection
 
 exec($req)
-	Exécution d'une requête, sauf type SELECT
+	Exï¿½cution d'une requï¿½te, sauf type SELECT
 	Execute request, except SELECT
 	
 select($req)
-	Exécute une requête de type SELECT
+	Exï¿½cute une requï¿½te de type SELECT
 	Execute a SELECT request
 	
 getNbRows()
-	Retourne le nombre de lignes de résultat (disponible après une requête SELECT)
+	Retourne le nombre de lignes de rï¿½sultat (disponible aprï¿½s une requï¿½te SELECT)
 	Get results' count (only after a SELECT statement)
 	
-Toutes les fonction suivantes doivent suivre un appel à select()
+Toutes les fonction suivantes doivent suivre un appel ï¿½ select()
 All following functions must be executed after a select()
 fetchCell()
-	Retourne une valeur unique (dans le cas d'une requête rapatriant 1 ligne et 1 colonne)
+	Retourne une valeur unique (dans le cas d'une requï¿½te rapatriant 1 ligne et 1 colonne)
 	Get a single cell result (must be a 1 line 1 column request)
 	
 fetchLineObject()
-	Retourne une ligne de résultat sous la forme d'un objet (Resultat d'une ligne). On utilisera la valeur retournée ainsi : $lineObj->VAR
+	Retourne une ligne de rï¿½sultat sous la forme d'un objet (Resultat d'une ligne). On utilisera la valeur retournï¿½e ainsi : $lineObj->VAR
 	Get a line of result as an object. Use $lineObj->VAR_NAME to obtain the value.
 	
 fetchLineArray()
-	Retourne une ligne de résultat sous la forme d'un tableau à une dimension. $lineArray[COL_INDEX]
+	Retourne une ligne de rï¿½sultat sous la forme d'un tableau ï¿½ une dimension. $lineArray[COL_INDEX]
 	Get a line of result as a single dimension array. $lineArray[COL_INDEX]
 	
 fetchColArray()
-	Retourne plusieurs lignes de résultats limités à une colonne sous la forme d'un tableau à une dimension $colArray[LINE_INDEX]
+	Retourne plusieurs lignes de rï¿½sultats limitï¿½s ï¿½ une colonne sous la forme d'un tableau ï¿½ une dimension $colArray[LINE_INDEX]
 	Get several result lines of one column as a single dimension array. $colArray[LINE_INDEX]
 	
 fetchKeyValueArray()
-	Retourne plusieurs lignes de résultats de deux colonnes sous la forme d'un tableau à deux dimensions $colsArray[LINE_INDEX][COL_INDEX]
+	Retourne plusieurs lignes de rï¿½sultats de deux colonnes sous la forme d'un tableau ï¿½ deux dimensions $colsArray[LINE_INDEX][COL_INDEX]
 	Get several result lines of two columns as a double dimension array. $colsArray[LINE_INDEX][COL_INDEX]
 	
 fetchKeyValueAssoc()
-	Retourne plusieurs lignes de résultats de deux colonnes sous la forme d'un tableau associatif.
-	La première colonne servira de clé pour accéder à la valeur de la seconde $hash["COL1_VAL"] -> COL2_VAL
+	Retourne plusieurs lignes de rï¿½sultats de deux colonnes sous la forme d'un tableau associatif.
+	La premiï¿½re colonne servira de clï¿½ pour accï¿½der ï¿½ la valeur de la seconde $hash["COL1_VAL"] -> COL2_VAL
 	Get several result lines of two columns as an associative array. 
 	First column of the request is the key, second column is the value. $hash["COL1_VAL"] -> COL2_VAL
 
 fetchLinesArray()
-	Retourne plusieurs lignes de résultats sous la forme d'un tableau à deux dimensions. $tab[LINE_INDEX][COL_INDEX]
+	Retourne plusieurs lignes de rï¿½sultats sous la forme d'un tableau ï¿½ deux dimensions. $tab[LINE_INDEX][COL_INDEX]
 	Get several result lines as a double dimension array. $tab[LINE_INDEX][COL_INDEX]
 	
 fetchLinesObjects()
-	Retourne plusieurs lignes de résultats sous la forme d'un tableau d'objets. $tab[LINE_INDEX]->VAR_NAME
+	Retourne plusieurs lignes de rï¿½sultats sous la forme d'un tableau d'objets. $tab[LINE_INDEX]->VAR_NAME
 	Get several result lines as an objects array. $tab[LINE_INDEX]->VAR_NAME
 	
 fetchLinesAssoc()
-	Retourne plusieurs lignes de résultats sous la forme d'un tableau associatif. $tab[LINE_INDEX]["VAR_NAME"]
+	Retourne plusieurs lignes de rï¿½sultats sous la forme d'un tableau associatif. $tab[LINE_INDEX]["VAR_NAME"]
 	Get several result lines as an associative array. $tab[LINE_INDEX]["VAR_NAME"]
 	
-Toutes les fonctions suivante exécute la requête SELECT passée en paramètre, puis retourne le résultat. Se réferer aux fonctions fetch*.
+Toutes les fonctions suivante exï¿½cute la requï¿½te SELECT passï¿½e en paramï¿½tre, puis retourne le rï¿½sultat. Se rï¿½ferer aux fonctions fetch*.
 All following functions executes the $req parameter as a SELECT, then return the result directly. Refer to fetch* functions.
 selectCell($req)
 selectLineObject($req)
@@ -79,10 +79,10 @@ selectLinesObjects($req)
 selectLinesAssoc($req)
 
 getGrammar($singular, $plural, $none)
-	Retourne $singular, $plural ou $none, en fonction du nombre de résultats du SELECT précedent. Utile pour afficher un nombre de résultat dans la page.
-	Remplace <NUM> par le nombre de ligne dans le cas ou $plural est retourné.
-	> getGrammar("Il y a un résultat", "Il y a <NUM> résultats", "Pas de résultat")
-	> #Si une ligne de résulat, retourne "Il y a un résultat", si 42 lignes "Il y a 42 résultats", si aucun "Pas de résultat"
+	Retourne $singular, $plural ou $none, en fonction du nombre de rï¿½sultats du SELECT prï¿½cedent. Utile pour afficher un nombre de rï¿½sultat dans la page.
+	Remplace <NUM> par le nombre de ligne dans le cas ou $plural est retournï¿½.
+	> getGrammar("Il y a un rï¿½sultat", "Il y a <NUM> rï¿½sultats", "Pas de rï¿½sultat")
+	> #Si une ligne de rï¿½sulat, retourne "Il y a un rï¿½sultat", si 42 lignes "Il y a 42 rï¿½sultats", si aucun "Pas de rï¿½sultat"
 	Returns $singular, $plural ou $none, according to the last SELECT result counts. Could be used to prompt a result summary.
 	> getGrammar("One result", "There's <NUM> results", "No result")
 	> #If 1 line of result, return "One result", if 42 lines "There's 42 results", if none "No result"
@@ -93,7 +93,7 @@ setDebug($debug)
 	Modify debug mode state.
 	
 printDebug($req)
-	Affiche les informations sur la dernière erreur.
+	Affiche les informations sur la derniï¿½re erreur.
 	Prompt last error text.
 */
 
@@ -114,6 +114,7 @@ class simpleMysql
 	{
 		if (!$this->_dbCnx = mysql_connect($host,$username,$password))
 		{
+			print "CEST MORT!!!";
 			return -1;
 		}
 		if (!mysql_select_db($database, $this->_dbCnx))

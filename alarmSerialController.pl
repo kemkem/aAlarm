@@ -8,7 +8,7 @@ use DBI;
 my $port;
 my $dbUrl = "DBI:mysql:database=aalarm;host=localhost";
 my $dbLogin = "aalarm";
-my $dbPasswd = "wont6Oc`";
+my $dbPasswd = "wont6Oc";
 my $pathWebCommand = "/home/kemkem/AAlarm/web/command/command";
 my $pathWebStatus = "/home/kemkem/AAlarm/web/state";
 my $pathLog = "/home/kemkem/AAlarm/log";
@@ -16,10 +16,11 @@ my $port = "/dev/ttyACM0";
 
 sub recordEvent
 {
-	my $status = shift;
+	my $sensorId = shift;
+	my $sensorState = shift;
 	my $state = shift;
 	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-        $dbh->do("insert into Event (date, status, sensor) values (now(), $status, $state)");
+    $dbh->do("insert into Event (date, status, sensor, sensorId) values (now(), $state, $sensorState, $sensorId)");
 }
 
 sub recordFailure
@@ -208,6 +209,17 @@ while (1)
 				my $sensorNb = $1;
 				my $sensorStatus = $2;
 				print("sensor $sensorNb [$sensorStatus]\n");
+				
+				my $sensorState;
+				if ($sensorStatus =~ /CLOSE$/)
+				{
+					$sensorState = 0;
+				}
+				elsif ($sensorStatus =~ /OPEN$/)
+				{
+					$sensorState = 1;
+				}
+				
 				#Manage alarms
 				if ($currentState >= 2)
 				{
@@ -218,6 +230,8 @@ while (1)
 						$tIntrusionAlarm = setTimer(16, "ckbIntrusionAlarm");
 					}
 				}
+				#record this event
+				recordEvent($sensorNb, $sensorState, $currentState);
 			}
 			
 			#key '*' pressed
