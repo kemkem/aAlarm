@@ -249,6 +249,7 @@ while (1)
 						print "[!]online timed\n";
 						$currentState = 1;
 						$tOnlineTimed = setTimer(5, "ckbOnline");
+						
 					}
 					elsif($currentState >= 1)
 					{	
