@@ -10,11 +10,11 @@
 	ORDER BY e.id DESC
 	LIMIT 0 , 1";
 
-	$currentStatus = "<span class=\"bgcolor_status1\">UNKNOWN</span>";
+	$currentStatus = "<span class=\"bgcolor_globalStateU\">UNKNOWN</span>";
 	$result = $db->selectLineObject($reqCurrentSatuts);
 	if($db->getNbRows())
 	{
-		$currentStatus = "<span class=\"statusLabel bgcolor_status".$result->eState."\">".$result->rgState."</span>";
+		$currentStatus = "<span class=\"statusLabel bgcolor_globalState".$result->eState."\">".$result->rgState."</span>";
 	}
 	print $currentStatus;
 ?>

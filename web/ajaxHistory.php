@@ -24,7 +24,7 @@
 	
 	
 	$reqStatus = "
-	SELECT e.date as eDate, e.globalState as eGlobalState, rg.state as rgState, e.sensorState as eSensorState, rs.state as rsState
+	SELECT e.date as eDate, e.globalState as globalState, rg.state as rgState, e.sensorState as sensorState, rs.state as rsState
 	FROM Event e, RefGlobalState rg, RefSensorState rs
 	WHERE e.globalState = rg.id
 	AND e.sensorState = rs.id
@@ -56,9 +56,9 @@
 		{
 			$strTableLines .= "<tr><td>";
 			$strTableLines .= $item->eDate;
-			$strTableLines .= "</td><td class=\"color_status".$item->globalState."\">";
+			$strTableLines .= "</td><td class=\"color_globalState".$item->globalState."\">";
 			$strTableLines .= $item->rgState;
-			$strTableLines .= "</td><td class=\"color_state".$item->sensorState."\">";
+			$strTableLines .= "</td><td class=\"color_sensorState".$item->sensorState."\">";
 			$strTableLines .= $item->rsState;
 			$strTableLines .= "</td></tr>";
 		}
