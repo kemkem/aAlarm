@@ -18,16 +18,16 @@ sub recordEvent
 {
 	my $sensorId = shift;
 	my $sensorState = shift;
-	my $state = shift;
+	my $globalState = shift;
 	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-    $dbh->do("insert into Event (date, status, sensor, sensorId) values (now(), $state, $sensorState, $sensorId)");
+   	$dbh->do("insert into Event (date, globalState, sensorState, sensorId) values (now(), $globalState, $sensorState, $sensorId)");
 }
 
-sub recordFailure
-{
-	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-        $dbh->do("insert into Event (date, status, sensor) values (now(), 1, 1)");
-}
+#sub recordFailure
+#{
+#	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+#        $dbh->do("insert into Event (date, status, sensor) values (now(), 1, 1)");
+#}
 
 sub getCurDate
 {

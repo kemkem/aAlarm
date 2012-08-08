@@ -23,9 +23,9 @@ SET time_zone = "+00:00";
 CREATE TABLE IF NOT EXISTS `Event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `date` datetime NOT NULL,
-  `sensor` tinyint(4) NOT NULL,
+  `sensorState` tinyint(4) NOT NULL,
   `sensorId` tinyint(4) NOT NULL,
-  `status` tinyint(4) NOT NULL,
+  `globalState` tinyint(4) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=9 ;
 
@@ -36,9 +36,9 @@ CREATE TABLE IF NOT EXISTS `Event` (
 -- Table structure for table `RefSensor`
 --
 
-CREATE TABLE IF NOT EXISTS `RefSensor` (
+CREATE TABLE IF NOT EXISTS `RefSensorState` (
   `id` tinyint(4) NOT NULL AUTO_INCREMENT,
-  `sensor` varchar(20) NOT NULL,
+  `state` varchar(20) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
 
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `RefSensor` (
 -- Dumping data for table `RefSensor`
 --
 
-INSERT INTO `RefSensor` (`id`, `sensor`) VALUES
+INSERT INTO `RefSensorState` (`id`, `state`) VALUES
 (0, 'CLOSE'),
 (1, 'OPEN');
 
@@ -56,9 +56,9 @@ INSERT INTO `RefSensor` (`id`, `sensor`) VALUES
 -- Table structure for table `RefStatus`
 --
 
-CREATE TABLE IF NOT EXISTS `RefStatus` (
+CREATE TABLE IF NOT EXISTS `RefGlobalState` (
   `id` tinyint(4) NOT NULL AUTO_INCREMENT,
-  `status` varchar(25) NOT NULL,
+  `state` varchar(25) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;
 
@@ -66,13 +66,13 @@ CREATE TABLE IF NOT EXISTS `RefStatus` (
 -- Dumping data for table `RefStatus`
 --
 
-INSERT INTO `RefStatus` (`id`, `status`) VALUES
+INSERT INTO `RefGlobalState` (`id`, `state`) VALUES
 (0, 'OFFLINE'),
-(1, 'ONLINE_TIMED');
+(1, 'ONLINE_TIMED'),
 (2, 'ONLINE'),
 (3, 'ONLINE_INTRUSION'),
 (4, 'ONLINE_INTRUSION_WARNING'),
-(5, 'ONLINE_INTRUSION_ALARM'),
+(5, 'ONLINE_INTRUSION_ALARM');
 
 CREATE TABLE IF NOT EXISTS `Commands` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
