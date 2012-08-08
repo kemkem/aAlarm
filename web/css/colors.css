@@ -1,73 +1,79 @@
 /*grey*/
-.bgcolor_status1{
+.bgcolor_globalStateU{
 	background-color:#b6b6b6;
 }
-.color_status1{
+.color_globalStateU{
 	background-color:#b6b6b6;
-}
-
-/*green*/
-.bgcolor_status2{
-	background-color:#65a721;
-}
-.color_status2{
-	background-color:#65a721;
 }
 
 /*yellow*/
-.bgcolor_status3{
+.bgcolor_globalState0{
 	background-color:#f3ca4d;
 }
-.color_status3{
+.color_globalState0{
 	background-color:#f3ca4d;
 }
-/*orange*/
-.bgcolor_status4{
-	background-color:#f19728;
-}
-.color_status4{
-	background-color:#f19728;
-}
-/*orange-red*/
-.bgcolor_status5{
-	background-color:#f16528;
-}
-.color_status5{
-	background-color:#f16528;
-}
-/*red*/
-.bgcolor_status6{
-	background-color:#f13428;
-}
-.color_status6{
-	background-color:#f13428;
-}
+
 /*light-green*/
-.bgcolor_status7{
+.bgcolor_globalState1{
 	background-color:#7ea767;
 }
-.color_status7{
+.color_globalState1{
 	background-color:#7ea767;
 }
 
-/*grey*/
-.bgcolor_state1{
-	background-color:#b6b6b6;
-}
-.color_state1{
-	background-color:#b6b6b6;
-}
-/*red*/
-.bgcolor_state0{
-	background-color:#f13428;
-}
-.color_state0{
-	background-color:#f13428;
-}
 /*green*/
-.bgcolor_state1{
+.bgcolor_globalState2{
 	background-color:#65a721;
 }
-.color_state1{
+.color_globalState2{
+	background-color:#65a721;
+}
+
+
+
+/*orange*/
+.bgcolor_globalState3{
+	background-color:#f19728;
+}
+.color_globalState3{
+	background-color:#f19728;
+}
+
+/*orange-red*/
+.bgcolor_globalState4{
+	background-color:#f16528;
+}
+.color_globalState4{
+	background-color:#f16528;
+}
+
+/*red*/
+.bgcolor_globalState5{
+	background-color:#f13428;
+}
+.color_globalState5{
+	background-color:#f13428;
+}
+
+/*unknown - grey*/
+.bgcolor_sensorStateU{
+	background-color:#b6b6b6;
+}
+.color_sensorStateU{
+	background-color:#b6b6b6;
+}
+/*open - red*/
+.bgcolor_sensorState0{
+	background-color:#f13428;
+}
+.color_sensorState0{
+	background-color:#f13428;
+}
+/*closed - green*/
+.bgcolor_sensorState1{
+	background-color:#65a721;
+}
+.color_sensorState1{
 	background-color:#65a721;
 }
