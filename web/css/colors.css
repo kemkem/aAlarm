@@ -1,3 +1,5 @@
+/*Global*/
+
 /*grey*/
 .bgcolor_globalStateU{
 	background-color:#b6b6b6;
@@ -56,6 +58,8 @@
 	background-color:#f13428;
 }
 
+/*sensor*/
+
 /*unknown - grey*/
 .bgcolor_sensorStateU{
 	background-color:#b6b6b6;
@@ -64,16 +68,16 @@
 	background-color:#b6b6b6;
 }
 /*open - red*/
-.bgcolor_sensorState0{
+.bgcolor_sensorState1{
 	background-color:#f13428;
 }
-.color_sensorState0{
+.color_sensorState1{
 	background-color:#f13428;
 }
 /*closed - green*/
-.bgcolor_sensorState1{
+.bgcolor_sensorState0{
 	background-color:#65a721;
 }
-.color_sensorState1{
+.color_sensorState0{
 	background-color:#65a721;
 }
