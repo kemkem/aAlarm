@@ -25,7 +25,7 @@ my $refresh = $refreshMs * 1000;
 
 my $passwd = "4578";
 
-my $currentState = 0;
+my $globalState = 0;
 my $nextCommand = "";
 
 my @sensorsStates;
@@ -61,7 +61,7 @@ while (1)
 			#received sensors update				
 			if($response =~ /sensor(\d+):(.*)/)
 			{
-				my $sensorNb = $1;
+				my $sensorNb = $1 + 1;
 				my $sensorStatus = $2;
 				print("sensor $sensorNb [$sensorStatus]\n");
 				
@@ -74,19 +74,22 @@ while (1)
 				{
 					$sensorsStates[$sensorNb] = 1;
 				}
+				#record sensor event
+				recordEvent($sensorNb, $sensorsStates[$sensorNb]);
 				
 				#Manage alarms
-				if ($currentState >= 2)
+				if ($globalState == 2)
 				{
-					if ($sensorsStates[$sensorNb] =~ /OPEN/)
+					if ($sensorsStates[$sensorNb] = 1)
 					{
 						print "[!]intrusion alert !\n";
 						$tIntrusionWarning = setTimer(8, "ckbIntrusionWarning");
 						$tIntrusionAlarm = setTimer(16, "ckbIntrusionAlarm");
+						$globalState = 3;
+						#record global state change
+						recordEvent(0, $globalState);
 					}
 				}
-				#record this event
-				recordEvent($sensorNb, $sensorsStates[$sensorNb], $currentState);
 			}
 			
 			#key '*' pressed
@@ -99,18 +102,18 @@ while (1)
 				if($keys =~ /$passwd\*$/)
 				{
 					
-					if($currentState == 0)
+					if($globalState == 0)
 					{
 						print "[!]online timed\n";
-						$currentState = 1;
+						$globalState = 1;
 						$tOnlineTimed = setTimer(5, "ckbOnline");
 						
 					}
-					elsif($currentState >= 1)
+					elsif($globalState >= 1)
 					{	
 						removeTimer($tOnlineTimed);
 						print "[!]offline\n";
-						$currentState = 0;
+						$globalState = 0;
 						$nextCommand = "setLedGreen";
 					}
 				}
@@ -152,7 +155,9 @@ while (1)
 sub ckbOnline
 {
 	print "  >function online\n";
-	$currentState = 2;
+	$globalState = 2;
+	#record global state change
+	recordEvent(0, $globalState);
 	setTimer(2, "ckbOnlineTimeout");
 	$nextCommand = "setLedGreenBuzzer";
 }
@@ -167,6 +172,9 @@ sub ckbIntrusionWarning
 {
 	print "  >function ckbIntrusionWarning\n";
 	setTimer(2, "ckbIntrusionWarningTimeout");
+	$globalState = 4;
+	#record global state change
+	recordEvent(0, $globalState);
 }
 
 sub ckbIntrusionWarningTimeout
@@ -178,6 +186,9 @@ sub ckbIntrusionAlarm
 {
 	print "  >function ckbIntrusionAlarm\n";
 	setTimer(2, "ckbIntrusionAlarmTimeout");
+	$globalState = 5;
+	#record global state change
+	recordEvent(0, $globalState);
 }
 
 sub ckbIntrusionAlarmTimeout
@@ -193,9 +204,8 @@ sub recordEvent
 {
 	my $sensorId = shift;
 	my $sensorState = shift;
-	my $globalState = shift;
 	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-   	$dbh->do("insert into Event (date, globalState, sensorState, sensorId) values (now(), $globalState, $sensorState, $sensorId)");
+   	$dbh->do("insert into Event (date, sensorState, sensorId) values (now(), $sensorState, $sensorId)");
 }
 
 #sub recordFailure
