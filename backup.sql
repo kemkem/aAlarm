@@ -23,7 +23,7 @@ SET time_zone = "+00:00";
 CREATE TABLE IF NOT EXISTS `Event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `date` datetime NOT NULL,
-  `sensorState` tinyint(4) NOT NULL,
+  `state` tinyint(4) NOT NULL,
   `sensorId` tinyint(4) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=9 ;

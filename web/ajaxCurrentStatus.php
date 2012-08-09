@@ -4,9 +4,10 @@
 <?php
 	//CURRENT STATUS
 	$reqCurrentSatuts = 
-	"SELECT e.date AS eDate, rg.state AS rgState, e.globalState as eState
+	"SELECT e.date AS eDate, rg.state AS rgState, e.state as eState
 	FROM Event e, RefGlobalState rg
-	WHERE e.globalState = rg.id
+	WHERE e.state = rg.id
+	AND e.sensorId = 0
 	ORDER BY e.id DESC
 	LIMIT 0 , 1";
 

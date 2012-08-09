@@ -34,6 +34,10 @@ my @sensorsStates;
 my $timerNextId = 0;
 my %timers = ();
 
+
+#record global state init
+recordEvent(0, $globalState);
+
 while (1)
 {
 	print ">Trying to connect...\n";
@@ -106,6 +110,8 @@ while (1)
 					{
 						print "[!]online timed\n";
 						$globalState = 1;
+						#record global state change
+						recordEvent(0, $globalState);
 						$tOnlineTimed = setTimer(5, "ckbOnline");
 						
 					}
@@ -114,6 +120,8 @@ while (1)
 						removeTimer($tOnlineTimed);
 						print "[!]offline\n";
 						$globalState = 0;
+						#record global state change
+						recordEvent(0, $globalState);
 						$nextCommand = "setLedGreen";
 					}
 				}
@@ -203,9 +211,9 @@ sub ckbIntrusionAlarmTimeout
 sub recordEvent
 {
 	my $sensorId = shift;
-	my $sensorState = shift;
+	my $state = shift;
 	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-   	$dbh->do("insert into Event (date, sensorState, sensorId) values (now(), $sensorState, $sensorId)");
+   	$dbh->do("insert into Event (date, state, sensorId) values (now(), $state, $sensorId)");
 }
 
 #sub recordFailure
