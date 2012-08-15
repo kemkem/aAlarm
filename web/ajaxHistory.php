@@ -24,10 +24,10 @@
 	
 	
 	$reqStatus = "
-	SELECT e.date as eDate, e.globalState as globalState, rg.state as rgState, e.sensorState as sensorState, rs.state as rsState
+	SELECT e.date as eDate, e.sensorId as sensorId, e.state as state, rg.state as rgState, rs.state as rsState
 	FROM Event e, RefGlobalState rg, RefSensorState rs
-	WHERE e.globalState = rg.id
-	AND e.sensorState = rs.id
+	WHERE e.state = rg.id
+	AND e.state = rs.id
 	";
 	
 	if ($statusDateTSStart != -1)
@@ -56,10 +56,18 @@
 		{
 			$strTableLines .= "<tr><td>";
 			$strTableLines .= $item->eDate;
-			$strTableLines .= "</td><td class=\"color_globalState".$item->globalState."\">";
-			$strTableLines .= $item->rgState;
-			$strTableLines .= "</td><td class=\"color_sensorState".$item->sensorState."\">";
-			$strTableLines .= $item->rsState;
+			if($item->sensorId == 0)
+			{
+				$strTableLines .= "</td><td class=\"color_globalState".$item->state."\">";
+				$strTableLines .= $item->rgState;
+			}
+			else
+			{
+				
+				$strTableLines .= "</td><td class=\"color_sensorState".$item->state."\">";
+				$strTableLines .= "sensor".$item->sensorId." ";
+				$strTableLines .= $item->rsState;
+			}
 			$strTableLines .= "</td></tr>";
 		}
 
