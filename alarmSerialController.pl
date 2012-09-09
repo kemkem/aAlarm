@@ -34,6 +34,8 @@ my @sensorsStates;
 my $timerNextId = 0;
 my %timers = ();
 
+my $useDb = 0;
+
 
 #record global state init
 recordEvent(0, $globalState);
@@ -212,8 +214,15 @@ sub recordEvent
 {
 	my $sensorId = shift;
 	my $state = shift;
-	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-   	$dbh->do("insert into Event (date, state, sensorId) values (now(), $state, $sensorId)");
+	if ($useDb)
+	{
+		my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+	   	$dbh->do("insert into Event (date, state, sensorId) values (now(), $state, $sensorId)");
+	}
+	else
+	{
+		print "insert into Event (date, state, sensorId) values (now(), $state, $sensorId)\n";
+	}
 }
 
 #sub recordFailure
