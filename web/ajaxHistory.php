@@ -27,8 +27,12 @@
 	SELECT e.date as eDate, e.sensorId as sensorId, e.state as state, rg.state as rgState, rs.state as rsState
 	FROM Event e, RefGlobalState rg, RefSensorState rs
 	WHERE e.state = rg.id
-	AND e.state = rs.id
+	AND e.sensorId = rs.id
 	";
+
+	/*$reqStatus = "
+	select * from Event e, RefGlobalState rg, RefSensorState rs where e.state = rg.id and e.sensorId = rs.id order by e.id
+	";*/
 	
 	if ($statusDateTSStart != -1)
 	{
@@ -76,8 +80,7 @@
 	<thead>
 		<tr>
 			<td>Date</td>
-			<td>Status</td>
-			<td>Sensor</td>
+			<td>Event</td>
 		</tr>
 	</thead>
 	<tbody>
