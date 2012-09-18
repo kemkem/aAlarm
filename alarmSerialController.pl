@@ -34,11 +34,11 @@ my @sensorsStates;
 my $timerNextId = 0;
 my %timers = ();
 
-my $useDb = 0;
+my $useDb = 1;
 
 
 #record global state init
-recordEvent(0, $globalState);
+recordEvent($globalState, 0);
 
 while (1)
 {
@@ -81,7 +81,7 @@ while (1)
 					$sensorsStates[$sensorNb] = 1;
 				}
 				#record sensor event
-				recordEvent($sensorNb, $sensorsStates[$sensorNb]);
+				recordEvent($globalState, $sensorsStates[$sensorNb]);
 				
 				#Manage alarms
 				if ($globalState == 2)
@@ -93,7 +93,7 @@ while (1)
 						$tIntrusionAlarm = setTimer(16, "ckbIntrusionAlarm");
 						$globalState = 3;
 						#record global state change
-						recordEvent(0, $globalState);
+						recordEvent($globalState, $sensorsStates[1]);
 					}
 				}
 			}
@@ -113,7 +113,7 @@ while (1)
 						print "[!]online timed\n";
 						$globalState = 1;
 						#record global state change
-						recordEvent(0, $globalState);
+						recordEvent($globalState, $sensorsStates[1]);
 						$tOnlineTimed = setTimer(5, "ckbOnline");
 						
 					}
@@ -123,7 +123,7 @@ while (1)
 						print "[!]offline\n";
 						$globalState = 0;
 						#record global state change
-						recordEvent(0, $globalState);
+						recordEvent($globalState, $sensorsStates[1]);
 						$nextCommand = "setLedGreen";
 					}
 				}
@@ -167,7 +167,7 @@ sub ckbOnline
 	print "  >function online\n";
 	$globalState = 2;
 	#record global state change
-	recordEvent(0, $globalState);
+	recordEvent($globalState, $sensorsStates[1]);
 	setTimer(2, "ckbOnlineTimeout");
 	$nextCommand = "setLedGreenBuzzer";
 }
@@ -184,7 +184,7 @@ sub ckbIntrusionWarning
 	setTimer(2, "ckbIntrusionWarningTimeout");
 	$globalState = 4;
 	#record global state change
-	recordEvent(0, $globalState);
+	recordEvent($globalState, $sensorsStates[1]);
 }
 
 sub ckbIntrusionWarningTimeout
@@ -198,7 +198,7 @@ sub ckbIntrusionAlarm
 	setTimer(2, "ckbIntrusionAlarmTimeout");
 	$globalState = 5;
 	#record global state change
-	recordEvent(0, $globalState);
+	recordEvent($globalState, $sensorsStates[1]);
 }
 
 sub ckbIntrusionAlarmTimeout
@@ -212,8 +212,8 @@ sub ckbIntrusionAlarmTimeout
 
 sub recordEvent
 {
-	my $sensorId = shift;
 	my $state = shift;
+	my $sensorId = shift;
 	if ($useDb)
 	{
 		my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});

@@ -58,8 +58,9 @@
 	{
 		foreach($results as $item)
 		{
-			$strTableLines .= "<tr><td>";
-			$strTableLines .= $item->eDate;
+			$strTableLines .= "<tr>";
+			$strTableLines .= "<td>".$item->eDate."</td>";
+			/*
 			if($item->sensorId == 0)
 			{
 				$strTableLines .= "</td><td class=\"color_globalState".$item->state."\">";
@@ -71,8 +72,45 @@
 				$strTableLines .= "</td><td class=\"color_sensorState".$item->state."\">";
 				$strTableLines .= "sensor".$item->sensorId." ";
 				$strTableLines .= $item->rsState;
+			}*/
+			$state = "";
+			$sensor1 = "";
+			switch($item->state)
+			{
+				case 0:
+					$state = "OFFLINE";
+					break;
+				case 1:
+					$state = "TIMED";
+					break;
+				case 2:
+					$state = "ONLINE";
+					break;
+				case 3:
+					$state = "INTRUSION";
+					break;
+				case 4:
+					$state = "WARNING";
+					break;
+				case 5:
+					$state = "ALARM";
+					break;
+					
 			}
-			$strTableLines .= "</td></tr>";
+			switch($item->sensorId)
+			{
+				case 0:
+					$sensor1 = "CLOSED";
+					break;
+				case 1:
+					$sensor1 = "OPEN";
+					break;
+			}
+			
+			$strTableLines .= "<td class=\"color_globalState".$item->state."\">".$state."</td>";
+			$strTableLines .= "<td class=\"color_sensorState".$item->sensorId."\">".$sensor1."</td>";
+			
+			$strTableLines .= "</tr>";
 		}
 
 ?>
@@ -80,7 +118,8 @@
 	<thead>
 		<tr>
 			<td>Date</td>
-			<td>Event</td>
+			<td>Status</td>
+			<td>Sensor 1</td>
 		</tr>
 	</thead>
 	<tbody>
