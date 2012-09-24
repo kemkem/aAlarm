@@ -4,10 +4,13 @@
 <?php
 	//SENSOR STATE
 	$reqCurrentState = 
-	"SELECT e.date AS eDate, rs.state AS rsState, e.state as eState
-	FROM Event e, RefSensorState rs
-	WHERE e.state = rs.id
-	AND e.sensorId = 1
+	"SELECT 
+	e.date as eDate, e.id as eId, e.stateType as eType, e.sensorId as eSensorId, e.state as eState,
+	s.state as sState
+	FROM Event e, RefState s
+	WHERE
+	e.stateType = s.stateType AND e.state = s.id
+	AND e.stateType = 1
 	ORDER BY e.id DESC
 	LIMIT 0 , 1";
 
@@ -15,7 +18,7 @@
 	$result = $db->selectLineObject($reqCurrentState);
 	if($db->getNbRows())
 	{
-		$currentState = "<span class=\"statusLabel bgcolor_sensorState".$result->eState."\">".$result->rsState."</span>";
+		$currentState = "<span class=\"statusLabel bgcolor_sensorState".$result->eState."\">".$result->sState."</span>";
 		//$currentState .= "<br/>since ".$result->eDate;
 	}
 	print $currentState;

@@ -36,9 +36,11 @@ my %timers = ();
 
 my $useDb = 1;
 
+#init sensors
+dbSensorInit();
 
 #record global state init
-recordEvent($globalState, 0);
+recordEventGlobal($globalState);
 
 while (1)
 {
@@ -81,7 +83,7 @@ while (1)
 					$sensorsStates[$sensorNb] = 1;
 				}
 				#record sensor event
-				recordEvent($globalState, $sensorsStates[$sensorNb]);
+				recordEventSensor($sensorNb, $sensorsStates[$sensorNb]);
 				
 				#Manage alarms
 				if ($globalState == 2)
@@ -93,7 +95,8 @@ while (1)
 						$tIntrusionAlarm = setTimer(16, "ckbIntrusionAlarm");
 						$globalState = 3;
 						#record global state change
-						recordEvent($globalState, $sensorsStates[1]);
+						#recordEvent($globalState, $sensorsStates[1]);
+						recordEventGlobal($globalState);
 					}
 				}
 			}
@@ -113,7 +116,7 @@ while (1)
 						print "[!]online timed\n";
 						$globalState = 1;
 						#record global state change
-						recordEvent($globalState, $sensorsStates[1]);
+						recordEventGlobal($globalState);
 						$tOnlineTimed = setTimer(5, "ckbOnline");
 						
 					}
@@ -123,7 +126,7 @@ while (1)
 						print "[!]offline\n";
 						$globalState = 0;
 						#record global state change
-						recordEvent($globalState, $sensorsStates[1]);
+						recordEventGlobal($globalState);
 						$nextCommand = "setLedGreen";
 					}
 				}
@@ -167,7 +170,7 @@ sub ckbOnline
 	print "  >function online\n";
 	$globalState = 2;
 	#record global state change
-	recordEvent($globalState, $sensorsStates[1]);
+	recordEventGlobal($globalState);
 	setTimer(2, "ckbOnlineTimeout");
 	$nextCommand = "setLedGreenBuzzer";
 }
@@ -184,7 +187,7 @@ sub ckbIntrusionWarning
 	setTimer(2, "ckbIntrusionWarningTimeout");
 	$globalState = 4;
 	#record global state change
-	recordEvent($globalState, $sensorsStates[1]);
+	recordEventGlobal($globalState);
 }
 
 sub ckbIntrusionWarningTimeout
@@ -198,7 +201,7 @@ sub ckbIntrusionAlarm
 	setTimer(2, "ckbIntrusionAlarmTimeout");
 	$globalState = 5;
 	#record global state change
-	recordEvent($globalState, $sensorsStates[1]);
+	recordEventGlobal($globalState);
 }
 
 sub ckbIntrusionAlarmTimeout
@@ -210,18 +213,44 @@ sub ckbIntrusionAlarmTimeout
 # DB
 #
 
-sub recordEvent
+sub dbSensorInit
 {
-	my $state = shift;
-	my $sensorId = shift;
 	if ($useDb)
 	{
 		my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-	   	$dbh->do("insert into Event (date, state, sensorId) values (now(), $state, $sensorId)");
+		$dbh->do("delete from Sensor");
+	   	$dbh->do("insert into Sensor (id, name) values (1, 'Door sensor')");
+	}
+}
+
+sub recordEventGlobal
+{
+	my $state = shift;
+	
+	if ($useDb)
+	{
+		my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+	   	$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, $state)");
 	}
 	else
 	{
-		print "insert into Event (date, state, sensorId) values (now(), $state, $sensorId)\n";
+		print "insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, $state)\n";
+	}
+}
+
+sub recordEventSensor
+{
+	my $sensorId = shift;
+	my $sensorState = shift;
+
+	if ($useDb)
+	{
+		my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+	   	$eventId = $dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, $sensorId, $sensorState)");
+	}
+	else
+	{
+		print "insert into Event (date, stateType, sensorId, state) values (now(), 1, $sensorId, $sensorState)\n";
 	}
 }
 
@@ -237,7 +266,7 @@ sub getCommand
 	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
         my $prepare = $dbh->prepare("
 	select c.command as command
-	from Commands c
+	from Command c
 	where c.completed  = 0
 	ORDER BY c.id DESC
 	LIMIT 0 , 1");
@@ -248,7 +277,7 @@ sub getCommand
 		my $command = $result->{command};
 		recordLog("C [".$command."]");
 
-	        $dbh->do("update Commands set completed=1 where completed=0");
+	        $dbh->do("update Command set completed=1 where completed=0");
 
 		return "setOnline" if ($command =~ /setOnline/);
 		return "setOffline" if ($command =~ /setOffline/);

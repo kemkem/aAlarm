@@ -60,11 +60,11 @@
 		
 		<div class="row">
 			<div class="span3">
-				<p>Current Status </p>
+				<p>Current Status</p>
 				<div id="idTargetStatus" class="statusBlock"></div>
 			</div>
 			<div class="span3">
-				<p>Sensor State </p>
+				<p>Sensor 1 State</p>
 				<div id="idTargetSensor" class="statusBlock"></div>
 			</div>
 		</div>

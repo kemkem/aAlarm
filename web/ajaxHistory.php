@@ -23,16 +23,23 @@
 	}
 	
 	
+	/*
 	$reqStatus = "
 	SELECT e.date as eDate, e.sensorId as sensorId, e.state as state, rg.state as rgState, rs.state as rsState
 	FROM Event e, RefGlobalState rg, RefSensorState rs
 	WHERE e.state = rg.id
 	AND e.sensorId = rs.id
 	";
+	*/
+	$reqStatus = "
+	SELECT 
+	e.date as eDate, e.id as eId, e.stateType as eType, e.sensorId as eSensorId, e.state as eState,
+	s.state as sState
+	FROM Event e, RefState s
+	WHERE
+	e.stateType = s.stateType AND e.state = s.id
+	";
 
-	/*$reqStatus = "
-	select * from Event e, RefGlobalState rg, RefSensorState rs where e.state = rg.id and e.sensorId = rs.id order by e.id
-	";*/
 	
 	if ($statusDateTSStart != -1)
 	{
@@ -60,19 +67,20 @@
 		{
 			$strTableLines .= "<tr>";
 			$strTableLines .= "<td>".$item->eDate."</td>";
-			/*
-			if($item->sensorId == 0)
+		
+			//$strTableLines .= "<td class=\"color_globalState".$item->state."\">";
+			//$strTableLines .= $item->rgState;
+			
+			if($item->eType == 0)
 			{
-				$strTableLines .= "</td><td class=\"color_globalState".$item->state."\">";
-				$strTableLines .= $item->rgState;
+				$strTableLines .= "<td class=\"color_globalState".$item->eState."\">Global state ".$item->sState."</td>";
 			}
 			else
 			{
+				$strTableLines .= "<td class=\"color_sensorState".$item->eState."\">Sensor [".$item->eSensorId."] ".$item->sState."</td>";
 				
-				$strTableLines .= "</td><td class=\"color_sensorState".$item->state."\">";
-				$strTableLines .= "sensor".$item->sensorId." ";
-				$strTableLines .= $item->rsState;
-			}*/
+			}
+			/*
 			$state = "";
 			$sensor1 = "";
 			switch($item->state)
@@ -106,9 +114,10 @@
 					$sensor1 = "OPEN";
 					break;
 			}
+			*/
 			
-			$strTableLines .= "<td class=\"color_globalState".$item->state."\">".$state."</td>";
-			$strTableLines .= "<td class=\"color_sensorState".$item->sensorId."\">".$sensor1."</td>";
+			//$strTableLines .= "<td class=\"color_globalState".$item->state."\">".$item->eId."</td>";
+			//$strTableLines .= "<td class=\"color_sensorState".$item->sensorId."\">".$item->eType."</td>";
 			
 			$strTableLines .= "</tr>";
 		}
@@ -118,8 +127,7 @@
 	<thead>
 		<tr>
 			<td>Date</td>
-			<td>Status</td>
-			<td>Sensor 1</td>
+			<td>Event</td>
 		</tr>
 	</thead>
 	<tbody>
