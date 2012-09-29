@@ -6,5 +6,10 @@ $password="wont6Oc";
 $database="aalarm";
 
 $db = new simpleMysql();
-$db->connect("localhost", $database, $username, $password);
+$state = $db->connect("localhost", $database, $username, $password);
+if($state == -1)
+{
+	print "Database connect failed !";
+}
+
 ?>

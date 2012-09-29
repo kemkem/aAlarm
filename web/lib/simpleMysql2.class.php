@@ -114,7 +114,6 @@ class simpleMysql
 	{
 		if (!$this->_dbCnx = mysql_connect($host,$username,$password))
 		{
-			print "CEST MORT!!!";
 			return -1;
 		}
 		if (!mysql_select_db($database, $this->_dbCnx))
