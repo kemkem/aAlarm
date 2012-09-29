@@ -67,16 +67,13 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 		#my $connection = 5;
 
 		while (1) {
-			print "before lookfor\n";
 		    my $response = $port->lookfor();
-			print "after lookfor\n";
 		
 		    if ($response) {
-				print "response\n";
 		    	$nextCommand = "";
 			chop $response;
 			#$connection++;
-			#print "R [".$response."]\n";
+			print "R [".$response."]\n";
 		
 			#received sensors update				
 			if($response =~ /sensor(\d+):(.*)/)
@@ -154,7 +151,6 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 		    else 
 		    {
 			usleep($refresh);
-
 			$send = $nextCommand;
 			$port->write($send."\n");
 			#print "S [".$send."]\n";
