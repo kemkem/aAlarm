@@ -5,7 +5,6 @@ use MIME::Lite;
 use Time::HiRes qw(usleep);
 use DBI;
 
-my $port;
 my $dbUrl = "DBI:mysql:database=aalarm;host=localhost";
 my $dbLogin = "aalarm";
 my $dbPasswd = "wont6Oc";
@@ -43,131 +42,137 @@ my $useDb = 1;
 #init sensors
 dbSensorInit();
 
-#record global state init
-recordEventGlobal($globalState);
+recordDisconnected();
 
 while (1)
 {
-	for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
+for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
+{
+	my $connectPort = $portBase.$portNum;
+	print ">Trying to connect to $connectPort\n";
+	#if ($port = Device::SerialPort->new("/dev/ttyACM0"))
+	if (my $port = Device::SerialPort->new($connectPort))
 	{
-		my $connectPort = $portBase.$portNum;
-		print ">Trying to connect to $connectPort\n";
-		#if ($port = Device::SerialPort->new("/dev/ttyACM0"))
-		if ($port = Device::SerialPort->new($connectPort))
-		{
-			print ">Connected\n";
-			$port->databits(8);	
-			$port->baudrate(9600);
-			$port->parity("none");
-			$port->stopbits(1);
+		print ">Connected\n";
+		$port->databits(8);
+		$port->baudrate($rate);
+		$port->parity("none");
+		$port->stopbits(1);
 
-			my $count = 0;
-			#my $connection = 5;
+		#record global state init
+		recordEventGlobal($globalState);
 
-			while (1) {
-			    my $response = $port->lookfor();
 
+		my $count = 0;
+		#my $connection = 5;
+
+		while (1) {
+			print "before lookfor\n";
+		    my $response = $port->lookfor();
+			print "after lookfor\n";
+		
+		    if ($response) {
+				print "response\n";
+		    	$nextCommand = "";
+			chop $response;
+			#$connection++;
+			#print "R [".$response."]\n";
+		
+			#received sensors update				
+			if($response =~ /sensor(\d+):(.*)/)
+			{
+				my $sensorNb = $1 + 1;
+				my $sensorStatus = $2;
+				print("sensor $sensorNb [$sensorStatus]\n");
 			
-			    if ($response) {
-			    	$nextCommand = "";
-				chop $response;
-				#$connection++;
-				#print "R [".$response."]\n";
-			
-				#received sensors update				
-				if($response =~ /sensor(\d+):(.*)/)
+				#my $sensorState;
+				if ($sensorStatus =~ /CLOSE$/)
 				{
-					my $sensorNb = $1 + 1;
-					my $sensorStatus = $2;
-					print("sensor $sensorNb [$sensorStatus]\n");
-				
-					#my $sensorState;
-					if ($sensorStatus =~ /CLOSE$/)
+					$sensorsStates[$sensorNb] = 0;
+				}
+				elsif ($sensorStatus =~ /OPEN$/)
+				{
+					$sensorsStates[$sensorNb] = 1;
+				}
+				#record sensor event
+				recordEventSensor($sensorNb, $sensorsStates[$sensorNb]);
+			
+				#Manage alarms
+				if ($globalState == 2)
+				{
+					if ($sensorsStates[$sensorNb] = 1)
 					{
-						$sensorsStates[$sensorNb] = 0;
-					}
-					elsif ($sensorStatus =~ /OPEN$/)
-					{
-						$sensorsStates[$sensorNb] = 1;
-					}
-					#record sensor event
-					recordEventSensor($sensorNb, $sensorsStates[$sensorNb]);
-				
-					#Manage alarms
-					if ($globalState == 2)
-					{
-						if ($sensorsStates[$sensorNb] = 1)
-						{
-							print "[!]intrusion alert !\n";
-							$tIntrusionWarning = setTimer(8, "ckbIntrusionWarning");
-							$tIntrusionAlarm = setTimer(16, "ckbIntrusionAlarm");
-							$globalState = 3;
-							#record global state change
-							#recordEvent($globalState, $sensorsStates[1]);
-							recordEventGlobal($globalState);
-						}
+						print "[!]intrusion alert !\n";
+						$tIntrusionWarning = setTimer(8, "ckbIntrusionWarning");
+						$tIntrusionAlarm = setTimer(16, "ckbIntrusionAlarm");
+						$globalState = 3;
+						#record global state change
+						#recordEvent($globalState, $sensorsStates[1]);
+						recordEventGlobal($globalState);
 					}
 				}
-			
-				#key '*' pressed
-				elsif($response =~ /keys:(.*)/)
-				{
-					my $keys = $1;
-					print("keys [$keys]\n");
-				
-					#passwd entered
-					if($keys =~ /$passwd\*$/)
-					{
-					
-						if($globalState == 0)
-						{
-							print "[!]online timed\n";
-							$globalState = 1;
-							#record global state change
-							recordEventGlobal($globalState);
-							$tOnlineTimed = setTimer(5, "ckbOnline");
-						
-						}
-						elsif($globalState >= 1)
-						{	
-							removeTimer($tOnlineTimed);
-							print "[!]offline\n";
-							$globalState = 0;
-							#record global state change
-							recordEventGlobal($globalState);
-							$nextCommand = "setLedGreen";
-						}
-					}
-					#passwd change
-					elsif($keys =~ /$passwd\#(\d+)\*$/)
-					{
-						print "pwd changed to $1\n";
-						$passwd = $1;
-					}
-				}
-				
-			    } 
-			    else 
-			    {
-				usleep($refresh);
-
-				$send = $nextCommand;
-				$port->write($send."\n");
-				#print "S [".$send."]\n";
-				#$connection--;
-			    }
-			    runTimers();						
 			}
-			print "Connection has been lost!\n";
-			print "last state was $status\n";
+		
+			#key '*' pressed
+			elsif($response =~ /keys:(.*)/)
+			{
+				my $keys = $1;
+				print("keys [$keys]\n");
+			
+				#passwd entered
+				if($keys =~ /$passwd\*$/)
+				{
+				
+					if($globalState == 0)
+					{
+						print "[!]online timed\n";
+						$globalState = 1;
+						#record global state change
+						recordEventGlobal($globalState);
+						$tOnlineTimed = setTimer(5, "ckbOnline");
+					
+					}
+					elsif($globalState >= 1)
+					{	
+						removeTimer($tOnlineTimed);
+						print "[!]offline\n";
+						$globalState = 0;
+						#record global state change
+						recordEventGlobal($globalState);
+						$nextCommand = "setLedGreen";
+					}
+				}
+				#passwd change
+				elsif($keys =~ /$passwd\#(\d+)\*$/)
+				{
+					print "pwd changed to $1\n";
+					$passwd = $1;
+				}
+			}
+			
+		    } 
+		    else 
+		    {
+			usleep($refresh);
+
+			$send = $nextCommand;
+			$port->write($send."\n");
+			#print "S [".$send."]\n";
+			#$connection--;
+		    }
+		    runTimers();						
 		}
-		else
-		{
-			print ">Cannot connect, retrying in $reconnectTimeoutSecs second...\n";
-			sleep($reconnectTimeoutSecs);
-		}
+		print "Connection has been lost!\n";
+		#print "last state was $status\n";
+		recordDisconnected();
 	}
-}
+	else
+	{
+		print ">Cannot connect, retrying in $reconnectTimeoutSecs second...\n";
+		sleep($reconnectTimeoutSecs);
+	}
+}#for
+}#while
 
 
 #
@@ -220,6 +225,16 @@ sub ckbIntrusionAlarmTimeout
 #
 # DB
 #
+
+sub recordDisconnected
+{
+	if ($useDb)
+	{
+		my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+	   	$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, 101)");
+		$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, 1, 101)");
+	}
+}
 
 sub dbSensorInit
 {

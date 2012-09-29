@@ -60,8 +60,10 @@ CREATE TABLE IF NOT EXISTS `RefState` (
 --
 
 INSERT INTO `RefState` (`stateType`,`id`, `state`) VALUES
+(1, 101, 'UNKNOWN'),
 (1, 0, 'CLOSE'),
 (1, 1, 'OPEN'),
+(0, 101, 'DISCONNECTED'),
 (0, 0, 'OFFLINE'),
 (0, 1, 'ONLINE_TIMED'),
 (0, 2, 'ONLINE'),
