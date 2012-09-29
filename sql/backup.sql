@@ -22,8 +22,8 @@ SET time_zone = "+00:00";
 
 drop table IF EXISTS Event;
 drop table IF EXISTS Commands;
-drop table IF EXISTS RefGlobalState;
-drop table IF EXISTS RefSensorState;
+drop table IF EXISTS RefState;
+drop table IF EXISTS Sensor;
 
 CREATE TABLE IF NOT EXISTS `Event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

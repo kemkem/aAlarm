@@ -12,7 +12,11 @@ my $dbPasswd = "wont6Oc";
 my $pathWebCommand = "/home/kemkem/AAlarm/web/command/command";
 my $pathWebStatus = "/home/kemkem/AAlarm/web/state";
 my $pathLog = "/home/kemkem/AAlarm/log";
-my $port = "/dev/ttyACM0";
+my $portBase = "/dev/ttyACM";
+my $portNumMin = 0;
+my $portNumMax = 5;
+#my $portNum = $portsScanMin;
+my $reconnectTimeoutSecs = 5;
 
 my $tOnlineTimed;
 my $tIntrusionWarning;
@@ -44,121 +48,125 @@ recordEventGlobal($globalState);
 
 while (1)
 {
-	print ">Trying to connect...\n";
-	if ($port = Device::SerialPort->new("/dev/ttyACM0"))
+	for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 	{
-		print ">Connected\n";
-		$port->databits(8);	
-		$port->baudrate(9600);
-		$port->parity("none");
-		$port->stopbits(1);
+		my $connectPort = $portBase.$portNum;
+		print ">Trying to connect to $connectPort\n";
+		#if ($port = Device::SerialPort->new("/dev/ttyACM0"))
+		if ($port = Device::SerialPort->new($connectPort))
+		{
+			print ">Connected\n";
+			$port->databits(8);	
+			$port->baudrate(9600);
+			$port->parity("none");
+			$port->stopbits(1);
 
-		my $count = 0;
-		#my $connection = 5;
+			my $count = 0;
+			#my $connection = 5;
 
-		while (1) {
-		    my $response = $port->lookfor();
+			while (1) {
+			    my $response = $port->lookfor();
 
 			
-		    if ($response) {
-		    	$nextCommand = "";
-			chop $response;
-			#$connection++;
-			#print "R [".$response."]\n";
+			    if ($response) {
+			    	$nextCommand = "";
+				chop $response;
+				#$connection++;
+				#print "R [".$response."]\n";
 			
-			#received sensors update				
-			if($response =~ /sensor(\d+):(.*)/)
-			{
-				my $sensorNb = $1 + 1;
-				my $sensorStatus = $2;
-				print("sensor $sensorNb [$sensorStatus]\n");
+				#received sensors update				
+				if($response =~ /sensor(\d+):(.*)/)
+				{
+					my $sensorNb = $1 + 1;
+					my $sensorStatus = $2;
+					print("sensor $sensorNb [$sensorStatus]\n");
 				
-				#my $sensorState;
-				if ($sensorStatus =~ /CLOSE$/)
-				{
-					$sensorsStates[$sensorNb] = 0;
-				}
-				elsif ($sensorStatus =~ /OPEN$/)
-				{
-					$sensorsStates[$sensorNb] = 1;
-				}
-				#record sensor event
-				recordEventSensor($sensorNb, $sensorsStates[$sensorNb]);
-				
-				#Manage alarms
-				if ($globalState == 2)
-				{
-					if ($sensorsStates[$sensorNb] = 1)
+					#my $sensorState;
+					if ($sensorStatus =~ /CLOSE$/)
 					{
-						print "[!]intrusion alert !\n";
-						$tIntrusionWarning = setTimer(8, "ckbIntrusionWarning");
-						$tIntrusionAlarm = setTimer(16, "ckbIntrusionAlarm");
-						$globalState = 3;
-						#record global state change
-						#recordEvent($globalState, $sensorsStates[1]);
-						recordEventGlobal($globalState);
+						$sensorsStates[$sensorNb] = 0;
+					}
+					elsif ($sensorStatus =~ /OPEN$/)
+					{
+						$sensorsStates[$sensorNb] = 1;
+					}
+					#record sensor event
+					recordEventSensor($sensorNb, $sensorsStates[$sensorNb]);
+				
+					#Manage alarms
+					if ($globalState == 2)
+					{
+						if ($sensorsStates[$sensorNb] = 1)
+						{
+							print "[!]intrusion alert !\n";
+							$tIntrusionWarning = setTimer(8, "ckbIntrusionWarning");
+							$tIntrusionAlarm = setTimer(16, "ckbIntrusionAlarm");
+							$globalState = 3;
+							#record global state change
+							#recordEvent($globalState, $sensorsStates[1]);
+							recordEventGlobal($globalState);
+						}
 					}
 				}
-			}
 			
-			#key '*' pressed
-			elsif($response =~ /keys:(.*)/)
-			{
-				my $keys = $1;
-				print("keys [$keys]\n");
-				
-				#passwd entered
-				if($keys =~ /$passwd\*$/)
+				#key '*' pressed
+				elsif($response =~ /keys:(.*)/)
 				{
+					my $keys = $1;
+					print("keys [$keys]\n");
+				
+					#passwd entered
+					if($keys =~ /$passwd\*$/)
+					{
 					
-					if($globalState == 0)
-					{
-						print "[!]online timed\n";
-						$globalState = 1;
-						#record global state change
-						recordEventGlobal($globalState);
-						$tOnlineTimed = setTimer(5, "ckbOnline");
+						if($globalState == 0)
+						{
+							print "[!]online timed\n";
+							$globalState = 1;
+							#record global state change
+							recordEventGlobal($globalState);
+							$tOnlineTimed = setTimer(5, "ckbOnline");
 						
+						}
+						elsif($globalState >= 1)
+						{	
+							removeTimer($tOnlineTimed);
+							print "[!]offline\n";
+							$globalState = 0;
+							#record global state change
+							recordEventGlobal($globalState);
+							$nextCommand = "setLedGreen";
+						}
 					}
-					elsif($globalState >= 1)
-					{	
-						removeTimer($tOnlineTimed);
-						print "[!]offline\n";
-						$globalState = 0;
-						#record global state change
-						recordEventGlobal($globalState);
-						$nextCommand = "setLedGreen";
+					#passwd change
+					elsif($keys =~ /$passwd\#(\d+)\*$/)
+					{
+						print "pwd changed to $1\n";
+						$passwd = $1;
 					}
 				}
-				#passwd change
-				elsif($keys =~ /$passwd\#(\d+)\*$/)
-				{
-					print "pwd changed to $1\n";
-					$passwd = $1;
-				}
-			}
 				
-		    } 
-		    else 
-		    {
-			usleep($refresh);
+			    } 
+			    else 
+			    {
+				usleep($refresh);
 
-			$send = $nextCommand;
-			$port->write($send."\n");
-			#print "S [".$send."]\n";
-			#$connection--;
-		    }
-		    runTimers();						
+				$send = $nextCommand;
+				$port->write($send."\n");
+				#print "S [".$send."]\n";
+				#$connection--;
+			    }
+			    runTimers();						
+			}
+			print "Connection has been lost!\n";
+			print "last state was $status\n";
 		}
-		print "Connection has been lost!\n";
-		print "last state was $status\n";
+		else
+		{
+			print ">Cannot connect, retrying in $reconnectTimeoutSecs second...\n";
+			sleep($reconnectTimeoutSecs);
+		}
 	}
-	else
-	{
-		print ">Cannot connect, retrying in $reconnectTimeout second...\n";
-		sleep($reconnectTimeout);
-	}
-
 }
 
 
