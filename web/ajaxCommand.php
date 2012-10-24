@@ -9,7 +9,7 @@
 
 	//if ($command)
 	$reqInsertCommand = "
-	insert into Commands
+	insert into Command
 	(date, completed, command)
 	values (now(), 0, '$command')";
 

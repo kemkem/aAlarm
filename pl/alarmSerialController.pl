@@ -122,21 +122,11 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 				
 					if($globalState == 0)
 					{
-						print "[!]online timed\n";
-						$globalState = 1;
-						#record global state change
-						recordEventGlobal($globalState);
-						$tOnlineTimed = setTimer(5, "ckbOnline");
-					
+						setOnline();				
 					}
 					elsif($globalState >= 1)
-					{	
-						removeTimer($tOnlineTimed);
-						print "[!]offline\n";
-						$globalState = 0;
-						#record global state change
-						recordEventGlobal($globalState);
-						$nextCommand = "setLedGreen";
+					{
+						setOffline();	
 					}
 				}
 				#passwd change
@@ -147,10 +137,15 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 				}
 			}
 			
+			
+			
 		    } 
 		    else 
 		    {
 			usleep($refresh);
+			
+			getCommand();
+						
 			$send = $nextCommand;
 			$port->write($send."\n");
 			#print "S [".$send."]\n";
@@ -170,6 +165,24 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 }#for
 }#while
 
+sub setOnline
+{
+	print "[!]online timed\n";
+	$globalState = 1;
+	#record global state change
+	recordEventGlobal($globalState);
+	$tOnlineTimed = setTimer(5, "ckbOnline");
+}
+
+sub setOffline
+{
+	removeTimer($tOnlineTimed);
+	print "[!]offline\n";
+	$globalState = 0;
+	#record global state change
+	recordEventGlobal($globalState);
+	$nextCommand = "setLedGreen";
+}
 
 #
 # timers callbacks
@@ -283,27 +296,18 @@ sub recordEventSensor
 sub getCommand
 {
 	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-        my $prepare = $dbh->prepare("
-	select c.command as command
-	from Command c
-	where c.completed  = 0
-	ORDER BY c.id DESC
-	LIMIT 0 , 1");
+        my $prepare = $dbh->prepare("select c.command as command from Command c where c.completed  = 0 ORDER BY c.id DESC LIMIT 0 , 1");
 	$prepare->execute() or die("cannot execute request\n");
 	my $result = $prepare->fetchrow_hashref();
 	if ($result)
 	{
 		my $command = $result->{command};
-		recordLog("C [".$command."]");
+		#recordLog("C [".$command."]");
 
-	        $dbh->do("update Command set completed=1 where completed=0");
+	    $dbh->do("update Command set completed=1 where completed=0");
 
-		return "setOnline" if ($command =~ /setOnline/);
-		return "setOffline" if ($command =~ /setOffline/);
-	}
-	else
-	{
-		return "status";
+		setOnline() if ($command =~ /setOnline/);
+		setOffline() if ($command =~ /setOffline/);
 	}
 	
 }
