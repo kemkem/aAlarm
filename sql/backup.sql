@@ -71,8 +71,9 @@ INSERT INTO `RefState` (`stateType`,`id`, `state`) VALUES
 (0, 4, 'ONLINE_INTRUSION_WARNING'),
 (0, 5, 'ONLINE_INTRUSION_ALARM');
 
--- --------------------------------------------------------
-
+--
+-- Table structure for table `Command`
+--
 CREATE TABLE IF NOT EXISTS `Command` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `date` datetime NOT NULL,
@@ -80,3 +81,40 @@ CREATE TABLE IF NOT EXISTS `Command` (
   `completed` tinyint(4) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Table structure for table `User`
+--
+
+CREATE TABLE IF NOT EXISTS `User` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `password` varchar(50) NOT NULL,
+  `email` varchar(50) NOT NULL
+  
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `Config`
+--
+
+CREATE TABLE IF NOT EXISTS `Config` (
+  `ckey` varchar(50) NOT NULL,
+  `cvalue` varchar(50) NOT NULL
+  
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `Alert`
+--
+
+CREATE TABLE IF NOT EXISTS `Alert` (
+  `userId` int(11) NOT NULL AUTO_INCREMENT,
+  `sensorId` int(11) NOT NULL,
+  `state` tinyint(4) NOT NULL,
+  `active` tinyint(1) NOT NULL
+  
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
