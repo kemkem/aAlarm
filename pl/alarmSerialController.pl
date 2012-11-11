@@ -38,6 +38,7 @@ my $timerNextId = 0;
 my %timers = ();
 
 my $useDb = 1;
+my $sendAlertMails = 1;
 
 #init sensors
 dbSensorInit();
@@ -165,6 +166,24 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 }#for
 }#while
 
+sub sendMail
+{
+	$globalStateName = shift;
+	if($sendAlertMails == 1)
+	{
+		$strBody = "\"$globalStateName\" has been triggered at ".getCurDate();
+	
+		print "> Sending mail \"$globalStateName\"\n";
+		$msg = MIME::Lite->new(
+		             From     => 'arduino@kprod.net',
+		             To       => 'marc@kprod.net',
+		             Subject  => "AAlarm alert",
+		             Data     => $strBody
+		             );
+		$msg->send;
+	}
+}
+
 sub setOnline
 {
 	print "[!]online timed\n";
@@ -210,6 +229,7 @@ sub ckbIntrusionWarning
 	$globalState = 4;
 	#record global state change
 	recordEventGlobal($globalState);
+	sendMail("Intrusion Warning");
 }
 
 sub ckbIntrusionWarningTimeout
@@ -224,6 +244,7 @@ sub ckbIntrusionAlarm
 	$globalState = 5;
 	#record global state change
 	recordEventGlobal($globalState);
+	sendMail("Intrusion Alarm");
 }
 
 sub ckbIntrusionAlarmTimeout
