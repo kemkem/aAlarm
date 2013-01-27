@@ -24,6 +24,13 @@ my $tOnlineTimed;
 my $tIntrusionWarning;
 my $tIntrusionAlarm;
 
+my $delayOnlineTimed = 20;
+my $delayIntrusionWarning = 20;
+my $delayIntrusionAlarm = 40;
+
+my $delayIntrusionWarningTimeout = 5;
+my $delayIntrusionAlarmTimeout = 60;
+
 my $rate = 9600;
 my $refreshMs = 200;
 
@@ -47,6 +54,15 @@ my $sendAlertMails = 1;
 dbSensorInit();
 
 recordDisconnected();
+
+print "started aAlarm\n";
+
+print "delays :\n";
+print "delayOnlineTimed : $delayOnlineTimed\n";
+print "delayIntrusionWarning : $delayIntrusionWarning\n";
+print "delayIntrusionAlarm : $delayIntrusionAlarm\n";
+print "delayIntrusionWarningTimeout : $delayIntrusionWarningTimeout\n";
+print "delayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout\n";
 
 while (1)
 {
@@ -104,8 +120,8 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 					if ($sensorsStates[$sensorNb] = 1)
 					{
 						print "[!]intrusion alert !\n";
-						$tIntrusionWarning = setTimer(8, "ckbIntrusionWarning");
-						$tIntrusionAlarm = setTimer(16, "ckbIntrusionAlarm");
+						$tIntrusionWarning = setTimer($delayIntrusionWarning, "ckbIntrusionWarning");
+						$tIntrusionAlarm = setTimer($delayIntrusionAlarm, "ckbIntrusionAlarm");
 						$globalState = 3;
 						#record global state change
 						#recordEvent($globalState, $sensorsStates[1]);
@@ -193,7 +209,7 @@ sub setOnline
 	$globalState = 1;
 	#record global state change
 	recordEventGlobal($globalState);
-	$tOnlineTimed = setTimer(5, "ckbOnline");
+	$tOnlineTimed = setTimer($delayOnlineTimed, "ckbOnline");
 }
 
 sub setOffline
@@ -230,7 +246,7 @@ sub ckbOnlineTimeout
 sub ckbIntrusionWarning
 {
 	print "  >function ckbIntrusionWarning\n";
-	setTimer(2, "ckbIntrusionWarningTimeout");
+	setTimer($delayIntrusionWarningTimeout, "ckbIntrusionWarningTimeout");
 	$globalState = 4;
 	#record global state change
 	recordEventGlobal($globalState);
@@ -245,7 +261,7 @@ sub ckbIntrusionWarningTimeout
 sub ckbIntrusionAlarm
 {
 	print "  >function ckbIntrusionAlarm\n";
-	setTimer(2, "ckbIntrusionAlarmTimeout");
+	setTimer($delayIntrusionAlarmTimeout, "ckbIntrusionAlarmTimeout");
 	$globalState = 5;
 	#record global state change
 	recordEventGlobal($globalState);
