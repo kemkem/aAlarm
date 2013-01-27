@@ -17,6 +17,9 @@ my $portNumMax = 5;
 #my $portNum = $portsScanMin;
 my $reconnectTimeoutSecs = 5;
 
+my $pathStartPlaylist = "/home/kemkem/aalarm/sh/startPlaylist.sh &";
+my $pathStopPlaylist = "/home/kemkem/aalarm/sh/stopPlaylist.sh &";
+
 my $tOnlineTimed;
 my $tIntrusionWarning;
 my $tIntrusionAlarm;
@@ -200,6 +203,7 @@ sub setOffline
 	$globalState = 0;
 	#record global state change
 	recordEventGlobal($globalState);
+	system($pathStopPlaylist);
 	$nextCommand = "setLedGreen";
 }
 
@@ -213,6 +217,7 @@ sub ckbOnline
 	#record global state change
 	recordEventGlobal($globalState);
 	setTimer(2, "ckbOnlineTimeout");
+	system($pathStartPlaylist);
 	$nextCommand = "setLedGreenBuzzer";
 }
 
