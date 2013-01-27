@@ -1,1 +1,5 @@
 install sendmail/postfix/ssmtp package
+
+sudo apt-get install libdevice-serialport-perl
+sudo apt-get install libmime-lite-perl
+

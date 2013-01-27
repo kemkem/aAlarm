@@ -1,120 +1,112 @@
--- phpMyAdmin SQL Dump
--- version 3.4.5
--- http://www.phpmyadmin.net
+-- MySQL dump 10.13  Distrib 5.5.28, for debian-linux-gnu (i686)
 --
--- Host: localhost
--- Generation Time: Apr 23, 2012 at 06:44 PM
--- Server version: 5.5.16
--- PHP Version: 5.3.8
+-- Host: localhost    Database: aalarm
+-- ------------------------------------------------------
+-- Server version	5.5.28-0ubuntu0.12.04.2
 
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
-
---
--- Database: `aalarm`
---
-
--- --------------------------------------------------------
-
---
--- Table structure for table `Event`
---
-
-drop table IF EXISTS Event;
-drop table IF EXISTS Commands;
-drop table IF EXISTS RefState;
-drop table IF EXISTS Sensor;
-
-CREATE TABLE IF NOT EXISTS `Event` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `date` datetime NOT NULL,
-  `stateType` tinyint(4) NOT NULL,
-  `sensorId` tinyint(4) NOT NULL,
-  `state` tinyint(4) NOT NULL,
-  
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
-
-CREATE TABLE IF NOT EXISTS `Sensor` (
-	`id` tinyint(11) NOT NULL,
-	`name` varchar(25) NOT NULL,
-	
-	PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
-
-
--- --------------------------------------------------------
-
---
--- Table structure for table `RefSensor`
---
-
-CREATE TABLE IF NOT EXISTS `RefState` (
-  `id` tinyint(4) NOT NULL ,
-  `stateType` tinyint(4) NOT NULL,
-  `state` varchar(20) NOT NULL
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
-
---
--- Dumping data for table `RefSensor`
---
-
-INSERT INTO `RefState` (`stateType`,`id`, `state`) VALUES
-(1, 101, 'UNKNOWN'),
-(1, 0, 'CLOSE'),
-(1, 1, 'OPEN'),
-(0, 101, 'DISCONNECTED'),
-(0, 0, 'OFFLINE'),
-(0, 1, 'ONLINE_TIMED'),
-(0, 2, 'ONLINE'),
-(0, 3, 'ONLINE_INTRUSION'),
-(0, 4, 'ONLINE_INTRUSION_WARNING'),
-(0, 5, 'ONLINE_INTRUSION_ALARM');
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
 -- Table structure for table `Command`
 --
-CREATE TABLE IF NOT EXISTS `Command` (
+
+DROP TABLE IF EXISTS `Command`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Command` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `date` datetime NOT NULL,
   `command` varchar(20) NOT NULL,
   `completed` tinyint(4) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB AUTO_INCREMENT=102 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
 
 --
--- Table structure for table `User`
+-- Table structure for table `Event`
 --
 
-CREATE TABLE IF NOT EXISTS `User` (
+DROP TABLE IF EXISTS `Event`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Event` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  `password` varchar(50) NOT NULL,
-  `email` varchar(50) NOT NULL
-  
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
-
---
--- Table structure for table `Config`
---
-
-CREATE TABLE IF NOT EXISTS `Config` (
-  `ckey` varchar(50) NOT NULL,
-  `cvalue` varchar(50) NOT NULL
-  
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
-
---
--- Table structure for table `Alert`
---
-
-CREATE TABLE IF NOT EXISTS `Alert` (
-  `userId` int(11) NOT NULL AUTO_INCREMENT,
-  `sensorId` int(11) NOT NULL,
+  `date` datetime NOT NULL,
+  `stateType` tinyint(4) NOT NULL,
+  `sensorId` tinyint(4) NOT NULL,
   `state` tinyint(4) NOT NULL,
-  `active` tinyint(1) NOT NULL
-  
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1880 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+
+--
+-- Table structure for table `RefState`
+--
+
+DROP TABLE IF EXISTS `RefState`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `RefState` (
+  `id` tinyint(4) NOT NULL,
+  `stateType` tinyint(4) NOT NULL,
+  `state` varchar(30) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `RefState`
+--
+
+LOCK TABLES `RefState` WRITE;
+/*!40000 ALTER TABLE `RefState` DISABLE KEYS */;
+INSERT INTO `RefState` VALUES (0,1,'CLOSE'),(1,1,'OPEN'),(0,0,'OFFLINE'),(1,0,'ONLINE_TIMED'),(2,0,'ONLINE'),(3,0,'ONLINE_INTRUSION'),(4,0,'ONLINE_INTRUSION_WARNING'),(5,0,'ONLINE_INTRUSION_ALARM');
+/*!40000 ALTER TABLE `RefState` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `Sensor`
+--
+
+DROP TABLE IF EXISTS `Sensor`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Sensor` (
+  `id` tinyint(11) NOT NULL,
+  `name` varchar(25) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `Sensor`
+--
+
+LOCK TABLES `Sensor` WRITE;
+/*!40000 ALTER TABLE `Sensor` DISABLE KEYS */;
+INSERT INTO `Sensor` VALUES (1,'Door sensor');
+/*!40000 ALTER TABLE `Sensor` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2013-01-27 18:12:44
