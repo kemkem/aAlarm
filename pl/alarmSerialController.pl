@@ -20,9 +20,9 @@ my $reconnectTimeoutSecs = 5;
 my $pathStartPlaylist = "/home/kemkem/aalarm/sh/startPlaylist.sh &";
 my $pathStopPlaylist = "/home/kemkem/aalarm/sh/stopPlaylist.sh &";
 
-my $tOnlineTimed;
-my $tIntrusionWarning;
-my $tIntrusionAlarm;
+my $tOnlineTimed = -1;
+my $tIntrusionWarning = -1;
+my $tIntrusionAlarm = -1;
 
 my $delayOnlineTimed = 20;
 my $delayIntrusionWarning = 20;
@@ -215,10 +215,16 @@ sub setOnline
 sub setOffline
 {
 	removeTimer($tOnlineTimed);
+	removeTimer($tIntrusionWarning);
+	removeTimer($tIntrusionAlarm);
+	$tOnlineTimed = -1;
+	$tIntrusionWarning = -1;
+	$tIntrusionAlarm = -1;
 	print "[!]offline\n";
 	$globalState = 0;
 	#record global state change
 	recordEventGlobal($globalState);
+	
 	system($pathStopPlaylist);
 	$nextCommand = "setLedGreen";
 }
@@ -373,7 +379,10 @@ sub removeTimer
 {
 	$key = shift;
 	print ">remove timer $key\n";
-	delete $timers{$key}; 
+	if($key>0)
+	{
+		delete $timers{$key}; 
+	}
 }
 
 sub runTimers
@@ -423,4 +432,5 @@ sub recordLog
 	print LOG getCurDate()." ".$log."\n";
 	close LOG;
 }
+
 
