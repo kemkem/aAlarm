@@ -19,6 +19,9 @@ my $reconnectTimeoutSecs = 5;
 
 my $pathStartPlaylist = "/home/kemkem/aalarm/sh/startPlaylist.sh &";
 my $pathStopPlaylist = "/home/kemkem/aalarm/sh/stopPlaylist.sh &";
+my $pathStartZM = "/home/kemkem/aalarm/sh/startZM.sh &";
+my $pathStopZM = "/home/kemkem/aalarm/sh/stopZM.sh &";
+my $pathZmLast = "/home/kemkem/aalarm/sh/zmLast.sh &";
 
 my $tOnlineTimed = -1;
 my $tIntrusionWarning = -1;
@@ -126,6 +129,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 						#record global state change
 						#recordEvent($globalState, $sensorsStates[1]);
 						recordEventGlobal($globalState);
+						system($pathStopPlaylist);
 					}
 				}
 			}
@@ -210,6 +214,7 @@ sub setOnline
 	#record global state change
 	recordEventGlobal($globalState);
 	$tOnlineTimed = setTimer($delayOnlineTimed, "ckbOnline");
+	system($pathStartZM);
 }
 
 sub setOffline
@@ -224,8 +229,7 @@ sub setOffline
 	$globalState = 0;
 	#record global state change
 	recordEventGlobal($globalState);
-	
-	system($pathStopPlaylist);
+	system($pathStopZM);
 	$nextCommand = "setLedGreen";
 }
 
@@ -257,6 +261,7 @@ sub ckbIntrusionWarning
 	#record global state change
 	recordEventGlobal($globalState);
 	sendMail("Intrusion Warning");
+	system($pathZmLast);
 }
 
 sub ckbIntrusionWarningTimeout
@@ -432,5 +437,4 @@ sub recordLog
 	print LOG getCurDate()." ".$log."\n";
 	close LOG;
 }
-
 
