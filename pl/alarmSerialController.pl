@@ -1,45 +1,57 @@
 #!/usr/bin/perl
 
 use Device::SerialPort;
-use MIME::Lite;
+#use MIME::Lite;
 use Time::HiRes qw(usleep);
 use DBI;
 
-my $dbUrl = "DBI:mysql:database=aalarm;host=localhost";
-my $dbLogin = "aalarm";
-my $dbPasswd = "wont6Oc";
-my $pathWebCommand = "/home/kemkem/AAlarm/web/command/command";
-my $pathWebStatus = "/home/kemkem/AAlarm/web/state";
-my $pathLog = "/home/kemkem/AAlarm/log";
-my $portBase = "/dev/ttyACM";
-my $portNumMin = 0;
-my $portNumMax = 5;
-#my $portNum = $portsScanMin;
-my $reconnectTimeoutSecs = 5;
+#Load parameters from file
+my %hParameters = loadConfigFile("/home/kemkem/work/arduinoAlarm/conf/aalarm.conf");
 
-my $pathStartPlaylist = "/home/kemkem/aalarm/sh/startPlaylist.sh &";
-my $pathStopPlaylist = "/home/kemkem/aalarm/sh/stopPlaylist.sh &";
-my $pathStartZM = "/home/kemkem/aalarm/sh/startZM.sh &";
-my $pathStopZM = "/home/kemkem/aalarm/sh/stopZM.sh &";
-my $pathZmLast = "/home/kemkem/aalarm/sh/zmLast.sh &";
+#Db
+my $dbUrl = config("dbUrl");#"DBI:mysql:database=aalarm;host=localhost";
+my $dbLogin = config("dbLogin");
+my $dbPasswd = config("dbPasswd");
+
+#Log
+my $pathLog = config("pathLog");#"/home/kemkem/AAlarm/log";
+
+#Arduino Port Scan
+my $portBase = config("portBase");#"/dev/ttyACM";
+my $portNumMin = config("portNumMin");#0;
+my $portNumMax = config("portNumMax");#5;
+my $reconnectTimeoutSecs = config("reconnectTimeoutSecs");#5;
+
+#Music service scripts
+my $pathStartPlaylist = config("pathStartPlaylist");#"/home/kemkem/aalarm/sh/startPlaylist.sh &";
+my $pathStopPlaylist = config("pathStopPlaylist");#"/home/kemkem/aalarm/sh/stopPlaylist.sh &";
+
+#Zoneminder service scripts
+my $pathStartZM = config("pathStartZM");#"/home/kemkem/aalarm/sh/startZM.sh &";
+my $pathStopZM = config("pathStopZM");#"/home/kemkem/aalarm/sh/stopZM.sh &";
+my $pathZmLast = config("pathZmLast");#"/home/kemkem/aalarm/sh/zmLast.sh &";
+
+#Delays
+my $delayOnlineTimed = config("delayOnlineTimed");#20;
+my $delayIntrusionWarning = config("delayIntrusionWarning");#20;
+my $delayIntrusionAlarm = config("delayIntrusionAlarm");#40;
+my $delayIntrusionWarningTimeout = config("delayIntrusionWarningTimeout");#5;
+my $delayIntrusionAlarmTimeout = config("delayIntrusionAlarmTimeout");#60;
+
+#USB config
+my $rate = config("rate");#9600;
+my $refreshMs = config("refreshMs");#200;
+
+#Alarm passwd
+my $passwd = config("passwd");#"4578";
+
+#Init
+
+my $refresh = $refreshMs * 1000;
 
 my $tOnlineTimed = -1;
 my $tIntrusionWarning = -1;
 my $tIntrusionAlarm = -1;
-
-my $delayOnlineTimed = 20;
-my $delayIntrusionWarning = 20;
-my $delayIntrusionAlarm = 40;
-
-my $delayIntrusionWarningTimeout = 5;
-my $delayIntrusionAlarmTimeout = 60;
-
-my $rate = 9600;
-my $refreshMs = 200;
-
-my $refresh = $refreshMs * 1000;
-
-my $passwd = "4578";
 
 my $globalState = 0;
 my $nextCommand = "";
@@ -66,6 +78,27 @@ print "delayIntrusionWarning : $delayIntrusionWarning\n";
 print "delayIntrusionAlarm : $delayIntrusionAlarm\n";
 print "delayIntrusionWarningTimeout : $delayIntrusionWarningTimeout\n";
 print "delayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout\n";
+
+getParameter("test");
+
+sub getParameter
+{
+	$key = shift;
+	my $value = "UNK";
+	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+        my $prepare = $dbh->prepare("select p.value from Parameters p where p.key = '".$key."'");
+	$prepare->execute() or die("cannot execute request\n");
+	my $result = $prepare->fetchrow_hashref();
+	if ($result)
+	{
+		$value = $result->{value};
+	}
+	print "test:".$value."\n";
+}
+
+exit;
+
+
 
 while (1)
 {
@@ -189,23 +222,23 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 }#for
 }#while
 
-sub sendMail
-{
-	$globalStateName = shift;
-	if($sendAlertMails == 1)
-	{
-		$strBody = "\"$globalStateName\" has been triggered at ".getCurDate();
-	
-		print "> Sending mail \"$globalStateName\"\n";
-		$msg = MIME::Lite->new(
-		             From     => 'arduino@kprod.net',
-		             To       => 'marc@kprod.net',
-		             Subject  => "AAlarm alert",
-		             Data     => $strBody
-		             );
-		$msg->send;
-	}
-}
+#sub sendMail
+#{
+#	$globalStateName = shift;
+#	if($sendAlertMails == 1)
+#	{
+#		$strBody = "\"$globalStateName\" has been triggered at ".getCurDate();
+#	
+#		print "> Sending mail \"$globalStateName\"\n";
+#		$msg = MIME::Lite->new(
+#		             From     => 'arduino@kprod.net',
+#		             To       => 'marc@kprod.net',
+#		             Subject  => "AAlarm alert",
+#		             Data     => $strBody
+#		             );
+#		$msg->send;
+#	}
+#}
 
 sub setOnline
 {
@@ -436,5 +469,34 @@ sub recordLog
 	open LOG, ">>".$pathLog;
 	print LOG getCurDate()." ".$log."\n";
 	close LOG;
+}
+
+#get param from config file
+sub config()
+{
+	my $key = shift;
+	return $hParameters{$key};
+}
+
+#load config file
+sub loadConfigFile()
+{
+	$path = shift;
+	my %hashParameters;
+	open IN, $path;
+	while (<IN>)
+	{
+		chomp();
+		next if /$\#/;
+		if(/(.*?)\s*=\s*(.*)/)
+		{
+			#($key,$value) = split("=");
+			#print $1."|".$2."|\n";
+			$hashParameters{$1} = $2;
+		}
+	}
+	close IN;
+
+	return %hashParameters;
 }
 
