@@ -8,10 +8,15 @@ use DBI;
 #Load parameters from file
 my %hParameters = loadConfigFile("/home/kemkem/work/arduinoAlarm/conf/aalarm.conf");
 
+
 #Db
-my $dbUrl = config("dbUrl");#"DBI:mysql:database=aalarm;host=localhost";
-my $dbLogin = config("dbLogin");
-my $dbPasswd = config("dbPasswd");
+my $dbUrl = configFromFile("dbUrl");#"DBI:mysql:database=aalarm;host=localhost";
+my $dbLogin = configFromFile("dbLogin");
+my $dbPasswd = configFromFile("dbPasswd");
+
+#$param = config("pathStartPlaylist");
+#print "param : ".$param."\n";
+#exit;
 
 #Log
 my $pathLog = config("pathLog");#"/home/kemkem/AAlarm/log";
@@ -79,11 +84,38 @@ print "delayIntrusionAlarm : $delayIntrusionAlarm\n";
 print "delayIntrusionWarningTimeout : $delayIntrusionWarningTimeout\n";
 print "delayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout\n";
 
-getParameter("test");
+#
+# not exist in db -> put in db
+# if exist in db -> get from db
+#
 
-sub getParameter
+sub config()
 {
-	$key = shift;
+	my $key = shift;
+	my $dbParameter = getDbParameter($key);
+	if($dbParameter ne "UNK")
+	{
+		return $dbParameter;
+	}
+	else
+	{
+		if(exists($hParameters{$key}))
+		{
+			my $value = $hParameters{$key};
+			setDbParameter($key, $value);
+			return $value;
+		}
+		else
+		{
+			die "$key parameter not exists in config file\n";
+		}
+	}
+}
+
+
+sub getDbParameter
+{
+	my $key = shift;
 	my $value = "UNK";
 	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
         my $prepare = $dbh->prepare("select p.value from Parameters p where p.key = '".$key."'");
@@ -93,7 +125,15 @@ sub getParameter
 	{
 		$value = $result->{value};
 	}
-	print "test:".$value."\n";
+	return $value;
+}
+
+sub setDbParameter
+{
+	my $key = shift;
+	my $value = shift;
+	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+	$dbh->do("insert into Parameters (`key`, `value`) values ('".$key."', '".$value."')");
 }
 
 exit;
@@ -472,7 +512,7 @@ sub recordLog
 }
 
 #get param from config file
-sub config()
+sub configFromFile()
 {
 	my $key = shift;
 	return $hParameters{$key};
