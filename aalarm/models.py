@@ -7,25 +7,26 @@ class Command(models.Model):
     def __unicode__(self):
         return self.command
 
-class RefStateType(models.Model):
-    stateType = models.CharField(max_length=30)
+class RefSensorType(models.Model):
+    sensorType = models.CharField(max_length=30)
     def __unicode__(self):
-        return self.stateType
+        return self.sensorType
 
 class RefState(models.Model):
-    stateType = models.ForeignKey(RefStateType)
+    sensorType = models.ForeignKey(RefSensorType)
     state = models.CharField(max_length=30)
     def __unicode__(self):
         return self.state
 
 class Sensor(models.Model):
+    sensorType = models.ForeignKey(RefSensorType)
     name = models.CharField(max_length=30)
     def __unicode__(self):
         return self.name
 
 class Event(models.Model):
     date = models.DateTimeField()
-    stateType = models.ForeignKey(RefStateType)
+#    stateType = models.ForeignKey(RefStateType)
     sensor = models.ForeignKey(Sensor)
     state = models.ForeignKey(RefState)
     def __unicode__(self):
