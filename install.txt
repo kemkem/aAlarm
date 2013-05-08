@@ -1,0 +1,15 @@
+django reminder
+
+install
+sudo apt-get install python-django
+sudo apt-get install mysql-server mysql-client
+sudo apt-get install python-mysqldb
+
+mysql -u root -p
+grant usage on *.* to djaalarm@localhost identified by 'djaalarm';
+grant all privileges on djaalarm.* to djaalarm@localhost;
+
+manage.py
+runserver
+syncdb
+

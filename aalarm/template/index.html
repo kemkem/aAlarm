@@ -1,0 +1,16 @@
+
+Events<br/>
+<table>
+<th>
+    <td></td>
+    <td></td>
+    <td></td>
+</th>
+{% for event in listEvents %}
+<tr>
+<td>{{ event.sensor }}</td>
+<td>{{ event.state }}</td>
+<td>{{ event.date }}</td>
+</tr>
+{% endfor %}
+</table>
