@@ -9,13 +9,12 @@ from aalarm.models import Command, Execute, RefSensorType, RefState, Sensor, Eve
 
 def index(request):
     listEvents = Event.objects.all()
-    return render_to_response('index.html', {'listEvents': listEvents})
+    return render_to_response('index.html', {'listEvents': listEvents}, context_instance=RequestContext(request))
     #return HttpResponse("hello")
 
 def command(request, name):
     command = get_object_or_404(Command, name=name)
-    #execute = Execute(command=command, date=datetime.now(), completed=0)
     execute = Execute(command=command)
     execute.save()
-    return HttpResponse(command)
+    return HttpResponse("ok")
 
