@@ -10,7 +10,7 @@ class Execute(models.Model):
     date = models.DateTimeField()
     completed = models.SmallIntegerField()
     def __unicode__(self):
-        return self.command
+        return self.command.name
 
 class RefSensorType(models.Model):
     sensorType = models.CharField(max_length=30)
