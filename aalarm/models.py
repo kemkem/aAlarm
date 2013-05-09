@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime
 
 class Command(models.Model):
     name = models.CharField(max_length=20)
@@ -7,8 +8,8 @@ class Command(models.Model):
 
 class Execute(models.Model):
     command = models.ForeignKey(Command)
-    date = models.DateTimeField()
-    completed = models.SmallIntegerField()
+    date = models.DateTimeField(default=datetime.now())
+    completed = models.SmallIntegerField(default=0)
     def __unicode__(self):
         return self.command.name
 
@@ -30,7 +31,7 @@ class Sensor(models.Model):
         return self.name
 
 class Event(models.Model):
-    date = models.DateTimeField()
+    date = models.DateTimeField(default=datetime.now())
 #    stateType = models.ForeignKey(RefStateType)
     sensor = models.ForeignKey(Sensor)
     state = models.ForeignKey(RefState)
