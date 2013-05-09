@@ -17,3 +17,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^aalarm/', include('aalarm.urls')),
 )
+
+urlpatterns += patterns('',
+	(r'^site_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/home/kemkem/work/djangoAAlarm/static'}),
+)

@@ -3,6 +3,8 @@ from aalarm import views
 
 
 urlpatterns = patterns('',
-    url(r'^hello/$', views.hello),
+    url(r'^$', views.index),
+    url(r'^command/setOnline$', views.commandSetOnline),
+    url(r'^command/setOffline$', views.commandSetOffline),
 )
 

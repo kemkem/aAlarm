@@ -1,7 +1,12 @@
 from django.db import models
 
 class Command(models.Model):
-    command = models.CharField(max_length=20)
+    name = models.CharField(max_length=20)
+    def __unicode__(self):
+        return self.name
+
+class Execute(models.Model):
+    command = models.ForeignKey(Command)
     date = models.DateTimeField()
     completed = models.SmallIntegerField()
     def __unicode__(self):

@@ -8,8 +8,14 @@ from aalarm.models import Command, RefSensorType, RefState, Sensor, Event, Param
 #import datetime
 #from datetime import date
 
-def hello(request):
+def index(request):
     listEvents = Event.objects.all()
     return render_to_response('index.html', {'listEvents': listEvents})
-    #return HttpResponse("hello");
+    #return HttpResponse("hello")
 
+def commandSetOnline(request):
+    #Command(date.today()
+    return HttpResponse("command online")
+
+def commandSetOffline(request):
+    return HttpResponse("command offline")
