@@ -5,7 +5,12 @@ from aalarm.models import Command, Execute, RefSensorType, RefState, Sensor, Eve
 #from datetime import datetime
 #from django.forms.models import modelformset_factory
 #from django.forms.formsets import formset_factory
-#from django import forms
+from django import forms
+
+class ParameterForm(forms.ModelForm):
+	class Meta:
+		model = Parameter
+		exclude = ('showInUI',)
 
 def index(request):
     listEvents = Event.objects.all()
@@ -22,3 +27,6 @@ def command(request, name):
         execute.save()
         return HttpResponse("ok")
 
+def config(request):
+    listParameter = Parameter.objects.filter(showInUI=1)
+    return render_to_response('config.html', {'listParameter': listParameter}, context_instance=RequestContext(request))

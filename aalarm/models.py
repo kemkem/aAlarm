@@ -41,5 +41,6 @@ class Event(models.Model):
 class Parameter(models.Model):
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=250)
+    showInUI = models.SmallIntegerField()
     def __unicode__(self):
         return self.key
