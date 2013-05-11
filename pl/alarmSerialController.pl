@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-use Device::SerialPort;
+#use Device::SerialPort;
 #use MIME::Lite;
 use Time::HiRes qw(usleep);
 use DBI;
@@ -13,6 +13,15 @@ my %hParameters = loadConfigFile("/home/kemkem/work/arduinoAlarm/conf/aalarm.con
 my $dbUrl = configFromFile("dbUrl");#"DBI:mysql:database=aalarm;host=localhost";
 my $dbLogin = configFromFile("dbLogin");
 my $dbPasswd = configFromFile("dbPasswd");
+
+#Tables
+my $tableCommand = configFromFile("tableCommand");
+my $tableEvent = configFromFile("tableEvent");
+my $tableExecute = configFromFile("tableExecute");
+my $tableParameter = configFromFile("tableParameter");
+my $tableRefSensorType = configFromFile("tableRefSensorType");
+my $tableRefState = configFromFile("tableRefState");
+my $tableSensor = configFromFile("tableSensor");
 
 #$param = config("pathStartPlaylist");
 #print "param : ".$param."\n";
@@ -70,6 +79,8 @@ my %timers = ();
 my $useDb = 1;
 my $sendAlertMails = 1;
 
+exit;
+
 #init sensors
 dbSensorInit();
 
@@ -118,7 +129,7 @@ sub getDbParameter
 	my $key = shift;
 	my $value = "UNK";
 	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-        my $prepare = $dbh->prepare("select p.value from Parameters p where p.key = '".$key."'");
+    my $prepare = $dbh->prepare("select p.value from " . $tableParameter . " p where p.key = '".$key."'");
 	$prepare->execute() or die("cannot execute request\n");
 	my $result = $prepare->fetchrow_hashref();
 	if ($result)
@@ -133,12 +144,8 @@ sub setDbParameter
 	my $key = shift;
 	my $value = shift;
 	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-	$dbh->do("insert into Parameters (`key`, `value`) values ('".$key."', '".$value."')");
+	$dbh->do("insert into " . $tableParameter . " (`key`, `value`) values ('".$key."', '".$value."')");
 }
-
-exit;
-
-
 
 while (1)
 {
