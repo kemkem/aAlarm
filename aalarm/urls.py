@@ -5,5 +5,6 @@ from aalarm import views
 urlpatterns = patterns('',
     url(r'^$', views.index),
     url(r'^command/(?P<name>\w+)$', views.command),
+    #url(r'^command/setOnline$', views.command),
 )
 
