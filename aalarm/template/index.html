@@ -53,7 +53,7 @@
 <tr>
 <td>{{ event.sensor }}</td>
 <td>{{ event.state }}</td>
-<td>{{ event.date }}</td>
+<td>{{ event.date|date:"d/m/Y H:m:s" }}</td>
 </tr>
 {% endfor %}
 </table>
