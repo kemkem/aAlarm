@@ -9,36 +9,22 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
-        $("#idBtSetOnline").click(function(){
+        $(".aalarmStateBtn").click(function(data){
+            var idButton = $(this).attr('id');
             $.ajax({
                 data: $("#idFormCommand").serialize(),
                 type: "post",
-                url: "command/setOnline",
+                url: "command/" + idButton,
                 success: function(data) {
-                    if(data == "ok")
+                    if(data == "ko")
                     {
-                        alert("ok");
-                    }
-                    else
-                    {
-                        alert("ko");
+                        alert("State cannot be change now");
                     }
                 }
             });
             return false;
         });
 
-        $("#idBtSetOffline").click(function(){
-            $.ajax({
-                data: $("#idFormCommand").serialize(),
-                type: "post",
-                url: "command/setOffline",
-                success: function(response) {
-                    alert(response);
-                }
-            });
-            return false;
-        });
 	});
 </script>
 {% endblock %}
@@ -52,8 +38,8 @@
 </form>
 
 <div>
-    <a id="idBtSetOnline" class="btn btn-success" href="">Set Online</a>
-    <a id="idBtSetOffline" class="btn btn-danger" href="">Set Offline</a>
+    <a id="setOnline" class="aalarmStateBtn btn btn-success" href="">Set Online</a>
+    <a id="setOffline" class="aalarmStateBtn btn btn-danger" href="">Set Offline</a>
 </div>
 
 <h2>Events</h2>

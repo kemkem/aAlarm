@@ -13,8 +13,12 @@ def index(request):
     #return HttpResponse("hello")
 
 def command(request, name):
-    command = get_object_or_404(Command, name=name)
-    execute = Execute(command=command)
-    execute.save()
-    return HttpResponse("ok")
+    executeNotCompleted = Execute.objects.filter(completed=0)
+    if executeNotCompleted.count() > 0:
+        return HttpResponse("ko")
+    else:
+        command = get_object_or_404(Command, name=name)
+        execute = Execute(command=command)
+        execute.save()
+        return HttpResponse("ok")
 
