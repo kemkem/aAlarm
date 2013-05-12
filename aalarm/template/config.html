@@ -14,6 +14,13 @@
 
 {% block mainContent %}
 
-{{ listParameter }}
+<form name="formConfig" id="idFormConfig" action="/aalarm/config/" method="post">
+{% csrf_token %}
+{% for parameter in listParameter %}
+    <label for="idParameter{{ parameter.key }}">{{ parameter.key }}
+    <input name="parameter{{ parameter.key }}" id="idParameter{{ parameter.key }}" value="{{ parameter.value }}"/>
+{% endfor %}
+<input type="submit" />
+</form>
 
 {% endblock %}

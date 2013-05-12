@@ -28,5 +28,18 @@ def command(request, name):
         return HttpResponse("ok")
 
 def config(request):
+
+    if request.method == "POST":
+        postvars = ""
+        for key in request.POST:
+            value = request.POST[key]
+            parameter = Parameter(key=key)
+            if parameter.value != value:
+                postvars += key + " : changed :" + value + " original :" + parameter.value + "</br>"
+        return HttpResponse(postvars)
+
     listParameter = Parameter.objects.filter(showInUI=1)
+    #ParameterFormSet = modelformset_factory(Parameter, extra=0, fields=('key', 'value'))
+    #parameterFormSet = ParameterFormSet(queryset=Parameter.objects.filter(showInUI=1))
+    #return render_to_response('config.html', {'parameterFormSet': parameterFormSet}, context_instance=RequestContext(request))
     return render_to_response('config.html', {'listParameter': listParameter}, context_instance=RequestContext(request))
