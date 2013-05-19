@@ -61,12 +61,18 @@
     {% csrf_token %}
 </form>
 
-
-
-<div>
-    <a id="setOnline" class="aalarmStateBtn btn btn-success" href="">Set Online</a>
-    <a id="setOffline" class="aalarmStateBtn btn btn-danger" href="">Set Offline</a>
+<div class="btn-group">
+    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+    Action
+    <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+{% for command in listCommands %}
+        <li><a href="#" id="{{ command.command }}" class="aalarmStateBtn">{{ command.name }}</a></li>
+{% endfor %}
+    </ul>
 </div>
+
 
 <div id="idState">
 </div>

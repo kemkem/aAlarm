@@ -2,7 +2,9 @@ from django.db import models
 from datetime import datetime
 
 class Command(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=30)
+    description = models.CharField(max_length=255)
+    command = models.CharField(max_length=20)
     def __unicode__(self):
         return self.name
 
@@ -28,12 +30,12 @@ class RefState(models.Model):
 class Sensor(models.Model):
     sensorType = models.ForeignKey(RefSensorType)
     name = models.CharField(max_length=30)
+    displayName = models.CharField(max_length=30)
     def __unicode__(self):
         return self.name
 
 class Event(models.Model):
     date = models.DateTimeField(default=datetime.now())
-#    stateType = models.ForeignKey(RefStateType)
     sensor = models.ForeignKey(Sensor)
     state = models.ForeignKey(RefState)
     def __unicode__(self):
@@ -42,6 +44,8 @@ class Event(models.Model):
 class Parameter(models.Model):
     key = models.CharField(max_length=50)
     value = models.CharField(max_length=250)
+    name = models.CharField(max_length=30)
+    description = models.CharField(max_length=255)
     showInUI = models.SmallIntegerField()
     def __unicode__(self):
         return self.key
