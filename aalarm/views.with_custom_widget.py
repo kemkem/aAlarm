@@ -7,7 +7,15 @@ from django.forms.models import modelformset_factory
 #from django.forms.formsets import formset_factory
 from django import forms
 from django.forms import TextInput, BooleanField
-from django.core.exceptions import ValidationError
+
+class MyWidget(forms.TextInput):
+    def render(self, name, value, attrs=None):
+        #tpl = Template(u"""<h1>There would be a colour widget here, for value $colour</h1>""")
+        #return mark_safe(tpl.substitute(colour=value))
+        return "<label>" + value + "</label>"
+
+class ParameterForm(forms.ModelForm):
+    key = forms.CharField(widget=MyWidget)
 
 def index(request):
     listEvents = Event.objects.all()
@@ -25,17 +33,12 @@ def command(request, name):
         return HttpResponse("ok")
 
 def config(request):
-    ParameterFormSet = modelformset_factory(Parameter, extra=0, fields=('value',))
     if request.method == "POST":
-        try:
-            formset = ParameterFormSet(request.POST, request.FILES)
-        except ValidationError:
-            formset = None
-            return HttpResponse("ko")
-        if formset.is_valid():
-            formset.save()
-            return HttpResponse("ok")
-    #ParameterFormSet = modelformset_factory(Parameter, extra=0, fields=('value',))
+        parameterForm = ParameterForm(request.POST)
+		        if(parameterForm.is_valid()):
+			        session = sessionForm.save()
+                    return HttpResponse("ok")
+    ParameterFormSet = modelformset_factory(Parameter, extra=0, fields=('key', 'value'), form=ParameterForm)
     parameterFormSet = ParameterFormSet(queryset=Parameter.objects.filter(showInUI=1))
     return render_to_response('config.html', {'parameterFormSet': parameterFormSet}, context_instance=RequestContext(request))
 
