@@ -1,0 +1,8 @@
+model : 
+sensor : display name
+parameter : sensor list display select
+
+home :
+commands select
+commands select blocked until last command not executed
+table style
