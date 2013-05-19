@@ -4,10 +4,27 @@
 
 {% block css %}
 <link href="/site_media/css/aalarmColors.css" rel="stylesheet" media="screen">
+<link href="/site_media/css/aalarmMain.css" rel="stylesheet" media="screen">
 {% endblock %}
 
 {% block script %}
 <script type="text/javascript">
+
+    function updateState()
+    {
+        $("#idState").html("updating...");
+
+        $.ajax({
+            data: $("#idFormState").serialize(),
+            type: "post",
+            url: "getLastState/Global",
+            success: function(data) {
+                $("#idState").html(data);
+            }
+        });
+        return false;        
+
+    }
 
     $(document).ready(function(){
         $(".aalarmStateBtn").click(function(data){
@@ -26,6 +43,8 @@
             return false;
         });
 
+        updateState();
+
 	});
 </script>
 {% endblock %}
@@ -38,9 +57,18 @@
     {% csrf_token %}
 </form>
 
+<form name="formState" id="idFormState">
+    {% csrf_token %}
+</form>
+
+
+
 <div>
     <a id="setOnline" class="aalarmStateBtn btn btn-success" href="">Set Online</a>
     <a id="setOffline" class="aalarmStateBtn btn btn-danger" href="">Set Offline</a>
+</div>
+
+<div id="idState">
 </div>
 
 <h2>Events</h2>
