@@ -5,17 +5,7 @@ from aalarm.models import Command, Execute, RefSensorType, RefState, Sensor, Eve
 #from datetime import datetime
 from django.forms.models import modelformset_factory
 #from django.forms.formsets import formset_factory
-from django import forms
-from django.forms import TextInput, BooleanField
-
-class MyWidget(forms.TextInput):
-    def render(self, name, value, attrs=None):
-        #tpl = Template(u"""<h1>There would be a colour widget here, for value $colour</h1>""")
-        #return mark_safe(tpl.substitute(colour=value))
-        return "<label>" + value + "</label>"
-
-class ParameterForm(forms.ModelForm):
-    key = forms.CharField(widget=MyWidget)
+#from django import forms
 
 def index(request):
     listEvents = Event.objects.all()

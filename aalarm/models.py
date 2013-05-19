@@ -21,6 +21,7 @@ class RefSensorType(models.Model):
 class RefState(models.Model):
     sensorType = models.ForeignKey(RefSensorType)
     state = models.CharField(max_length=30)
+    css = models.CharField(max_length=30)
     def __unicode__(self):
         return self.state
 

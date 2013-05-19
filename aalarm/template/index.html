@@ -3,6 +3,7 @@
 {% block title %}aAlarm - Home{% endblock %}
 
 {% block css %}
+<link href="/site_media/css/aalarmColors.css" rel="stylesheet" media="screen">
 {% endblock %}
 
 {% block script %}
@@ -48,9 +49,11 @@
     <td></td>
     <td></td>
     <td></td>
+    <td></td>
 </th>
 {% for event in listEvents %}
 <tr>
+<td class="{{ event.state.css }}"><div style="width:20px;"></td>
 <td>{{ event.sensor }}</td>
 <td>{{ event.state }}</td>
 <td>{{ event.date|date:"d/m/Y H:m:s" }}</td>
