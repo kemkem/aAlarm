@@ -19,8 +19,9 @@
     {{ parameterFormSet.management_form }}
     {% for form in parameterFormSet %}
         <div>
-        {{ form.instance.key }}
-        {{ form }}
+            <label for="{{ form.value.auto_id }}">{{ form.instance.name }}</label>
+            <input type="text" id="{{ form.value.auto_id }}" name="{{ form.value.html_name }}" value="{{ form.value.value }}" />
+            <input type="hidden" id="{{ form.id.auto_id }}" name="{{ form.id.html_name }}" value="{{ form.id.value }}" />
         </div>
     {% endfor %}
     <input type="submit" />
