@@ -19,6 +19,11 @@ def getLastState(request, sensorName):
     lastEvent = Event.objects.filter(sensor=sensor).latest('id')    
     return render_to_response('getLastState.html', {'lastEvent': lastEvent}, context_instance=RequestContext(request))
 
+def getLastEvents(request, nbEvents):
+    listEvents = Event.objects.all().order_by('id').reverse()
+    listCommands = Command.objects.all()
+    return render_to_response('getLastEvents.html', {'listEvents': listEvents}, context_instance=RequestContext(request))
+
 def command(request, name):
     if Execute.objects.count() > 0:    
         executeNotCompleted = Execute.objects.filter(completed=0)
