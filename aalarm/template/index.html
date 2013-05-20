@@ -28,6 +28,8 @@
 
     $(document).ready(function(){
         $(".aalarmStateBtn").click(function(data){
+            //this fix bootstrap bug (dropdown not closing)
+            $('[data-toggle="dropdown"]').parent().removeClass('open');
             var idButton = $(this).attr('id');
             $.ajax({
                 data: $("#idFormCommand").serialize(),

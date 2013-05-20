@@ -6,3 +6,8 @@ home :
 commands select
 commands select blocked until last command not executed
 table style
+
+feat
+
+program state
+set music on/off
