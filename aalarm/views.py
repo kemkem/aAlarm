@@ -43,3 +43,5 @@ def config(request):
     parameterFormSet = ParameterFormSet(queryset=Parameter.objects.filter(showInUI=1))
     return render_to_response('config.html', {'parameterFormSet': parameterFormSet,}, context_instance=RequestContext(request))
 
+def history(request):
+    return render_to_response('history.html', {}, context_instance=RequestContext(request))
