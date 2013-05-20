@@ -63,38 +63,45 @@
     {% csrf_token %}
 </form>
 
-<div class="btn-group">
-    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-    Action
-    <span class="caret"></span>
-    </a>
-    <ul class="dropdown-menu">
-{% for command in listCommands %}
-        <li><a href="#" id="{{ command.command }}" class="aalarmStateBtn">{{ command.name }}</a></li>
-{% endfor %}
-    </ul>
+<div class="row">
+  <div class="span2">
+        <p id="idState">
+        </p>
+        
+        <div class="btn-group">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+            Action
+            <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+        {% for command in listCommands %}
+                <li><a href="#" id="{{ command.command }}" class="aalarmStateBtn">{{ command.name }}</a></li>
+        {% endfor %}
+            </ul>
+        </div>
+
+    </div>
+
+
+    <div class="span7">
+
+        <table>
+        <th>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </th>
+        {% for event in listEvents %}
+        <tr>
+        <td class="{{ event.state.css }}"><div style="width:20px;"></div></td>
+        <td>{{ event.sensor.displayName }}</td>
+        <td>{{ event.state }}</td>
+        <td>{{ event.date|date:"d/m/Y H:m:s" }}</td>
+        </tr>
+        {% endfor %}
+        </table>
+    </div>
 </div>
-
-
-<div id="idState">
-</div>
-
-<h2>Events</h2>
-<table>
-<th>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-</th>
-{% for event in listEvents %}
-<tr>
-<td class="{{ event.state.css }}"><div style="width:20px;"></div></td>
-<td>{{ event.sensor.displayName }}</td>
-<td>{{ event.state }}</td>
-<td>{{ event.date|date:"d/m/Y H:m:s" }}</td>
-</tr>
-{% endfor %}
-</table>
 
 {% endblock %}
