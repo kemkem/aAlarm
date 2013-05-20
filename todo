@@ -1,11 +1,11 @@
 model : 
-sensor : display name
+sensor : display name ok
 parameter : sensor list display select
 
 home :
-commands select
+commands select ok
 commands select blocked until last command not executed
-table style
+table style ok
 
 feat
 

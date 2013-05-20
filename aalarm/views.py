@@ -39,7 +39,7 @@ def config(request):
             return HttpResponse("ko")
         if formset.is_valid():
             formset.save()
-            return HttpResponse("ok")
+            #return HttpResponse("ok")
     parameterFormSet = ParameterFormSet(queryset=Parameter.objects.filter(showInUI=1))
     return render_to_response('config.html', {'parameterFormSet': parameterFormSet,}, context_instance=RequestContext(request))
 

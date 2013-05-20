@@ -10,7 +10,7 @@
 </script>
 {% endblock %}
 
-{% block mainContentTitle %}Config{% endblock %}
+{% block mainContentTitle %}Settings{% endblock %}
 
 {% block mainContent %}
 
@@ -24,7 +24,7 @@
             <input type="hidden" id="{{ form.id.auto_id }}" name="{{ form.id.html_name }}" value="{{ form.id.value }}" />
         </div>
     {% endfor %}
-    <input type="submit" />
+    <input type="submit" class="btn" value="Validate" />
 </form>
 
 {% endblock %}
