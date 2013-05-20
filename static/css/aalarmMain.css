@@ -1,4 +1,17 @@
 .divState{
     font-family:Helvetica;
     font-size:20px;
+    padding:3px;
+}
+
+table.eventsTable{
+    border:none;
+}
+
+table.eventsTable th{
+    border:2px solid #ffffff;
+}
+
+table.eventsTable td{
+    border:2px solid #ffffff;
 }
