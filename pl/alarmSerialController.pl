@@ -8,7 +8,7 @@ use DBI;
 #Load parameters from file
 my %hParameters = loadConfigFile("/home/kemkem/work/arduinoAlarm/conf/aalarm.conf");
 
-
+#TODO remove these variables with direct access
 #Db
 my $dbUrl = configFromFile("dbUrl");#"DBI:mysql:database=aalarm;host=localhost";
 my $dbLogin = configFromFile("dbLogin");
@@ -22,10 +22,6 @@ my $tableParameter = configFromFile("tableParameter");
 my $tableRefSensorType = configFromFile("tableRefSensorType");
 my $tableRefState = configFromFile("tableRefState");
 my $tableSensor = configFromFile("tableSensor");
-
-#$param = config("pathStartPlaylist");
-#print "param : ".$param."\n";
-#exit;
 
 #Log
 my $pathLog = config("pathLog");
@@ -59,8 +55,6 @@ my $refreshMs = config("refreshMs");
 #Alarm passwd
 my $passwd = config("passwd");
 
-
-
 #Sensors total
 sensorsNb = 1
 
@@ -86,21 +80,19 @@ my $sendAlertMails = 1;
 
 exit;
 
+#TODO wont be necessary anymore
 #init sensors
-dbSensorInit();
+#dbSensorInit();
 
 recordDisconnected();
 
 print "started aAlarm\n";
-
 print "delays :\n";
 print "delayOnlineTimed : $delayOnlineTimed\n";
 print "delayIntrusionWarning : $delayIntrusionWarning\n";
 print "delayIntrusionAlarm : $delayIntrusionAlarm\n";
 print "delayIntrusionWarningTimeout : $delayIntrusionWarningTimeout\n";
 print "delayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout\n";
-
-
 
 while (1)
 {
