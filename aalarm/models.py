@@ -31,6 +31,7 @@ class Sensor(models.Model):
     sensorType = models.ForeignKey(RefSensorType)
     name = models.CharField(max_length=30)
     displayName = models.CharField(max_length=30)
+    pin = models.SmallIntegerField(default=0)
     def __unicode__(self):
         return self.name
 
