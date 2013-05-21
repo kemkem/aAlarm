@@ -19,7 +19,7 @@ my %hParameters = loadConfigFile("/home/kemkem/work/arduinoAlarm/conf/aalarm.con
 #Tables
 #my $tableCommand = configFromFile("tableCommand");
 #my $tableEvent = configFromFile("tableEvent");
-my $tableExecute = configFromFile("tableExecute");
+#my $tableExecute = configFromFile("tableExecute");
 my $tableParameter = configFromFile("tableParameter");
 my $tableRefSensorType = configFromFile("tableRefSensorType");
 #my $tableRefState = configFromFile("tableRefState");
@@ -416,20 +416,26 @@ sub recordEventSensor
 #}
 
 
+#TODO rename to execute ?
 sub getCommand
 {
 	my $dbh = getDbConnection();
 	my $tableCommand = configFromFile("tableCommand");
+	my $tableExecute = configFromFile("tableExecute");
 	
-    my $prepare = $dbh->prepare("select c.command as command from Command c where c.completed  = 0 ORDER BY c.id DESC LIMIT 0 , 1");
+    #my $prepare = $dbh->prepare("select c.command as command from Command c where c.completed  = 0 ORDER BY c.id DESC LIMIT 0 , 1");
+    #TODO foreign key name
+    my $prepare = $dbh->prepare("select c.command, e.id from $tableCommand c, $tableExecute e where e.completed = 1 and e.commandId = c.id ORDER BY e.id DESC LIMIT 0 , 1");
 	$prepare->execute() or die("cannot execute request\n");
 	my $result = $prepare->fetchrow_hashref();
 	if ($result)
 	{
 		my $command = $result->{command};
+		my $idExecute = $result->{id};
 		#recordLog("C [".$command."]");
 
-	    $dbh->do("update Command set completed=1 where completed=0");
+		#TODO complete when called command has been executed
+	    $dbh->do("update $tableExecute e set completed=2 where e.id = $idExecute");
 
 		setOnline() if ($command =~ /setOnline/);
 		setOffline() if ($command =~ /setOffline/);
