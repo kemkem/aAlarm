@@ -22,7 +22,7 @@ my $tableEvent = configFromFile("tableEvent");
 my $tableExecute = configFromFile("tableExecute");
 my $tableParameter = configFromFile("tableParameter");
 my $tableRefSensorType = configFromFile("tableRefSensorType");
-my $tableRefState = configFromFile("tableRefState");
+#my $tableRefState = configFromFile("tableRefState");
 my $tableSensor = configFromFile("tableSensor");
 
 #Log
@@ -69,9 +69,18 @@ my $tIntrusionWarning = -1;
 my $tIntrusionAlarm = -1;
 
 my $globalState = 0;
+# 0 offline
+# 1 timed
+# 2 online
+# 3 intrusion
+# 4 warning
+# 5 alarm
+
 my $nextCommand = "";
 
 my @sensorsStates;
+# 0 closed
+# 1 open
 
 #my @timers;
 my $timerNextId = 0;
@@ -138,10 +147,12 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 				if ($sensorStatus =~ /CLOSE$/)
 				{
 					$sensorsStates[$sensorNb] = 0;
+					#$sensorsStates[$sensorNb] = "close";
 				}
 				elsif ($sensorStatus =~ /OPEN$/)
 				{
 					$sensorsStates[$sensorNb] = 1;
+					#$sensorsStates[$sensorNb] = "open";
 				}
 				#record sensor event
 				recordEventSensor($sensorNb, $sensorsStates[$sensorNb]);
@@ -334,6 +345,22 @@ sub dbSensorInit
 		my $dbh = getDbConnection();
 		$dbh->do("delete from Sensor");
 	   	$dbh->do("insert into Sensor (id, name) values (1, 'Door sensor')");
+	}
+}
+
+sub getIdRefState
+{
+	my $state = shift;
+	my $dbh = getDbConnection();
+	my $tableRefState = configFromFile("tableRefState");
+	
+	my $prepare = $dbh->prepare("select r.id from " + $tableRefState + " r where r.state = '" + $state + "'");
+	$prepare->execute() or die("cannot execute request\n");
+	my $result = $prepare->fetchrow_hashref();
+	if ($result)
+	{
+		my $idRefState = $result->{id};
+		return $idRefState;
 	}
 }
 
