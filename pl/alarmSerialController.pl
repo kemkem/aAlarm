@@ -28,36 +28,41 @@ my $tableSensor = configFromFile("tableSensor");
 #exit;
 
 #Log
-my $pathLog = config("pathLog");#"/home/kemkem/AAlarm/log";
+my $pathLog = config("pathLog");
 
 #Arduino Port Scan
-my $portBase = config("portBase");#"/dev/ttyACM";
-my $portNumMin = config("portNumMin");#0;
-my $portNumMax = config("portNumMax");#5;
-my $reconnectTimeoutSecs = config("reconnectTimeoutSecs");#5;
+my $portBase = config("portBase");
+my $portNumMin = config("portNumMin");
+my $portNumMax = config("portNumMax");
+my $reconnectTimeoutSecs = config("reconnectTimeoutSecs");
 
 #Music service scripts
-my $pathStartPlaylist = config("pathStartPlaylist");#"/home/kemkem/aalarm/sh/startPlaylist.sh &";
-my $pathStopPlaylist = config("pathStopPlaylist");#"/home/kemkem/aalarm/sh/stopPlaylist.sh &";
+my $pathStartPlaylist = config("pathStartPlaylist");
+my $pathStopPlaylist = config("pathStopPlaylist");
 
 #Zoneminder service scripts
-my $pathStartZM = config("pathStartZM");#"/home/kemkem/aalarm/sh/startZM.sh &";
-my $pathStopZM = config("pathStopZM");#"/home/kemkem/aalarm/sh/stopZM.sh &";
-my $pathZmLast = config("pathZmLast");#"/home/kemkem/aalarm/sh/zmLast.sh &";
+my $pathStartZM = config("pathStartZM");
+my $pathStopZM = config("pathStopZM");
+my $pathZmLast = config("pathZmLast");
 
 #Delays
-my $delayOnlineTimed = config("delayOnlineTimed");#20;
-my $delayIntrusionWarning = config("delayIntrusionWarning");#20;
-my $delayIntrusionAlarm = config("delayIntrusionAlarm");#40;
-my $delayIntrusionWarningTimeout = config("delayIntrusionWarningTimeout");#5;
-my $delayIntrusionAlarmTimeout = config("delayIntrusionAlarmTimeout");#60;
+my $delayOnlineTimed = config("delayOnlineTimed");
+my $delayIntrusionWarning = config("delayIntrusionWarning");
+my $delayIntrusionAlarm = config("delayIntrusionAlarm");
+my $delayIntrusionWarningTimeout = config("delayIntrusionWarningTimeout");
+my $delayIntrusionAlarmTimeout = config("delayIntrusionAlarmTimeout");
 
 #USB config
-my $rate = config("rate");#9600;
-my $refreshMs = config("refreshMs");#200;
+my $rate = config("rate");
+my $refreshMs = config("refreshMs");
 
 #Alarm passwd
-my $passwd = config("passwd");#"4578";
+my $passwd = config("passwd");
+
+
+
+#Sensors total
+sensorsNb = 1
 
 #Init
 
@@ -229,7 +234,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 #		print "> Sending mail \"$globalStateName\"\n";
 #		$msg = MIME::Lite->new(
 #		             From     => 'arduino@kprod.net',
-#		             To       => 'marc@kprod.net',
+#		             To       => config("emailAlerts"),
 #		             Subject  => "AAlarm alert",
 #		             Data     => $strBody
 #		             );
