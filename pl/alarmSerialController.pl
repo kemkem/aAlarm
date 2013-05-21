@@ -18,12 +18,12 @@ my %hParameters = loadConfigFile("/home/kemkem/work/arduinoAlarm/conf/aalarm.con
 
 #Tables
 #my $tableCommand = configFromFile("tableCommand");
-my $tableEvent = configFromFile("tableEvent");
+#my $tableEvent = configFromFile("tableEvent");
 my $tableExecute = configFromFile("tableExecute");
 my $tableParameter = configFromFile("tableParameter");
 my $tableRefSensorType = configFromFile("tableRefSensorType");
 #my $tableRefState = configFromFile("tableRefState");
-my $tableSensor = configFromFile("tableSensor");
+#my $tableSensor = configFromFile("tableSensor");
 
 #Log
 my $pathLog = config("pathLog");
@@ -372,14 +372,34 @@ sub getIdRefState
 	}
 }
 
+sub getIdSensor
+{
+	my $sensorPin = shift; #pin 0 is global
+	my $dbh = getDbConnection();
+	my $tableSensor = configFromFile("tableSensor");
+	
+	my $prepare = $dbh->prepare("select s.id from " + $tableSensor + " s where s.pin = '" + $sensorPin + "'");
+	$prepare->execute() or die("cannot execute request\n");
+	my $result = $prepare->fetchrow_hashref();
+	if ($result)
+	{
+		my $idSensor = $result->{id};
+		return $getIdSensor;
+	}
+}
+
 sub recordEventGlobal
 {
 	my $state = shift;
+	my $tableEvent = configFromFile("tableEvent");
 	
 	if ($useDb)
 	{
 		my $dbh = getDbConnection();
-	   	$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, $state)");
+	   	#$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, $state)");
+	   	my $idState = getIdRefState($state);
+	   	my $idSensor = getIdSensor(0);
+	   	$dbh->do("insert into $tableEvent (date, sensor, state) values (now(), $idSensor, $idState)");
 	}
 	else
 	{
@@ -389,13 +409,16 @@ sub recordEventGlobal
 
 sub recordEventSensor
 {
-	my $sensorId = shift;
+	my $sensorPin = shift;
 	my $sensorState = shift;
 
 	if ($useDb)
 	{
-		my $dbh = getDbConnection();
-	   	$eventId = $dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, $sensorId, $sensorState)");
+	   	#$eventId = $dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, $sensorId, $sensorState)");
+	   	my $dbh = getDbConnection();
+	   	my $idState = getIdRefState($sensorState);
+	   	my $idSensor = getIdSensor($sensorPin);
+	   	$dbh->do("insert into $tableEvent (date, sensor, state) values (now(), $idSensor, $idState)");
 	}
 	else
 	{
