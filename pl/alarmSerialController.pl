@@ -95,57 +95,7 @@ print "delayIntrusionAlarm : $delayIntrusionAlarm\n";
 print "delayIntrusionWarningTimeout : $delayIntrusionWarningTimeout\n";
 print "delayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout\n";
 
-#
-# not exist in db -> put in db
-# if exist in db -> get from db
-#
 
-sub config()
-{
-	my $key = shift;
-	my $dbParameter = getDbParameter($key);
-	if($dbParameter ne "UNK")
-	{
-		return $dbParameter;
-	}
-	else
-	{
-		if(exists($hParameters{$key}))
-		{
-			my $value = $hParameters{$key};
-			setDbParameter($key, $value);
-			return $value;
-		}
-		else
-		{
-			die "$key parameter not exists in config file\n";
-		}
-	}
-}
-
-
-sub getDbParameter
-{
-	my $key = shift;
-	my $value = "UNK";
-	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-    my $prepare = $dbh->prepare("select p.value from " . $tableParameter . " p where p.key = '".$key."'");
-	$prepare->execute() or die("cannot execute request\n");
-	my $result = $prepare->fetchrow_hashref();
-	if ($result)
-	{
-		$value = $result->{value};
-	}
-	return $value;
-}
-
-sub setDbParameter
-{
-	my $key = shift;
-	my $value = shift;
-	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-	$dbh->do("insert into " . $tableParameter . " (`key`, `value`) values ('".$key."', '".$value."')");
-}
 
 while (1)
 {
@@ -525,7 +475,7 @@ sub configFromFile()
 	return $hParameters{$key};
 }
 
-#load config file
+#load config file in hash
 sub loadConfigFile()
 {
 	$path = shift;
@@ -547,3 +497,56 @@ sub loadConfigFile()
 	return %hashParameters;
 }
 
+#get settings by key
+sub config()
+{
+	my $key = shift;
+	my $dbParameter = getDbParameter($key);
+	if($dbParameter ne "UNK")
+	{
+		return $dbParameter;
+	}
+	else
+	{
+		if(exists($hParameters{$key}))
+		{
+			my $value = $hParameters{$key};
+			setDbParameter($key, $value);
+			return $value;
+		}
+		else
+		{
+			die "$key parameter not exists in config file\n";
+		}
+	}
+}
+
+
+# 
+# Get/Set Settings in db
+# not exist in db -> put in db
+# if exist in db -> get from db
+#
+
+sub getDbParameter
+{
+	my $key = shift;
+	my $value = "UNK";
+	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+    my $prepare = $dbh->prepare("select p.value from " . $tableParameter . " p where p.key = '".$key."'");
+	$prepare->execute() or die("cannot execute request\n");
+	my $result = $prepare->fetchrow_hashref();
+	if ($result)
+	{
+		$value = $result->{value};
+	}
+	return $value;
+}
+
+sub setDbParameter
+{
+	my $key = shift;
+	my $value = shift;
+	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+	$dbh->do("insert into " . $tableParameter . " (`key`, `value`) values ('".$key."', '".$value."')");
+}
