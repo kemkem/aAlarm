@@ -335,13 +335,17 @@ sub ckbIntrusionAlarmTimeout
 # DB
 #
 
+#TODO rename to InitEvent ?
 sub recordDisconnected
 {
 	my $dbh = getDbConnection();
-   	$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, 101)");
-	$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, 1, 101)");
+   	#$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, 101)");
+	#$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, 1, 101)");
+	recordEventGlobal("offline");
+	#TODO init sensors ?
 }
 
+#TODO remove this
 sub dbSensorInit
 {
 	my $dbh = getDbConnection();
@@ -355,7 +359,7 @@ sub getIdRefState
 	my $dbh = getDbConnection();
 	my $tableRefState = configFromFile("tableRefState");
 	
-	my $prepare = $dbh->prepare("select r.id from " + $tableRefState + " r where r.state = '" + $state + "'");
+	my $prepare = $dbh->prepare("select r.id from $tableRefState r where r.state = '$state'");
 	$prepare->execute() or die("cannot execute request\n");
 	my $result = $prepare->fetchrow_hashref();
 	if ($result)
@@ -371,7 +375,7 @@ sub getIdSensor
 	my $dbh = getDbConnection();
 	my $tableSensor = configFromFile("tableSensor");
 	
-	my $prepare = $dbh->prepare("select s.id from " + $tableSensor + " s where s.pin = '" + $sensorPin + "'");
+	my $prepare = $dbh->prepare("select s.id from $tableSensor s where s.pin = '$sensorPin'");
 	$prepare->execute() or die("cannot execute request\n");
 	my $result = $prepare->fetchrow_hashref();
 	if ($result)
