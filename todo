@@ -13,3 +13,6 @@ program state
 set music on/off
 history page
 zmlast page
+users
+keypad passwd by user
+sensors zones by user
