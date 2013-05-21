@@ -75,12 +75,20 @@ my $globalState = 0;
 # 3 intrusion
 # 4 warning
 # 5 alarm
+my $globalOffline = "offline";
+my $globalTimed = "timed";
+my $globalOnline = "online";
+my $globalIntrusion = "intrusion";
+my $globalWarning = "warnin";
+my $globalAlert = "alert";
 
 my $nextCommand = "";
 
 my @sensorsStates;
 # 0 closed
 # 1 open
+my $sensorClosed = "closed";
+my $sensorOpen = "open";
 
 #my @timers;
 my $timerNextId = 0;
