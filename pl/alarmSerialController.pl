@@ -94,7 +94,6 @@ my $sensorOpen = "open";
 my $timerNextId = 0;
 my %timers = ();
 
-my $useDb = 1;
 my $sendAlertMails = 1;
 
 exit;
@@ -338,22 +337,16 @@ sub ckbIntrusionAlarmTimeout
 
 sub recordDisconnected
 {
-	if ($useDb)
-	{
-		my $dbh = getDbConnection();
-	   	$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, 101)");
-		$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, 1, 101)");
-	}
+	my $dbh = getDbConnection();
+   	$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, 101)");
+	$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, 1, 101)");
 }
 
 sub dbSensorInit
 {
-	if ($useDb)
-	{
-		my $dbh = getDbConnection();
-		$dbh->do("delete from Sensor");
-	   	$dbh->do("insert into Sensor (id, name) values (1, 'Door sensor')");
-	}
+	my $dbh = getDbConnection();
+	$dbh->do("delete from Sensor");
+   	$dbh->do("insert into Sensor (id, name) values (1, 'Door sensor')");
 }
 
 sub getIdRefState
@@ -393,18 +386,11 @@ sub recordEventGlobal
 	my $state = shift;
 	my $tableEvent = configFromFile("tableEvent");
 	
-	if ($useDb)
-	{
-		my $dbh = getDbConnection();
-	   	#$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, $state)");
-	   	my $idState = getIdRefState($state);
-	   	my $idSensor = getIdSensor(0);
-	   	$dbh->do("insert into $tableEvent (date, sensor, state) values (now(), $idSensor, $idState)");
-	}
-	else
-	{
-		print "insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, $state)\n";
-	}
+	my $dbh = getDbConnection();
+   	#$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, $state)");
+   	my $idState = getIdRefState($state);
+   	my $idSensor = getIdSensor(0);
+   	$dbh->do("insert into $tableEvent (date, sensor, state) values (now(), $idSensor, $idState)");
 }
 
 sub recordEventSensor
@@ -412,18 +398,11 @@ sub recordEventSensor
 	my $sensorPin = shift;
 	my $sensorState = shift;
 
-	if ($useDb)
-	{
-	   	#$eventId = $dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, $sensorId, $sensorState)");
-	   	my $dbh = getDbConnection();
-	   	my $idState = getIdRefState($sensorState);
-	   	my $idSensor = getIdSensor($sensorPin);
-	   	$dbh->do("insert into $tableEvent (date, sensor, state) values (now(), $idSensor, $idState)");
-	}
-	else
-	{
-		print "insert into Event (date, stateType, sensorId, state) values (now(), 1, $sensorId, $sensorState)\n";
-	}
+   	#$eventId = $dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, $sensorId, $sensorState)");
+   	my $dbh = getDbConnection();
+   	my $idState = getIdRefState($sensorState);
+   	my $idSensor = getIdSensor($sensorPin);
+   	$dbh->do("insert into $tableEvent (date, sensor, state) values (now(), $idSensor, $idState)");
 }
 
 #sub recordFailure
