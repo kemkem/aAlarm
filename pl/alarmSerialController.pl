@@ -8,14 +8,16 @@ use DBI;
 #Load parameters from file
 my %hParameters = loadConfigFile("/home/kemkem/work/arduinoAlarm/conf/aalarm.conf");
 
+#TODO optional : iterate over hParameters to load settings in db
+
 #TODO remove these variables with direct access
 #Db
-my $dbUrl = configFromFile("dbUrl");#"DBI:mysql:database=aalarm;host=localhost";
-my $dbLogin = configFromFile("dbLogin");
-my $dbPasswd = configFromFile("dbPasswd");
+#my $dbUrl = configFromFile("dbUrl");
+#my $dbLogin = configFromFile("dbLogin");
+#my $dbPasswd = configFromFile("dbPasswd");
 
 #Tables
-my $tableCommand = configFromFile("tableCommand");
+#my $tableCommand = configFromFile("tableCommand");
 my $tableEvent = configFromFile("tableEvent");
 my $tableExecute = configFromFile("tableExecute");
 my $tableParameter = configFromFile("tableParameter");
@@ -319,7 +321,7 @@ sub recordDisconnected
 {
 	if ($useDb)
 	{
-		my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+		my $dbh = getDbConnection();
 	   	$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, 101)");
 		$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, 1, 101)");
 	}
@@ -329,7 +331,7 @@ sub dbSensorInit
 {
 	if ($useDb)
 	{
-		my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+		my $dbh = getDbConnection();
 		$dbh->do("delete from Sensor");
 	   	$dbh->do("insert into Sensor (id, name) values (1, 'Door sensor')");
 	}
@@ -341,7 +343,7 @@ sub recordEventGlobal
 	
 	if ($useDb)
 	{
-		my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+		my $dbh = getDbConnection();
 	   	$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, $state)");
 	}
 	else
@@ -357,7 +359,7 @@ sub recordEventSensor
 
 	if ($useDb)
 	{
-		my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+		my $dbh = getDbConnection();
 	   	$eventId = $dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, $sensorId, $sensorState)");
 	}
 	else
@@ -375,8 +377,10 @@ sub recordEventSensor
 
 sub getCommand
 {
-	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-        my $prepare = $dbh->prepare("select c.command as command from Command c where c.completed  = 0 ORDER BY c.id DESC LIMIT 0 , 1");
+	my $dbh = getDbConnection();
+	my $tableCommand = configFromFile("tableCommand");
+	
+    my $prepare = $dbh->prepare("select c.command as command from Command c where c.completed  = 0 ORDER BY c.id DESC LIMIT 0 , 1");
 	$prepare->execute() or die("cannot execute request\n");
 	my $result = $prepare->fetchrow_hashref();
 	if ($result)
@@ -390,6 +394,16 @@ sub getCommand
 		setOffline() if ($command =~ /setOffline/);
 	}
 	
+}
+
+sub getDbConnection
+{
+	my $dbUrl = configFromFile("dbUrl");
+	my $dbLogin = configFromFile("dbLogin");
+	my $dbPasswd = configFromFile("dbPasswd");
+		
+	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+	return $dbh;
 }
 
 #
@@ -544,6 +558,6 @@ sub setDbParameter
 {
 	my $key = shift;
 	my $value = shift;
-	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+	my $dbh = getDbConnection();
 	$dbh->do("insert into " . $tableParameter . " (`key`, `value`) values ('".$key."', '".$value."')");
 }
