@@ -69,27 +69,26 @@ my $tOnlineTimed = -1;
 my $tIntrusionWarning = -1;
 my $tIntrusionAlarm = -1;
 
-my $globalState = 0;
 # 0 offline
 # 1 timed
 # 2 online
 # 3 intrusion
 # 4 warning
 # 5 alarm
-my $globalOffline = "offline";
-my $globalTimed = "timed";
-my $globalOnline = "online";
-my $globalIntrusion = "intrusion";
-my $globalWarning = "warning";
-my $globalAlert = "alert";
+my $stateGlobalOffline = "offline";
+my $stateGlobalTimed = "timed";
+my $stateGlobalOnline = "online";
+my $stateGlobalIntrusion = "intrusion";
+my $stateGlobalWarning = "warning";
+my $stateGlobalAlert = "alert";
 
 my $nextCommand = "";
 
 my @sensorsStates;
 # 0 closed
 # 1 open
-my $sensorClosed = "closed";
-my $sensorOpen = "open";
+my $stateSensorClosed = "closed";
+my $stateSensorOpen = "open";
 
 #my @timers;
 my $timerNextId = 0;
@@ -101,7 +100,15 @@ my $sendAlertMails = 1;
 #init sensors
 #dbSensorInit();
 
-recordDisconnected();
+#recordDisconnected();
+#recordEventSensor("closed", 1);
+
+#getCommand();
+#recordEventGlobal($stateGlobalAlert);
+#recordEventSensor($stateSensorOpen, 1);
+
+#initial current state
+my $globalState = $stateGlobalOffline;
 
 exit;
 
@@ -166,16 +173,15 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 				recordEventSensor($sensorNb, $sensorsStates[$sensorNb]);
 			
 				#Manage alarms
-				if ($globalState == 2)
+				if ($globalState eq $stateGlobalOnline)
 				{
 					if ($sensorsStates[$sensorNb] = 1)
 					{
 						print "[!]intrusion alert !\n";
 						$tIntrusionWarning = setTimer($delayIntrusionWarning, "ckbIntrusionWarning");
 						$tIntrusionAlarm = setTimer($delayIntrusionAlarm, "ckbIntrusionAlarm");
-						$globalState = 3;
+						$globalState = $stateGlobalIntrusion;
 						#record global state change
-						#recordEvent($globalState, $sensorsStates[1]);
 						recordEventGlobal($globalState);
 						system($pathStopPlaylist);
 					}
@@ -192,11 +198,11 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 				if($keys =~ /$passwd\*$/)
 				{
 				
-					if($globalState == 0)
+					if($globalState eq $stateGlobalOffline)
 					{
 						setOnline();				
 					}
-					elsif($globalState >= 1)
+					elsif($globalState ne $stateGlobalOffline)
 					{
 						setOffline();	
 					}
@@ -258,7 +264,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 sub setOnline
 {
 	print "[!]online timed\n";
-	$globalState = 1;
+	$globalState = $stateGlobalOnline;
 	#record global state change
 	recordEventGlobal($globalState);
 	$tOnlineTimed = setTimer($delayOnlineTimed, "ckbOnline");
@@ -274,7 +280,7 @@ sub setOffline
 	$tIntrusionWarning = -1;
 	$tIntrusionAlarm = -1;
 	print "[!]offline\n";
-	$globalState = 0;
+	$globalState = $stateGlobalOffline;
 	#record global state change
 	recordEventGlobal($globalState);
 	system($pathStopZM);
@@ -287,7 +293,7 @@ sub setOffline
 sub ckbOnline
 {
 	print "  >function online\n";
-	$globalState = 2;
+	$globalState = $stateGlobalOnline;
 	#record global state change
 	recordEventGlobal($globalState);
 	setTimer(2, "ckbOnlineTimeout");
@@ -305,7 +311,7 @@ sub ckbIntrusionWarning
 {
 	print "  >function ckbIntrusionWarning\n";
 	setTimer($delayIntrusionWarningTimeout, "ckbIntrusionWarningTimeout");
-	$globalState = 4;
+	$globalState = $stateGlobalWarning;
 	#record global state change
 	recordEventGlobal($globalState);
 	sendMail("Intrusion Warning");
@@ -321,7 +327,7 @@ sub ckbIntrusionAlarm
 {
 	print "  >function ckbIntrusionAlarm\n";
 	setTimer($delayIntrusionAlarmTimeout, "ckbIntrusionAlarmTimeout");
-	$globalState = 5;
+	$globalState = $stateGlobalAlert;
 	#record global state change
 	recordEventGlobal($globalState);
 	sendMail("Intrusion Alarm");
@@ -337,22 +343,22 @@ sub ckbIntrusionAlarmTimeout
 #
 
 #TODO rename to InitEvent ?
-sub recordDisconnected
-{
-	my $dbh = getDbConnection();
-   	#$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, 101)");
-	#$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, 1, 101)");
-	recordEventGlobal("offline");
-	#TODO init sensors ?
-}
+#sub recordDisconnected
+#{
+#	my $dbh = getDbConnection();
+#   	#$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, 101)");
+#	#$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, 1, 101)");
+#	recordEventGlobal("offline");
+#	#TODO init sensors ?
+#}
 
 #TODO remove this
-sub dbSensorInit
-{
-	my $dbh = getDbConnection();
-	$dbh->do("delete from Sensor");
-   	$dbh->do("insert into Sensor (id, name) values (1, 'Door sensor')");
-}
+#sub dbSensorInit
+#{
+#	my $dbh = getDbConnection();
+#	$dbh->do("delete from Sensor");
+#   	$dbh->do("insert into Sensor (id, name) values (1, 'Door sensor')");
+#}
 
 sub getIdRefState
 {
@@ -366,6 +372,7 @@ sub getIdRefState
 	if ($result)
 	{
 		my $idRefState = $result->{id};
+        print "idRefState $idRefState\n";
 		return $idRefState;
 	}
 }
@@ -389,26 +396,28 @@ sub getIdSensor
 sub recordEventGlobal
 {
 	my $state = shift;
+	my $dbh = getDbConnection();
 	my $tableEvent = configFromFile("tableEvent");
 	
-	my $dbh = getDbConnection();
-   	#$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, $state)");
    	my $idState = getIdRefState($state);
+    print "idState $idState\n";
    	my $idSensor = getIdSensor(0);
-    print "insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)\n";
+    print "(global) insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)\n";
    	$dbh->do("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
 }
 
 sub recordEventSensor
 {
-	my $sensorPin = shift;
 	my $sensorState = shift;
+	my $sensorPin = shift;
+   	my $dbh = getDbConnection();
+    my $tableEvent = configFromFile("tableEvent");
 
    	#$eventId = $dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, $sensorId, $sensorState)");
-   	my $dbh = getDbConnection();
    	my $idState = getIdRefState($sensorState);
    	my $idSensor = getIdSensor($sensorPin);
-   	$dbh->do("insert into $tableEvent (date, sensor, state) values (now(), $idSensor, $idState)");
+    print "insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)\n";
+   	$dbh->do("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
 }
 
 #sub recordFailure
@@ -427,7 +436,7 @@ sub getCommand
 	
     #my $prepare = $dbh->prepare("select c.command as command from Command c where c.completed  = 0 ORDER BY c.id DESC LIMIT 0 , 1");
     #TODO foreign key name
-    my $prepare = $dbh->prepare("select c.command, e.id from $tableCommand c, $tableExecute e where e.completed = 1 and e.commandId = c.id ORDER BY e.id DESC LIMIT 0 , 1");
+    my $prepare = $dbh->prepare("select c.command, e.id from $tableCommand c, $tableExecute e where e.completed = 0 and e.command_id = c.id ORDER BY e.id DESC LIMIT 0 , 1");
 	$prepare->execute() or die("cannot execute request\n");
 	my $result = $prepare->fetchrow_hashref();
 	if ($result)
@@ -437,7 +446,7 @@ sub getCommand
 		#recordLog("C [".$command."]");
 
 		#TODO complete when called command has been executed
-	    $dbh->do("update $tableExecute e set completed=2 where e.id = $idExecute");
+	    $dbh->do("update $tableExecute e set e.completed=1 where e.id = $idExecute");
 
 		setOnline() if ($command =~ /setOnline/);
 		setOffline() if ($command =~ /setOffline/);
