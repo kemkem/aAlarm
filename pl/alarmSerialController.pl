@@ -80,7 +80,7 @@ my $globalOffline = "offline";
 my $globalTimed = "timed";
 my $globalOnline = "online";
 my $globalIntrusion = "intrusion";
-my $globalWarning = "warnin";
+my $globalWarning = "warning";
 my $globalAlert = "alert";
 
 my $nextCommand = "";
@@ -97,13 +97,13 @@ my %timers = ();
 
 my $sendAlertMails = 1;
 
-exit;
-
 #TODO wont be necessary anymore
 #init sensors
 #dbSensorInit();
 
 recordDisconnected();
+
+exit;
 
 print "started aAlarm\n";
 print "delays :\n";
@@ -375,14 +375,14 @@ sub getIdSensor
 	my $sensorPin = shift; #pin 0 is global
 	my $dbh = getDbConnection();
 	my $tableSensor = configFromFile("tableSensor");
-	
+
 	my $prepare = $dbh->prepare("select s.id from $tableSensor s where s.pin = '$sensorPin'");
 	$prepare->execute() or die("cannot execute request\n");
 	my $result = $prepare->fetchrow_hashref();
 	if ($result)
 	{
 		my $idSensor = $result->{id};
-		return $getIdSensor;
+		return $idSensor;
 	}
 }
 
@@ -395,7 +395,8 @@ sub recordEventGlobal
    	#$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, $state)");
    	my $idState = getIdRefState($state);
    	my $idSensor = getIdSensor(0);
-   	$dbh->do("insert into $tableEvent (date, sensor, state) values (now(), $idSensor, $idState)");
+    print "insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)\n";
+   	$dbh->do("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
 }
 
 sub recordEventSensor
