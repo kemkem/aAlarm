@@ -158,17 +158,17 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 				my $sensorStatus = $2;
 				print("sensor $sensorNb [$sensorStatus]\n");
 			
-				#my $sensorState;
 				if ($sensorStatus =~ /CLOSE$/)
 				{
-					$sensorsStates[$sensorNb] = 0;
-					#$sensorsStates[$sensorNb] = "close";
+					#$sensorsStates[$sensorNb] = 0;
+					$sensorsStates[$sensorNb] = $stateSensorClosed;
 				}
 				elsif ($sensorStatus =~ /OPEN$/)
 				{
-					$sensorsStates[$sensorNb] = 1;
-					#$sensorsStates[$sensorNb] = "open";
+					#$sensorsStates[$sensorNb] = 1;
+					$sensorsStates[$sensorNb] = $stateSensorOpen;
 				}
+
 				#record sensor event
 				recordEventSensor($sensorNb, $sensorsStates[$sensorNb]);
 			
