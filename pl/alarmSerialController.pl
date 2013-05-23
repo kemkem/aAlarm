@@ -6,7 +6,8 @@ use Time::HiRes qw(usleep);
 use DBI;
 
 #Load parameters from file
-my %hParameters = loadConfigFile("/home/kemkem/work/arduinoAlarm/conf/aalarm.conf");
+#my %hParameters = loadConfigFile("/home/kemkem/work/arduinoAlarm/conf/aalarm.conf");
+my %hParameters = loadConfigFile("/home/kemkem/Work/arduinoAlarm/conf/aalarm.conf");
 
 #TODO optional : iterate over hParameters to load settings in db
 
@@ -58,7 +59,7 @@ my $refreshMs = config("refreshMs");
 my $passwd = config("passwd");
 
 #Sensors total
-sensorsNb = 1
+$sensorsNb = 1;
 
 #Init
 
@@ -590,7 +591,8 @@ sub getDbParameter
 {
 	my $key = shift;
 	my $value = "UNK";
-	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+    my $dbh = getDbConnection();
+	#my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
     my $prepare = $dbh->prepare("select p.value from " . $tableParameter . " p where p.key = '".$key."'");
 	$prepare->execute() or die("cannot execute request\n");
 	my $result = $prepare->fetchrow_hashref();
