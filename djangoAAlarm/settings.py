@@ -110,7 +110,8 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    "/home/kemkem/work/djangoAAlarm/aalarm/template",
+    #"/home/kemkem/work/djangoAAlarm/aalarm/template",
+    "/home/kemkem/Work/djangoAAlarm/aalarm/template",
 )
 
 INSTALLED_APPS = (

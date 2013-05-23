@@ -19,5 +19,6 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += patterns('',
-	(r'^site_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/home/kemkem/work/djangoAAlarm/static'}),
+	#(r'^site_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/home/kemkem/work/djangoAAlarm/static'}),
+    (r'^site_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/home/kemkem/Work/djangoAAlarm/static'}),
 )
