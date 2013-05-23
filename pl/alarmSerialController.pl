@@ -110,7 +110,6 @@ my $sendAlertMails = 1;
 #initial current state
 my $globalState = $stateGlobalOffline;
 
-exit;
 
 print "started aAlarm\n";
 print "delays :\n";
@@ -264,7 +263,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 sub setOnline
 {
 	print "[!]online timed\n";
-	$globalState = $stateGlobalOnline;
+	$globalState = $stateGlobalTimed;
 	#record global state change
 	recordEventGlobal($globalState);
 	$tOnlineTimed = setTimer($delayOnlineTimed, "ckbOnline");
@@ -360,19 +359,47 @@ sub ckbIntrusionAlarmTimeout
 #   	$dbh->do("insert into Sensor (id, name) values (1, 'Door sensor')");
 #}
 
+sub getDbConnection
+{
+	my $dbUrl = configFromFile("dbUrl");
+	my $dbLogin = configFromFile("dbLogin");
+	my $dbPasswd = configFromFile("dbPasswd");
+		
+	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+	return $dbh;
+}
+
+sub dbSelectFetch
+{
+    my $req = shift;
+    my $dbh = getDbConnection();
+
+    print "[DB fetch] $req\n";
+    my $prepare = $dbh->prepare($req) or die("[DB fetch] Error when preparing request\n");
+    
+    $prepare->execute() or die("[DB fetch] Error when execute request\n");
+    my $result = $prepare->fetchrow_hashref();
+    return $result;
+}
+
+sub dbExecute
+{
+    my $req = shift;
+    my $dbh = getDbConnection();
+
+    print "[DB execute] $req\n";
+    my $prepare = $dbh->do($req) or die("[DB execute] Error when execute request\n");
+}
+
 sub getIdRefState
 {
 	my $state = shift;
-	my $dbh = getDbConnection();
 	my $tableRefState = configFromFile("tableRefState");
 	
-	my $prepare = $dbh->prepare("select r.id from $tableRefState r where r.state = '$state'");
-	$prepare->execute() or die("cannot execute request\n");
-	my $result = $prepare->fetchrow_hashref();
-	if ($result)
+    my $result = dbSelectFetch("select r.id from $tableRefState r where r.state = '$state'");
+    if ($result)
 	{
 		my $idRefState = $result->{id};
-        print "idRefState $idRefState\n";
 		return $idRefState;
 	}
 }
@@ -380,12 +407,9 @@ sub getIdRefState
 sub getIdSensor
 {
 	my $sensorPin = shift; #pin 0 is global
-	my $dbh = getDbConnection();
 	my $tableSensor = configFromFile("tableSensor");
 
-	my $prepare = $dbh->prepare("select s.id from $tableSensor s where s.pin = '$sensorPin'");
-	$prepare->execute() or die("cannot execute request\n");
-	my $result = $prepare->fetchrow_hashref();
+    my $result = dbSelectFetch("select s.id from $tableSensor s where s.pin = '$sensorPin'");
 	if ($result)
 	{
 		my $idSensor = $result->{id};
@@ -396,72 +420,43 @@ sub getIdSensor
 sub recordEventGlobal
 {
 	my $state = shift;
-	my $dbh = getDbConnection();
 	my $tableEvent = configFromFile("tableEvent");
 	
    	my $idState = getIdRefState($state);
-    print "idState $idState\n";
    	my $idSensor = getIdSensor(0);
-    print "(global) insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)\n";
-   	$dbh->do("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
+    dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
 }
 
 sub recordEventSensor
 {
 	my $sensorState = shift;
 	my $sensorPin = shift;
-   	my $dbh = getDbConnection();
     my $tableEvent = configFromFile("tableEvent");
 
-   	#$eventId = $dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, $sensorId, $sensorState)");
    	my $idState = getIdRefState($sensorState);
    	my $idSensor = getIdSensor($sensorPin);
-    print "insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)\n";
-   	$dbh->do("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
+    dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
 }
-
-#sub recordFailure
-#{
-#	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-#        $dbh->do("insert into Event (date, status, sensor) values (now(), 1, 1)");
-#}
-
 
 #TODO rename to execute ?
 sub getCommand
 {
-	my $dbh = getDbConnection();
 	my $tableCommand = configFromFile("tableCommand");
 	my $tableExecute = configFromFile("tableExecute");
 	
-    #my $prepare = $dbh->prepare("select c.command as command from Command c where c.completed  = 0 ORDER BY c.id DESC LIMIT 0 , 1");
-    #TODO foreign key name
-    my $prepare = $dbh->prepare("select c.command, e.id from $tableCommand c, $tableExecute e where e.completed = 0 and e.command_id = c.id ORDER BY e.id DESC LIMIT 0 , 1");
-	$prepare->execute() or die("cannot execute request\n");
-	my $result = $prepare->fetchrow_hashref();
+    my $result = dbSelectFetch("select c.command, e.id from $tableCommand c, $tableExecute e where e.completed = 0 and e.command_id = c.id ORDER BY e.id DESC LIMIT 0 , 1");
 	if ($result)
 	{
 		my $command = $result->{command};
 		my $idExecute = $result->{id};
-		#recordLog("C [".$command."]");
 
 		#TODO complete when called command has been executed
-	    $dbh->do("update $tableExecute e set e.completed=1 where e.id = $idExecute");
+        dbExecute("update $tableExecute e set e.completed=1 where e.id = $idExecute");
 
 		setOnline() if ($command =~ /setOnline/);
 		setOffline() if ($command =~ /setOffline/);
 	}
 	
-}
-
-sub getDbConnection
-{
-	my $dbUrl = configFromFile("dbUrl");
-	my $dbLogin = configFromFile("dbLogin");
-	my $dbPasswd = configFromFile("dbPasswd");
-		
-	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-	return $dbh;
 }
 
 #
