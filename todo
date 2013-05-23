@@ -16,3 +16,6 @@ zmlast page
 users
 keypad passwd by user
 sensors zones by user
+flush events
+restart
+set siren/buzzer on/off

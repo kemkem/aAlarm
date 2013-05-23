@@ -13,3 +13,5 @@ manage.py
 runserver
 syncdb
 
+mysqldump -u djaalarm -p --opt djaalarm > djaalarm.sqlmysqldump -u djaalarm -p --opt djaalarm > djaalarm.sql
+mysql -u djaalarm -p --database=djaalarm < djaalarm.sql
