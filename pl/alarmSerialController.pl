@@ -170,7 +170,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 				}
 
 				#record sensor event
-				recordEventSensor($sensorNb, $sensorsStates[$sensorNb]);
+				recordEventSensor($sensorsStates[$sensorNb], $sensorNb);
 			
 				#Manage alarms
 				if ($globalState eq $stateGlobalOnline)
