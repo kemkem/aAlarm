@@ -9,9 +9,13 @@ table.eventsTable{
 }
 
 table.eventsTable th{
-    border:2px solid #ffffff;
+
+}
+
+table.eventsTable tr{
+    border:2px solid #fff;
 }
 
 table.eventsTable td{
-    border:2px solid #ffffff;
+    border:2px solid #fff;
 }
