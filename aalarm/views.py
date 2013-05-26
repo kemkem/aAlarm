@@ -50,3 +50,7 @@ def config(request):
 
 def history(request):
     return render_to_response('history.html', {}, context_instance=RequestContext(request))
+
+def lastZmEvent(request):
+    return render_to_response('lastZmEvent.html', {}, context_instance=RequestContext(request))
+
