@@ -241,6 +241,10 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 }#for end
 }#while end
 
+#
+# KeyPad function callbacks
+# 
+
 sub setOnline
 {
 	print "[!]online timed\n";
@@ -363,7 +367,6 @@ sub executeCommand
 		setOnline() if ($command =~ /setOnline/);
 		setOffline() if ($command =~ /setOffline/);
 	}
-	
 }
 
 # Get State Id by state name
