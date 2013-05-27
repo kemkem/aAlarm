@@ -238,26 +238,8 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 		print ">Cannot connect, retrying in $reconnectTimeoutSecs second...\n";
 		sleep($reconnectTimeoutSecs);
 	}
-}#for
-}#while
-
-#sub sendMail
-#{
-#	$globalStateName = shift;
-#	if($sendAlertMails == 1)
-#	{
-#		$strBody = "\"$globalStateName\" has been triggered at ".getCurDate();
-#	
-#		print "> Sending mail \"$globalStateName\"\n";
-#		$msg = MIME::Lite->new(
-#		             From     => 'arduino@kprod.net',
-#		             To       => config("emailAlerts"),
-#		             Subject  => "AAlarm alert",
-#		             Data     => $strBody
-#		             );
-#		$msg->send;
-#	}
-#}
+}#for end
+}#while end
 
 sub setOnline
 {
@@ -384,6 +366,67 @@ sub executeCommand
 	
 }
 
+# Get State Id by state name
+sub getIdRefState
+{
+	my $state = shift;
+	my $tableRefState = configFromFile("tableRefState");
+	
+    my $result = dbSelectFetch("select r.id from $tableRefState r where r.state = '$state'");
+    if ($result)
+	{
+		my $idRefState = $result->{id};
+		return $idRefState;
+	}
+}
+
+# Get Sensor Id by sensor number
+sub getIdSensor
+{
+	my $sensorNb = shift; #pin 0 is global
+	my $tableSensor = configFromFile("tableSensor");
+
+    my $result = dbSelectFetch("select s.id from $tableSensor s where s.pin = '$sensorNb'");
+	if ($result)
+	{
+		my $idSensor = $result->{id};
+		return $idSensor;
+	}
+}
+
+# 
+# Get/Set Settings in db
+# not exist in db -> put in db
+# if exist in db -> get from db
+#
+
+sub getDbParameter
+{
+	my $key = shift;
+	my $value = "UNK";
+    my $dbh = getDbConnection();
+	#my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+    my $prepare = $dbh->prepare("select p.value from " . $tableParameter . " p where p.key = '".$key."'");
+	$prepare->execute() or die("cannot execute request\n");
+	my $result = $prepare->fetchrow_hashref();
+	if ($result)
+	{
+		$value = $result->{value};
+	}
+	return $value;
+}
+
+sub setDbParameter
+{
+	my $key = shift;
+	my $value = shift;
+	my $dbh = getDbConnection();
+	$dbh->do("insert into " . $tableParameter . " (`key`, `value`) values ('".$key."', '".$value."')");
+}
+
+#
+# Db Utils
+#
 
 sub getDbConnection
 {
@@ -417,85 +460,30 @@ sub dbExecute
     my $prepare = $dbh->do($req) or die("[DB execute] Error when execute request\n");
 }
 
-sub getIdRefState
-{
-	my $state = shift;
-	my $tableRefState = configFromFile("tableRefState");
-	
-    my $result = dbSelectFetch("select r.id from $tableRefState r where r.state = '$state'");
-    if ($result)
-	{
-		my $idRefState = $result->{id};
-		return $idRefState;
-	}
-}
-
-sub getIdSensor
-{
-	my $sensorPin = shift; #pin 0 is global
-	my $tableSensor = configFromFile("tableSensor");
-
-    my $result = dbSelectFetch("select s.id from $tableSensor s where s.pin = '$sensorPin'");
-	if ($result)
-	{
-		my $idSensor = $result->{id};
-		return $idSensor;
-	}
-}
-
-
-#
-# Timer
-#
-
-sub setTimer
-{
-	my $delay = shift;
-	my $function = shift;
-	my $timer = time + $delay;
-	print ">new timer id $timerNextId in $delay s\n";
-	$timers{$timerNextId} = $timer."|".$function;
-	$timerNextId++;
-	return $timerNextId - 1;
-}
-
-sub removeTimer
-{
-	$key = shift;
-	print ">remove timer $key\n";
-	if($key>0)
-	{
-		delete $timers{$key}; 
-	}
-}
-
-sub runTimers
-{
-	#print ">running timers\n";
-	$curTime = time;
-	my @newTimers;
-	foreach my $key (keys %timers)
-	{
-		my $timerDef = $timers{$key};
-		$timerDef =~ /(.*)\|(.*)/;
-
-		my $timer = $1;
-		my $function = $2;
-		
-		#print " >timer id ".$key." time ".$timer." function ".$function."\n";
-		if($curTime >= $timer)
-		{
-			#print " >execute $function\n";
-			delete $timers{$key}; 
-			&{$function}();
-		}
-	}
-	#@timers = @newTimers;
-}
 
 #
 # Utils
 #
+
+# Send Email
+#sub sendMail
+#{
+#	$globalStateName = shift;
+#	if($sendAlertMails == 1)
+#	{
+#		$strBody = "\"$globalStateName\" has been triggered at ".getCurDate();
+#	
+#		print "> Sending mail \"$globalStateName\"\n";
+#		$msg = MIME::Lite->new(
+#		             From     => 'arduino@kprod.net',
+#		             To       => config("emailAlerts"),
+#		             Subject  => "AAlarm alert",
+#		             Data     => $strBody
+#		             );
+#		$msg->send;
+#	}
+#}
+
 sub getCurDate
 {
 	($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
@@ -570,33 +558,52 @@ sub config()
 	}
 }
 
-
-# 
-# Get/Set Settings in db
-# not exist in db -> put in db
-# if exist in db -> get from db
+#
+# Timer mini lib
 #
 
-sub getDbParameter
+sub setTimer
 {
-	my $key = shift;
-	my $value = "UNK";
-    my $dbh = getDbConnection();
-	#my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
-    my $prepare = $dbh->prepare("select p.value from " . $tableParameter . " p where p.key = '".$key."'");
-	$prepare->execute() or die("cannot execute request\n");
-	my $result = $prepare->fetchrow_hashref();
-	if ($result)
-	{
-		$value = $result->{value};
-	}
-	return $value;
+	my $delay = shift;
+	my $function = shift;
+	my $timer = time + $delay;
+	print ">new timer id $timerNextId in $delay s\n";
+	$timers{$timerNextId} = $timer."|".$function;
+	$timerNextId++;
+	return $timerNextId - 1;
 }
 
-sub setDbParameter
+sub removeTimer
 {
-	my $key = shift;
-	my $value = shift;
-	my $dbh = getDbConnection();
-	$dbh->do("insert into " . $tableParameter . " (`key`, `value`) values ('".$key."', '".$value."')");
+	$key = shift;
+	print ">remove timer $key\n";
+	if($key>0)
+	{
+		delete $timers{$key}; 
+	}
 }
+
+sub runTimers
+{
+	#print ">running timers\n";
+	$curTime = time;
+	my @newTimers;
+	foreach my $key (keys %timers)
+	{
+		my $timerDef = $timers{$key};
+		$timerDef =~ /(.*)\|(.*)/;
+
+		my $timer = $1;
+		my $function = $2;
+		
+		#print " >timer id ".$key." time ".$timer." function ".$function."\n";
+		if($curTime >= $timer)
+		{
+			#print " >execute $function\n";
+			delete $timers{$key}; 
+			&{$function}();
+		}
+	}
+	#@timers = @newTimers;
+}
+
