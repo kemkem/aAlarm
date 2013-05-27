@@ -434,14 +434,20 @@ sub getDbParameter
     my $dbh = getDbConnection();
     my $tableParameter = configFromFile("tableParameter");
 
-    my $prepare = $dbh->prepare("select p.value from " . $tableParameter . " p where p.key = '".$key."'");
-	$prepare->execute() or die("cannot execute request\n");
-	my $result = $prepare->fetchrow_hashref();
+    #my $prepare = $dbh->prepare("select p.value from " . $tableParameter . " p where p.key = '".$key."'");
+	#$prepare->execute() or die("cannot execute request\n");
+	#my $result = $prepare->fetchrow_hashref();
+	#if ($result)
+	#{
+	#	$value = $result->{value};
+	#}
+	#return $value;
+    my $result = dbSelectFetch("select p.value from " . $tableParameter . " p where p.key = '".$key."'");
 	if ($result)
 	{
-		$value = $result->{value};
+		my $value = $result->{value};
+		return $value;
 	}
-	return $value;
 }
 
 sub setDbParameter
@@ -451,8 +457,8 @@ sub setDbParameter
 	my $dbh = getDbConnection();
     my $tableParameter = configFromFile("tableParameter");
 
-	$dbh->do("insert into " . $tableParameter . " (`key`, `value`) values ('".$key."', '".$value."')");
-    #dbExecute();
+	#$dbh->do("insert into " . $tableParameter . " (`key`, `value`) values ('".$key."', '".$value."')");
+    dbExecute("insert into " . $tableParameter . " (`key`, `value`) values ('".$key."', '".$value."')");
 }
 
 #
@@ -474,7 +480,7 @@ sub dbSelectFetch
     my $req = shift;
     my $dbh = getDbConnection();
 
-    print "[DB fetch] $req\n";
+    debugDb("[Fetch] $req");
     my $prepare = $dbh->prepare($req) or die("[DB fetch] Error when preparing request\n");
     
     $prepare->execute() or die("[DB fetch] Error when execute request\n");
@@ -487,7 +493,7 @@ sub dbExecute
     my $req = shift;
     my $dbh = getDbConnection();
 
-    print "[DB execute] $req\n";
+    debugDb("[Execute] $req");
     my $prepare = $dbh->do($req) or die("[DB execute] Error when execute request\n");
 }
 
@@ -534,6 +540,19 @@ sub debug
     if($debug)
     {
         print "[".getCurDate()."] $msg\n";
+    }
+    if($logInFile)
+    {
+        recordLog($msg);
+    }
+}
+
+sub debugDb
+{
+    my $msg = shift;
+    if($dbdebug)
+    {
+        print "[DB] $msg\n";
     }
     if($logInFile)
     {
