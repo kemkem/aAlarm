@@ -5,29 +5,64 @@
 use Time::HiRes qw(usleep);
 use DBI;
 
+# Simple line parameters
+# write logfile
+my $logInFile = 0;
+# diplay debug
+my $debug = 0;
+# display db debug
+my $dbdebug = 0;
+# init db table parameters
+my $initDb = 0;
+
+foreach $argnum (0 .. $#ARGV) {
+    my $parameter = $ARGV[$argnum];
+    if ($parameter eq "help")
+    {
+        print "./alarmSerialController.pl [debug] [logfile]  [dbdebug] [initdb]\n";
+        print "debug : Display debug messages\n";
+        print "logfile : Log debug messages in log (path in config file)\n";
+        print "dbdebug : Display / Log DB requests\n";
+        print "initdb : Init db table parameters (ERASE db parameters ! Required at every config file change)\n";
+        exit();
+    }
+    if ($parameter eq "logfile")
+    {
+        $logInFile = 1;
+    }
+    if ($parameter eq "debug")
+    {
+        $debug = 1;
+    }
+    if ($parameter eq "dbdebug")
+    {
+        $dbdebug = 1;
+    }
+    if ($parameter eq "initdb")
+    {
+        $initDb = true;
+    }
+}
+
 #Load parameters from file
 #my %hParameters = loadConfigFile("/home/kemkem/work/arduinoAlarm/conf/aalarm.conf");
 my %hParameters = loadConfigFile("/home/kemkem/Work/arduinoAlarm/conf/aalarm.conf");
 
-#TODO optional : iterate over hParameters to load settings in db
+if($initDb)
+{
+    my $dbh = getDbConnection();
+    my $tableParameter = configFromFile("tableParameter");
 
-#TODO remove these variables with direct access
-#Db
-#my $dbUrl = configFromFile("dbUrl");
-#my $dbLogin = configFromFile("dbLogin");
-#my $dbPasswd = configFromFile("dbPasswd");
-
-#Tables
-#my $tableCommand = configFromFile("tableCommand");
-#my $tableEvent = configFromFile("tableEvent");
-#my $tableExecute = configFromFile("tableExecute");
-my $tableParameter = configFromFile("tableParameter");
-my $tableRefSensorType = configFromFile("tableRefSensorType");
-#my $tableRefState = configFromFile("tableRefState");
-#my $tableSensor = configFromFile("tableSensor");
+    dbExecute("delete from $tableParameter");
+    foreach my $key (keys %hParameters)
+    {
+        debug("InitDb key: $key, value: $hParameters{$key}");
+        initDbParameter($key);
+    }
+}
 
 #Log
-my $pathLog = config("pathLog");
+#my $pathLog = configFromFile("pathLog");
 
 #Arduino Port Scan
 my $portBase = config("portBase");
@@ -96,19 +131,10 @@ my %timers = ();
 
 my $sendAlertMails = 1;
 
-#TODO wont be necessary anymore
-#init sensors
-#dbSensorInit();
-
-#recordDisconnected();
-#recordEventSensor("closed", 1);
-
-#recordEventGlobal($stateGlobalAlert);
-#recordEventSensor($stateSensorOpen, 1);
-
 #initial current state
 my $globalState = $stateGlobalOffline;
 
+exit;
 
 print "started aAlarm\n";
 print "delays :\n";
@@ -399,8 +425,6 @@ sub getIdSensor
 
 # 
 # Get/Set Settings in db
-# not exist in db -> put in db
-# if exist in db -> get from db
 #
 
 sub getDbParameter
@@ -408,7 +432,8 @@ sub getDbParameter
 	my $key = shift;
 	my $value = "UNK";
     my $dbh = getDbConnection();
-	#my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
+    my $tableParameter = configFromFile("tableParameter");
+
     my $prepare = $dbh->prepare("select p.value from " . $tableParameter . " p where p.key = '".$key."'");
 	$prepare->execute() or die("cannot execute request\n");
 	my $result = $prepare->fetchrow_hashref();
@@ -424,7 +449,10 @@ sub setDbParameter
 	my $key = shift;
 	my $value = shift;
 	my $dbh = getDbConnection();
+    my $tableParameter = configFromFile("tableParameter");
+
 	$dbh->do("insert into " . $tableParameter . " (`key`, `value`) values ('".$key."', '".$value."')");
+    #dbExecute();
 }
 
 #
@@ -500,15 +528,29 @@ sub getCurDate
 	return $mon."/".$mday."/".$year." ".$hour.":".$min.":".$sec;
 }
 
+sub debug
+{
+    my $msg = shift;
+    if($debug)
+    {
+        print "[".getCurDate()."] $msg\n";
+    }
+    if($logInFile)
+    {
+        recordLog($msg);
+    }
+}
+
 sub recordLog
 {
 	my $log = shift;
+
 	open LOG, ">>".$pathLog;
 	print LOG getCurDate()." ".$log."\n";
 	close LOG;
 }
 
-#get param from config file
+#get param from hash (loaded from config file)
 sub configFromFile()
 {
 	my $key = shift;
@@ -537,7 +579,24 @@ sub loadConfigFile()
 	return %hashParameters;
 }
 
-#get settings by key
+# Init Db parameter from hash
+sub initDbParameter()
+{
+	my $key = shift;
+
+	if(exists($hParameters{$key}))
+	{
+		my $value = $hParameters{$key};
+		setDbParameter($key, $value);
+		return $value;
+	}
+	else
+	{
+		die "$key parameter not exists in config file\n";
+	}
+}
+
+# Return parameter from Db ; if not exists, from hash, or die
 sub config()
 {
 	my $key = shift;
@@ -550,8 +609,6 @@ sub config()
 	{
 		if(exists($hParameters{$key}))
 		{
-			my $value = $hParameters{$key};
-			setDbParameter($key, $value);
 			return $value;
 		}
 		else
