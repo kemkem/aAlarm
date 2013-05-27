@@ -434,14 +434,6 @@ sub getDbParameter
     my $dbh = getDbConnection();
     my $tableParameter = configFromFile("tableParameter");
 
-    #my $prepare = $dbh->prepare("select p.value from " . $tableParameter . " p where p.key = '".$key."'");
-	#$prepare->execute() or die("cannot execute request\n");
-	#my $result = $prepare->fetchrow_hashref();
-	#if ($result)
-	#{
-	#	$value = $result->{value};
-	#}
-	#return $value;
     my $result = dbSelectFetch("select p.value from " . $tableParameter . " p where p.key = '".$key."'");
 	if ($result)
 	{
@@ -457,7 +449,6 @@ sub setDbParameter
 	my $dbh = getDbConnection();
     my $tableParameter = configFromFile("tableParameter");
 
-	#$dbh->do("insert into " . $tableParameter . " (`key`, `value`) values ('".$key."', '".$value."')");
     dbExecute("insert into " . $tableParameter . " (`key`, `value`) values ('".$key."', '".$value."')");
 }
 
@@ -564,7 +555,7 @@ sub recordLog
 {
 	my $log = shift;
 
-	open LOG, ">>".$pathLog;
+	open LOG, ">>".configFromFile("pathLog");
 	print LOG getCurDate()." ".$log."\n";
 	close LOG;
 }
