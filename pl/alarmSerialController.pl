@@ -103,7 +103,6 @@ my $sendAlertMails = 1;
 #recordDisconnected();
 #recordEventSensor("closed", 1);
 
-#getCommand();
 #recordEventGlobal($stateGlobalAlert);
 #recordEventSensor($stateSensorOpen, 1);
 
@@ -221,7 +220,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 		    {
 			usleep($refresh);
 			
-			getCommand();
+			executeCommand();
 						
 			$send = $nextCommand;
 			$port->write($send."\n");
@@ -341,23 +340,50 @@ sub ckbIntrusionAlarmTimeout
 # DB
 #
 
-#TODO rename to InitEvent ?
-#sub recordDisconnected
-#{
-#	my $dbh = getDbConnection();
-#   	#$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 0, 0, 101)");
-#	#$dbh->do("insert into Event (date, stateType, sensorId, state) values (now(), 1, 1, 101)");
-#	recordEventGlobal("offline");
-#	#TODO init sensors ?
-#}
+# Record a global event in db
+sub recordEventGlobal
+{
+	my $state = shift;
+	my $tableEvent = configFromFile("tableEvent");
+	
+   	my $idState = getIdRefState($state);
+   	my $idSensor = getIdSensor(0);
+    dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
+}
 
-#TODO remove this
-#sub dbSensorInit
-#{
-#	my $dbh = getDbConnection();
-#	$dbh->do("delete from Sensor");
-#   	$dbh->do("insert into Sensor (id, name) values (1, 'Door sensor')");
-#}
+# Record a sensor event in db
+sub recordEventSensor
+{
+	my $sensorState = shift;
+	my $sensorPin = shift;
+    my $tableEvent = configFromFile("tableEvent");
+
+   	my $idState = getIdRefState($sensorState);
+   	my $idSensor = getIdSensor($sensorPin);
+    dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
+}
+
+# Execute command if any
+sub executeCommand
+{
+	my $tableCommand = configFromFile("tableCommand");
+	my $tableExecute = configFromFile("tableExecute");
+	
+    my $result = dbSelectFetch("select c.command, e.id from $tableCommand c, $tableExecute e where e.completed = 0 and e.command_id = c.id ORDER BY e.id DESC LIMIT 0 , 1");
+	if ($result)
+	{
+		my $command = $result->{command};
+		my $idExecute = $result->{id};
+
+		#TODO complete when called command has been executed
+        dbExecute("update $tableExecute e set e.completed=1 where e.id = $idExecute");
+
+		setOnline() if ($command =~ /setOnline/);
+		setOffline() if ($command =~ /setOffline/);
+	}
+	
+}
+
 
 sub getDbConnection
 {
@@ -417,47 +443,6 @@ sub getIdSensor
 	}
 }
 
-sub recordEventGlobal
-{
-	my $state = shift;
-	my $tableEvent = configFromFile("tableEvent");
-	
-   	my $idState = getIdRefState($state);
-   	my $idSensor = getIdSensor(0);
-    dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
-}
-
-sub recordEventSensor
-{
-	my $sensorState = shift;
-	my $sensorPin = shift;
-    my $tableEvent = configFromFile("tableEvent");
-
-   	my $idState = getIdRefState($sensorState);
-   	my $idSensor = getIdSensor($sensorPin);
-    dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
-}
-
-#TODO rename to execute ?
-sub getCommand
-{
-	my $tableCommand = configFromFile("tableCommand");
-	my $tableExecute = configFromFile("tableExecute");
-	
-    my $result = dbSelectFetch("select c.command, e.id from $tableCommand c, $tableExecute e where e.completed = 0 and e.command_id = c.id ORDER BY e.id DESC LIMIT 0 , 1");
-	if ($result)
-	{
-		my $command = $result->{command};
-		my $idExecute = $result->{id};
-
-		#TODO complete when called command has been executed
-        dbExecute("update $tableExecute e set e.completed=1 where e.id = $idExecute");
-
-		setOnline() if ($command =~ /setOnline/);
-		setOffline() if ($command =~ /setOffline/);
-	}
-	
-}
 
 #
 # Timer
