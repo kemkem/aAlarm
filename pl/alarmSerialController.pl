@@ -629,7 +629,7 @@ sub setTimer
 	my $delay = shift;
 	my $function = shift;
 	my $timer = time + $delay;
-	print ">new timer id $timerNextId in $delay s\n";
+	debug("New timer id $timerNextId in $delay s");
 	$timers{$timerNextId} = $timer."|".$function;
 	$timerNextId++;
 	return $timerNextId - 1;
@@ -638,7 +638,7 @@ sub setTimer
 sub removeTimer
 {
 	$key = shift;
-	print ">remove timer $key\n";
+	debug("Remove timer $key");
 	if($key>0)
 	{
 		delete $timers{$key}; 
