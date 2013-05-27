@@ -135,24 +135,22 @@ my $sendAlertMails = 1;
 my $globalState = $stateGlobalOffline;
 
 debug("started aAlarm");
-debug("delays :");
-debug("delayOnlineTimed : $delayOnlineTimed");
-debug("delayIntrusionWarning : $delayIntrusionWarning");
-debug("delayIntrusionAlarm : $delayIntrusionAlarm");
-debug("delayIntrusionWarningTimeout : $delayIntrusionWarningTimeout");
-debug("delayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout");
+debug("Delays :");
+debug("DelayOnlineTimed : $delayOnlineTimed");
+debug("DelayIntrusionWarning : $delayIntrusionWarning");
+debug("DelayIntrusionAlarm : $delayIntrusionAlarm");
+debug("DelayIntrusionWarningTimeout : $delayIntrusionWarningTimeout");
+debug("DelayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout");
 
-exit;
 while (1)
 {
 for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 {
 	my $connectPort = $portBase.$portNum;
-	print ">Trying to connect to $connectPort\n";
-	#if ($port = Device::SerialPort->new("/dev/ttyACM0"))
+	debug("Trying to connect to $connectPort");
 	if (my $port = Device::SerialPort->new($connectPort))
 	{
-		print ">Connected\n";
+		debug("Connected");
 		$port->databits(8);
 		$port->baudrate($rate);
 		$port->parity("none");
@@ -161,106 +159,97 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 		#record global state init
 		recordEventGlobal($globalState);
 
-
-		my $count = 0;
-		#my $connection = 5;
-
-		while (1) {
+		while (1) 
+        {
 		    my $response = $port->lookfor();
 		
-		    if ($response) {
+		    if ($response) 
+            {
 		    	$nextCommand = "";
-			chop $response;
-			#$connection++;
-			print "R [".$response."]\n";
+			    chop $response;
+			    debug("Board Response [".$response."]");
 		
-			#received sensors update				
-			if($response =~ /sensor(\d+):(.*)/)
-			{
-				my $sensorNb = $1 + 1;
-				my $sensorStatus = $2;
-				print("sensor $sensorNb [$sensorStatus]\n");
+			    #received sensors update				
+			    if($response =~ /sensor(\d+):(.*)/)
+			    {
+				    my $sensorNb = $1 + 1;
+				    my $sensorStatus = $2;
+				    debug("Sensor $sensorNb status [$sensorStatus]");
 			
-				if ($sensorStatus =~ /CLOSE$/)
-				{
-					#$sensorsStates[$sensorNb] = 0;
-					$sensorsStates[$sensorNb] = $stateSensorClosed;
-				}
-				elsif ($sensorStatus =~ /OPEN$/)
-				{
-					#$sensorsStates[$sensorNb] = 1;
-					$sensorsStates[$sensorNb] = $stateSensorOpen;
-				}
+				    if ($sensorStatus =~ /CLOSE$/)
+				    {
+					    $sensorsStates[$sensorNb] = $stateSensorClosed;
+				    }
+				    elsif ($sensorStatus =~ /OPEN$/)
+				    {
+					    $sensorsStates[$sensorNb] = $stateSensorOpen;
+				    }
 
-				#record sensor event
-				recordEventSensor($sensorsStates[$sensorNb], $sensorNb);
+				    #record sensor event
+				    recordEventSensor($sensorsStates[$sensorNb], $sensorNb);
 			
-				#Manage alarms
-				if ($globalState eq $stateGlobalOnline)
-				{
-					if ($sensorsStates[$sensorNb] = 1)
-					{
-						print "[!]intrusion alert !\n";
-						$tIntrusionWarning = setTimer($delayIntrusionWarning, "ckbIntrusionWarning");
-						$tIntrusionAlarm = setTimer($delayIntrusionAlarm, "ckbIntrusionAlarm");
-						$globalState = $stateGlobalIntrusion;
-						#record global state change
-						recordEventGlobal($globalState);
-						system($pathStopPlaylist);
-					}
-				}
-			}
+				    #Manage alarms
+				    if ($globalState eq $stateGlobalOnline)
+				    {
+					    if ($sensorsStates[$sensorNb] = 1)
+					    {
+						    debug("Intrusion alert !");
+						    $tIntrusionWarning = setTimer($delayIntrusionWarning, "ckbIntrusionWarning");
+						    $tIntrusionAlarm = setTimer($delayIntrusionAlarm, "ckbIntrusionAlarm");
+						    $globalState = $stateGlobalIntrusion;
+						    #record global state change
+						    recordEventGlobal($globalState);
+						    system($pathStopPlaylist);
+					    }
+				    }
+			    }
 		
-			#key '*' pressed
-			elsif($response =~ /keys:(.*)/)
-			{
-				my $keys = $1;
-				print("keys [$keys]\n");
+			    #key '*' pressed
+			    elsif($response =~ /keys:(.*)/)
+			    {
+				    my $keys = $1;
+				    debug("Keys [$keys]");
 			
-				#passwd entered
-				if($keys =~ /$passwd\*$/)
-				{
+				    #passwd entered
+				    if($keys =~ /$passwd\*$/)
+				    {
 				
-					if($globalState eq $stateGlobalOffline)
-					{
-						setOnline();				
-					}
-					elsif($globalState ne $stateGlobalOffline)
-					{
-						setOffline();	
-					}
-				}
-				#passwd change
-				elsif($keys =~ /$passwd\#(\d+)\*$/)
-				{
-					print "pwd changed to $1\n";
-					$passwd = $1;
-				}
-			}
+					    if($globalState eq $stateGlobalOffline)
+					    {
+						    setOnline();				
+					    }
+					    elsif($globalState ne $stateGlobalOffline)
+					    {
+						    setOffline();	
+					    }
+				    }
+				    #passwd change
+				    elsif($keys =~ /$passwd\#(\d+)\*$/)
+				    {
+					    debug("KeyPad Passwd changed to [$1]");
+                        #TODO record in db
+					    $passwd = $1;
+				    }
+			    }
 			
-			
-			
-		    } 
-		    else 
-		    {
-			usleep($refresh);
-			
-			executeCommand();
-						
-			$send = $nextCommand;
-			$port->write($send."\n");
-			#print "S [".$send."]\n";
-			#$connection--;
-		    }
-		    runTimers();						
+	        } 
+	        else 
+	        {
+		    usleep($refresh);
+		    executeCommand();
+		    $send = $nextCommand;
+		    $port->write($send."\n");
+	        }
+	        runTimers();						
 		}
-		print "Connection has been lost!\n";
-		#print "last state was $status\n";
-		recordDisconnected();
+		debug("Connection to board has been lost!");
+        #TODO record in db
+		#recordDisconnected();
 	}
 	else
 	{
-		print ">Cannot connect, retrying in $reconnectTimeoutSecs second...\n";
+		debug("Cannot connect, retrying in $reconnectTimeoutSecs second...");
+        #TODO record in db
 		sleep($reconnectTimeoutSecs);
 	}
 }#for end
@@ -272,7 +261,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 
 sub setOnline
 {
-	print "[!]online timed\n";
+	debug("SetOnline called");
 	$globalState = $stateGlobalTimed;
 	#record global state change
 	recordEventGlobal($globalState);
@@ -282,13 +271,13 @@ sub setOnline
 
 sub setOffline
 {
+    debug("SetOffline called");
 	removeTimer($tOnlineTimed);
 	removeTimer($tIntrusionWarning);
 	removeTimer($tIntrusionAlarm);
 	$tOnlineTimed = -1;
 	$tIntrusionWarning = -1;
 	$tIntrusionAlarm = -1;
-	print "[!]offline\n";
 	$globalState = $stateGlobalOffline;
 	#record global state change
 	recordEventGlobal($globalState);
@@ -301,7 +290,7 @@ sub setOffline
 #
 sub ckbOnline
 {
-	print "  >function online\n";
+    debug("Callback Online");
 	$globalState = $stateGlobalOnline;
 	#record global state change
 	recordEventGlobal($globalState);
@@ -312,13 +301,13 @@ sub ckbOnline
 
 sub ckbOnlineTimeout
 {
-	print "  >function onlineTimeout\n";
+    debug("Callback OnlineTimeout");
 	$nextCommand = "setLedRed";
 }
 
 sub ckbIntrusionWarning
 {
-	print "  >function ckbIntrusionWarning\n";
+    debug("Callback Warning");
 	setTimer($delayIntrusionWarningTimeout, "ckbIntrusionWarningTimeout");
 	$globalState = $stateGlobalWarning;
 	#record global state change
@@ -329,12 +318,13 @@ sub ckbIntrusionWarning
 
 sub ckbIntrusionWarningTimeout
 {
-	print "  >function ckbIntrusionWarningTimeout\n";
+    debug("Callback WarningTimeout");
+    debug("(Do nothing)");
 }
 
 sub ckbIntrusionAlarm
 {
-	print "  >function ckbIntrusionAlarm\n";
+    debug("Callback Alarm");
 	setTimer($delayIntrusionAlarmTimeout, "ckbIntrusionAlarmTimeout");
 	$globalState = $stateGlobalAlert;
 	#record global state change
@@ -344,7 +334,8 @@ sub ckbIntrusionAlarm
 
 sub ckbIntrusionAlarmTimeout
 {
-	print "  >function ckbIntrusionAlarmTimeout\n";
+    debug("Callback AlarmTimeout");
+    debug("(Do nothing)");
 }
 
 #
@@ -359,6 +350,7 @@ sub recordEventGlobal
 	
    	my $idState = getIdRefState($state);
    	my $idSensor = getIdSensor(0);
+    debug("Record Global Event [$state]");
     dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
 }
 
@@ -371,6 +363,7 @@ sub recordEventSensor
 
    	my $idState = getIdRefState($sensorState);
    	my $idSensor = getIdSensor($sensorPin);
+    debug("Record Sensor [$sensorPin] Event [$sensorState]");
     dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
 }
 
