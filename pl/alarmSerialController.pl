@@ -134,16 +134,15 @@ my $sendAlertMails = 1;
 #initial current state
 my $globalState = $stateGlobalOffline;
 
+debug("started aAlarm");
+debug("delays :");
+debug("delayOnlineTimed : $delayOnlineTimed");
+debug("delayIntrusionWarning : $delayIntrusionWarning");
+debug("delayIntrusionAlarm : $delayIntrusionAlarm");
+debug("delayIntrusionWarningTimeout : $delayIntrusionWarningTimeout");
+debug("delayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout");
+
 exit;
-
-print "started aAlarm\n";
-print "delays :\n";
-print "delayOnlineTimed : $delayOnlineTimed\n";
-print "delayIntrusionWarning : $delayIntrusionWarning\n";
-print "delayIntrusionAlarm : $delayIntrusionAlarm\n";
-print "delayIntrusionWarningTimeout : $delayIntrusionWarningTimeout\n";
-print "delayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout\n";
-
 while (1)
 {
 for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
