@@ -5,6 +5,8 @@
 use Time::HiRes qw(usleep);
 use DBI;
 
+my $pathConfigFile = "/home/kemkem/Work/arduinoAlarm/conf/aalarm.conf";
+
 # Simple line parameters
 # write logfile
 my $logInFile = 0;
@@ -44,22 +46,33 @@ foreach $argnum (0 .. $#ARGV) {
     }
 }
 
-#Load parameters from file
-#my %hParameters = loadConfigFile("/home/kemkem/work/arduinoAlarm/conf/aalarm.conf");
-my %hParameters = loadConfigFile("/home/kemkem/Work/arduinoAlarm/conf/aalarm.conf");
+my $initDbAfterLoadedParameters = 0;
 
+my %hParameters = loadConfigFile($pathConfigFile);
+
+#init db if necessary
 if($initDb)
 {
-    my $dbh = getDbConnection();
+    $initDbAfterLoadedParameters = 1;
+    debug("Reset table parameters");
     my $tableParameter = configFromFile("tableParameter");
-
     dbExecute("delete from $tableParameter");
-    foreach my $key (keys %hParameters)
-    {
-        debug("InitDb key: $key, value: $hParameters{$key}");
-        initDbParameter($key);
-    }
+    #reload from file to init db
+    loadConfigFile($pathConfigFile);
 }
+
+#if($initDb)
+#{
+#    my $dbh = getDbConnection();
+#    my $tableParameter = configFromFile("tableParameter");
+#
+#    dbExecute("delete from $tableParameter");
+#    foreach my $key (keys %hParameters)
+#    {
+#        debug("InitDb key: $key, value: $hParameters{$key}");
+#        initDbParameter($key);
+#    }
+#}
 
 #Log
 #my $pathLog = configFromFile("pathLog");
@@ -426,7 +439,7 @@ sub getDbParameter
     my $dbh = getDbConnection();
     my $tableParameter = configFromFile("tableParameter");
 
-    my $result = dbSelectFetch("select p.value from " . $tableParameter . " p where p.key = '".$key."'");
+    my $result = dbSelectFetch("select p.value from $tableParameter p where p.key = '".$key."'");
 	if ($result)
 	{
 		my $value = $result->{value};
@@ -437,11 +450,13 @@ sub getDbParameter
 sub setDbParameter
 {
 	my $key = shift;
+    my $group = shift;
 	my $value = shift;
+    my $showInUi = shift;
 	my $dbh = getDbConnection();
     my $tableParameter = configFromFile("tableParameter");
 
-    dbExecute("insert into " . $tableParameter . " (`key`, `value`) values ('".$key."', '".$value."')");
+    dbExecute("insert into $tableParameter (`key`, `group`, `value`, `showInUi`, `name`) values ('$key', '$group', '$value', '$showInUi', '$key')");
 }
 
 #
@@ -569,11 +584,23 @@ sub loadConfigFile()
 	{
 		chomp();
 		next if /$\#/;
-		if(/(.*?)\s*=\s*(.*)/)
+		if(/(.*?):(.*?):(.*?)\s*=\s*(.*)/)
 		{
 			#($key,$value) = split("=");
 			#print $1."|".$2."|\n";
-			$hashParameters{$1} = $2;
+            $group = $1;
+            $key = $2;
+            $showInUi = $3;
+            $value = $4;
+            if($initDbAfterLoadedParameters)
+            {
+                debug("InitDb key $key, group $group, showInUi $showInUi, value $value");
+                initDbParameter($key, $group, $showInUi, $value);
+            }
+            else
+            {
+			    $hashParameters{$key} = $value;
+            }
 		}
 	}
 	close IN;
@@ -582,14 +609,16 @@ sub loadConfigFile()
 }
 
 # Init Db parameter from hash
-sub initDbParameter()
+sub initDbParameter
 {
 	my $key = shift;
+    my $group = shift;
+    my $showInUi = shift;
 
 	if(exists($hParameters{$key}))
 	{
 		my $value = $hParameters{$key};
-		setDbParameter($key, $value);
+		setDbParameter($key, $group, $value, $showInUi);
 		return $value;
 	}
 	else
@@ -599,7 +628,7 @@ sub initDbParameter()
 }
 
 # Return parameter from Db ; if not exists, from hash, or die
-sub config()
+sub config
 {
 	my $key = shift;
 	my $dbParameter = getDbParameter($key);
