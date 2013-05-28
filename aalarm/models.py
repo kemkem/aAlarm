@@ -45,6 +45,7 @@ class Event(models.Model):
 
 class Parameter(models.Model):
     key = models.CharField(max_length=50)
+    group = models.CharField(max_length=50)
     value = models.CharField(max_length=250)
     name = models.CharField(max_length=30)
     description = models.CharField(max_length=255,blank=True, null=True)

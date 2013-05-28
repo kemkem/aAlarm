@@ -33,7 +33,7 @@
         $.ajax({
             data: $("#idFormState").serialize(),
             type: "post",
-            url: "getLastEvents/20",
+            url: "getLastEvents/5",
             success: function(data) {
                 $("#idLastEvents").html(data);
             }
@@ -81,35 +81,49 @@
 </form>
 
 <div class="row">
-  <div class="span2">
-        <p id="idState">
-        </p>
-        
+    <div class="span6">
+        <p id="idState"></p>
+    </div>
+
+    <div class="span2">
+        <button type="button" class="btn">Set Online</button>
+    </div>
+
+    <div class="span2">
         <div class="btn-group">
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-            Action
+            Actions
             <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-        {% for command in listCommands %}
+            {% for command in listCommands %}
                 <li><a href="#" id="{{ command.command }}" class="aalarmStateBtn">{{ command.name }}</a></li>
-        {% endfor %}
+            {% endfor %}
             </ul>
         </div>
-        
-        <p>
-        <button type="button" class="btn">Refresh</button>
-        </p>
-
-        <label class="checkbox">
-            <input type="checkbox">Auto-Refresh
-        </label>
     </div>
 
+    <div class="span2">
+        <button type="button" class="btn">Refresh</button>
+    </div>
 
-    <div class="span7">
+</div>
+
+<div class="row">
+    <div class="span4">
+        sensor 1
+    </div>
+    <div class="span4">
+        sound
+    </div>
+    <div class="span4">
+        zm
+    </div>
+</div>
+
+<div class="row">
+    <div class="span12">
         <div id="idLastEvents"></div>
-
     </div>
 </div>
 
