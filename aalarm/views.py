@@ -20,8 +20,7 @@ def getLastState(request, sensorName):
     return render_to_response('getLastState.html', {'lastEvent': lastEvent}, context_instance=RequestContext(request))
 
 def getLastEvents(request, nbEvents):
-    listEvents = Event.objects.all().order_by('id').reverse()
-    listCommands = Command.objects.all()
+    listEvents = Event.objects.all().order_by('id').reverse()[:nbEvents]
     return render_to_response('getLastEvents.html', {'listEvents': listEvents}, context_instance=RequestContext(request))
 
 def command(request, name):
