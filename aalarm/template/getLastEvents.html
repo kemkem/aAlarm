@@ -9,7 +9,7 @@
 <tr>
     <td><div style="width:20px;"></div></td>
     <td>{{ event.sensor.displayName }}</td>
-    <td class="state {{ event.state.css }}">{{ event.state.displayName }}</td>
+    <td class="tabState {{ event.state.css }}">{{ event.state.displayName }}</td>
     <td>{{ event.date|date:"d/m/Y H:m:s" }}</td>
 </tr>
 {% endfor %}

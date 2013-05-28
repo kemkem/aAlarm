@@ -1,7 +1,17 @@
-.divState{
+.labelState {
     font-family:Helvetica;
     font-size:24px;
-    padding:8px;
+    line-height:24px;
+    padding:4px;
+}
+
+.columnLabelCentered {
+    text-align: center;
+}
+
+.tabState {
+    font-weight:bold;
+    text-align:center;
 }
 
 table.eventsTable{

@@ -28,7 +28,7 @@
 
     function updateSensor()
     {
-        $("#idState").html("updating...");
+        $("#idSensor").html("updating...");
 
         $.ajax({
             data: $("#idFormState").serialize(),
@@ -98,7 +98,7 @@
 </form>
 
 <div class="row">
-    <div class="span6">
+    <div class="span6 columnLabelCentered">
         <p id="idState"></p>
     </div>
 
@@ -127,13 +127,13 @@
 </div>
 
 <div class="row">
-    <div class="span4">
+    <div class="span4 columnLabelCentered">
         <p id="idSensor"></p>
     </div>
-    <div class="span4">
+    <div class="span4 columnLabelCentered">
         sound
     </div>
-    <div class="span4">
+    <div class="span4 columnLabelCentered">
         zm
     </div>
 </div>
