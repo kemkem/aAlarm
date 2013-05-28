@@ -26,6 +26,22 @@
 
     }
 
+    function updateSensor()
+    {
+        $("#idState").html("updating...");
+
+        $.ajax({
+            data: $("#idFormState").serialize(),
+            type: "post",
+            url: "getLastState/Door1",
+            success: function(data) {
+                $("#idSensor").html(data);
+            }
+        });
+        return false;        
+
+    }
+
     function updateLastEvents()
     {
         $("#idLastEvents").html("updating...");
@@ -63,6 +79,7 @@
 
         updateLastEvents();
         updateState();
+        updateSensor();
 
 	});
 </script>
@@ -111,7 +128,7 @@
 
 <div class="row">
     <div class="span4">
-        sensor 1
+        <p id="idSensor"></p>
     </div>
     <div class="span4">
         sound
