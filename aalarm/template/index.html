@@ -17,7 +17,7 @@
         $.ajax({
             data: $("#idFormState").serialize(),
             type: "post",
-            url: "getLastState/Global",
+            url: "getLastGlobalState/Global",
             success: function(data) {
                 $("#idState").html(data);
             }
@@ -33,7 +33,7 @@
         $.ajax({
             data: $("#idFormState").serialize(),
             type: "post",
-            url: "getLastState/Door1",
+            url: "getLastSensorState/Door1",
             success: function(data) {
                 $("#idSensor").html(data);
             }
@@ -98,7 +98,13 @@
 </form>
 
 <div class="row">
-    <div class="span6 columnLabelCentered">
+    <div class="span12">
+    <h2>Main monitor</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span6 columnCentered">
         <p id="idState"></p>
     </div>
 
@@ -127,14 +133,26 @@
 </div>
 
 <div class="row">
-    <div class="span4 columnLabelCentered">
+    <div class="span12">
+    <h2>Sensors</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span4 columnCentered">
         <p id="idSensor"></p>
     </div>
-    <div class="span4 columnLabelCentered">
-        sound
+    <div class="span4 columnCentered">
+        <span class="label labelState {{ lastEvent.state.css }}">Sound Off</span>
     </div>
-    <div class="span4 columnLabelCentered">
-        zm
+    <div class="span4 columnCentered">
+        <span class="label labelState {{ lastEvent.state.css }}">ZoneMinder Running</span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span12">
+    <h2>Recent events</h2>
     </div>
 </div>
 

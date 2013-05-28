@@ -8,7 +8,8 @@ urlpatterns = patterns('',
     url(r'^config/$', views.config),
     url(r'^history/$', views.history),
     url(r'^lastZmEvent/$', views.lastZmEvent),
-    url(r'^getLastState/(?P<sensorName>\w+)$', views.getLastState),
+    url(r'^getLastGlobalState/(?P<sensorName>\w+)$', views.getLastGlobalState),
+    url(r'^getLastSensorState/(?P<sensorName>\w+)$', views.getLastSensorState),
     url(r'^getLastEvents/(?P<nbEvents>\w+)$', views.getLastEvents),
 )
 

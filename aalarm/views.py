@@ -14,10 +14,15 @@ def index(request):
     listCommands = Command.objects.all()
     return render_to_response('index.html', {'listEvents': listEvents, 'listCommands':listCommands}, context_instance=RequestContext(request))
 
-def getLastState(request, sensorName):
+def getLastSensorState(request, sensorName):
     sensor = Sensor.objects.filter(name=sensorName)
     lastEvent = Event.objects.filter(sensor=sensor).latest('id')    
-    return render_to_response('getLastState.html', {'lastEvent': lastEvent}, context_instance=RequestContext(request))
+    return render_to_response('getLastSensorState.html', {'lastEvent': lastEvent}, context_instance=RequestContext(request))
+
+def getLastGlobalState(request, sensorName):
+    sensor = Sensor.objects.filter(name=sensorName)
+    lastEvent = Event.objects.filter(sensor=sensor).latest('id')    
+    return render_to_response('getLastGlobalState.html', {'lastEvent': lastEvent}, context_instance=RequestContext(request))
 
 def getLastEvents(request, nbEvents):
     listEvents = Event.objects.all().order_by('id').reverse()[:nbEvents]
