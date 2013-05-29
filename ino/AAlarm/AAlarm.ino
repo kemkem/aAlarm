@@ -173,6 +173,7 @@ void execCommand(String serialReadString)
   String cmdSetLedGreenBuzzer = "setLedGreenBuzzer";
   String cmdSetSirenOn = "setSirenOn";
   String cmdSetSirenOff = "setSirenOff";
+  String cmdSetSensorsNb = "setSensorsNb";
   
   //this 2 statements have to be first
   if(serialReadString.startsWith(cmdSetLedRedBuzzer))
@@ -208,6 +209,12 @@ void execCommand(String serialReadString)
   {
     sirenOff();
   }
+  else if(serialReadString.startsWith(cmdSetSensorsNb))
+  {
+    int sensorNb = getNbAfterCommand(serialReadString, cmdSetSensorsNb);
+    nbSensors = sensorNb;
+  }
+  
 }
 
 
