@@ -12,6 +12,14 @@ from django.core.exceptions import ValidationError
 def index(request):
     listEvents = Event.objects.all().order_by('id').reverse()
     listCommands = Command.objects.all()
+
+    secondaryStatusRows = Parameter.objects.filter(name='secondaryStatusRows')
+    secondaryStatusCols = Parameter.objects.filter(name='secondaryStatusCols')
+    secondaryStatusList = Parameter.objects.filter(name='secondaryStatusList')
+
+    #secondaryStatusListm = re.search(r"", secondaryStatusList)
+    aDevices = secondaryStatusList.split(';')
+
     return render_to_response('index.html', {'listEvents': listEvents, 'listCommands':listCommands}, context_instance=RequestContext(request))
 
 def getLastSensorState(request, sensorName):
