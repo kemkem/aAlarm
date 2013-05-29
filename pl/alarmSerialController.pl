@@ -147,7 +147,7 @@ my $sendAlertMails = 1;
 #initial current state
 my $globalState = $stateGlobalOffline;
 
-debug("started aAlarm");
+debug("Started aAlarm");
 debug("Delays :");
 debug("DelayOnlineTimed : $delayOnlineTimed");
 debug("DelayIntrusionWarning : $delayIntrusionWarning");
