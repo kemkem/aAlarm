@@ -9,18 +9,47 @@ from django import forms
 from django.forms import TextInput, BooleanField
 from django.core.exceptions import ValidationError
 
+class SecondarySensorItem():
+    def __init__(self, pConfig):
+        self.rowPos = int(pConfig.split(":")[0].split(",")[0])
+        self.colPos = int(pConfig.split(":")[0].split(",")[1])
+        self.sensor = pConfig.split(":")[1]
+    
+
 def index(request):
     listEvents = Event.objects.all().order_by('id').reverse()
     listCommands = Command.objects.all()
 
-    secondaryStatusRows = Parameter.objects.filter(name='secondaryStatusRows')
-    secondaryStatusCols = Parameter.objects.filter(name='secondaryStatusCols')
-    secondaryStatusList = Parameter.objects.filter(name='secondaryStatusList')
+    secondaryStatusRows = int(Parameter.objects.filter(name='secondaryStatusRows')[0].value)
+    secondaryStatusCols = int(Parameter.objects.filter(name='secondaryStatusCols')[0].value)
+    secondaryStatusList = Parameter.objects.filter(name='secondaryStatusList')[0].value
 
-    #secondaryStatusListm = re.search(r"", secondaryStatusList)
-    aDevices = secondaryStatusList.split(';')
+    colClass = ""
+    if secondaryStatusCols == 1:
+        colClass = "span12"
+    if secondaryStatusCols == 2:
+        colClass = "span6"
+    if secondaryStatusCols == 3:
+        colClass = "span4"
+    if secondaryStatusCols == 4:
+        colClass = "span3"
 
-    return render_to_response('index.html', {'listEvents': listEvents, 'listCommands':listCommands}, context_instance=RequestContext(request))
+    aSecondaryStatus = secondaryStatusList.split(";")
+    rows = [secondaryStatusRows, secondaryStatusCols]
+    for secondaryStatus in aSecondaryStatus:
+        secondarySensorItem = SecondarySensorItem(secondaryStatus)
+        rows[1][1] = 33
+    
+    secondarySensors = ""
+    for row in range(0, secondaryStatusRows):
+        secondarySensors += "<div class=\"row\">"
+        for col in range(0, secondaryStatusCols):
+            secondarySensors += "<div class=\""+colClass+"\">"
+            secondarySensors += "<p id=\"" + "sensorid" + "\">" + "sensorname" + "</p>"
+            secondarySensors += "</div>"
+        secondarySensors += "</div>"
+
+    return render_to_response('index.html', {'listEvents': listEvents, 'listCommands':listCommands, 'secondarySensors':secondarySensors}, context_instance=RequestContext(request))
 
 def getLastSensorState(request, sensorName):
     sensor = Sensor.objects.filter(name=sensorName)
