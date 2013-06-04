@@ -49,19 +49,22 @@ def index(request):
     #prepare bootstrap "table" of items
     htmlSecondaryItems = ""
     htmlAjaxSensorsToRequest = ""
+    #build a table as defined in parameters
     for row in range(0, secondaryItemsRows):
         htmlSecondaryItems += "<div class=\"row\">"
         for col in range(0, secondaryItemsCols):
             hashAdress = str(row + 1) + "." + str(col + 1)
-            #request display name
-            sensor = Sensor.objects.filter(name=hItems[hashAdress])
-            sensorLoadingText = "<span class=\"label labelState\">" + hItems[hashAdress] + "?</span>"
-            if sensor.count() > 0:
-                htmlAjaxSensorsToRequest += hItems[hashAdress] + ","
-                sensorLoadingText = "loading..."
-            htmlSecondaryItems += "<div class=\""+colClass+" columnCentered\">"
-            htmlSecondaryItems += "<p id=\"" + hItems[hashAdress] + "\">" + sensorLoadingText + "</p>"
-            htmlSecondaryItems += "</div>"
+            #if this row.col is defined in list
+            if hItems.has_key(hashAdress):
+                #request display name
+                sensor = Sensor.objects.filter(name=hItems[hashAdress])
+                sensorLoadingText = "<span class=\"label labelState\">" + hItems[hashAdress] + "?</span>"
+                if sensor.count() > 0:
+                    htmlAjaxSensorsToRequest += hItems[hashAdress] + ","
+                    sensorLoadingText = "loading..."
+                htmlSecondaryItems += "<div class=\""+colClass+" columnCentered\">"
+                htmlSecondaryItems += "<p id=\"" + hItems[hashAdress] + "\">" + sensorLoadingText + "</p>"
+                htmlSecondaryItems += "</div>"
         htmlSecondaryItems += "</div>"
 
     return render_to_response('index.html', {'listEvents': listEvents, 'listCommands':listCommands, 'htmlSecondaryItems':htmlSecondaryItems, 'htmlAjaxSensorsToRequest':htmlAjaxSensorsToRequest,}, context_instance=RequestContext(request))
