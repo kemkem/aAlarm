@@ -15,7 +15,7 @@
         $("#idState").html("updating...");
 
         $.ajax({
-            data: $("#idFormState").serialize(),
+            data: $("#idFormCSRFToken").serialize(),
             type: "post",
             url: "getLastGlobalState/Global",
             success: function(data) {
@@ -31,7 +31,7 @@
         $("#" + sensorName).html("updating...");
 
         $.ajax({
-            data: $("#idFormState").serialize(),
+            data: $("#idFormCSRFToken").serialize(),
             type: "post",
             url: "getLastSensorState/" + sensorName,
             success: function(data) {
@@ -47,7 +47,7 @@
         $("#idLastEvents").html("updating...");
 
         $.ajax({
-            data: $("#idFormState").serialize(),
+            data: $("#idFormCSRFToken").serialize(),
             type: "post",
             url: "getLastEvents/5",
             success: function(data) {
@@ -94,9 +94,6 @@
         {
             updateSensor(aSensorsToRequest[i]);
         }
-        
-
-
 	});
 </script>
 {% endblock %}
@@ -105,14 +102,9 @@
 
 {% block mainContent %}
 
-<form name="formCommand" id="idFormCommand">
+<form name="formCSRFToken" id="idFormCSRFToken">
     {% csrf_token %}
 </form>
-
-<form name="formState" id="idFormState">
-    {% csrf_token %}
-</form>
-
 
 <div class="row">
     <div class="span12">
