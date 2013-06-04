@@ -26,16 +26,16 @@
 
     }
 
-    function updateSensor()
+    function updateSensor(sensorName)
     {
-        $("#idSensor").html("updating...");
+        $("#" + sensorName).html("updating...");
 
         $.ajax({
             data: $("#idFormState").serialize(),
             type: "post",
-            url: "getLastSensorState/Door1",
+            url: "getLastSensorState/" + sensorName,
             success: function(data) {
-                $("#idSensor").html(data);
+                $("#" + sensorName).html(data);
             }
         });
         return false;        
@@ -79,7 +79,14 @@
 
         updateLastEvents();
         updateState();
-        updateSensor();
+
+        var aSensorsToRequest = "{{htmlAjaxSensorsToRequest}}".split(",");
+        for(var i = 0;i < aSensorsToRequest.length;i++)
+        {
+            updateSensor(aSensorsToRequest[i]);
+        }
+        
+
 
 	});
 </script>
@@ -138,18 +145,9 @@
     </div>
 </div>
 
-{{ secondarySensors|safe }}
 
 <div class="row">
-    <div class="span4 columnCentered">
-        <p id="idSensor"></p>
-    </div>
-    <div class="span4 columnCentered">
-        <span class="label labelState {{ lastEvent.state.css }}">Sound Off</span>
-    </div>
-    <div class="span4 columnCentered">
-        <span class="label labelState {{ lastEvent.state.css }}">ZoneMinder Running</span>
-    </div>
+{{ htmlSecondaryItems|safe }}
 </div>
 
 <div class="row">

@@ -9,47 +9,62 @@ from django import forms
 from django.forms import TextInput, BooleanField
 from django.core.exceptions import ValidationError
 
-class SecondarySensorItem():
+class SecondaryItem():
     def __init__(self, pConfig):
-        self.rowPos = int(pConfig.split(":")[0].split(",")[0])
-        self.colPos = int(pConfig.split(":")[0].split(",")[1])
+        self.rowPos = pConfig.split(":")[0].split(",")[0]
+        self.colPos = pConfig.split(":")[0].split(",")[1]
         self.sensor = pConfig.split(":")[1]
     
 
 def index(request):
     listEvents = Event.objects.all().order_by('id').reverse()
     listCommands = Command.objects.all()
-
-    secondaryStatusRows = int(Parameter.objects.filter(name='secondaryStatusRows')[0].value)
-    secondaryStatusCols = int(Parameter.objects.filter(name='secondaryStatusCols')[0].value)
-    secondaryStatusList = Parameter.objects.filter(name='secondaryStatusList')[0].value
-
+    
+    #get secondary items defined rows and cols 
+    secondaryItemsRows = int(Parameter.objects.filter(name='secondaryStatusRows')[0].value)
+    secondaryItemsCols = int(Parameter.objects.filter(name='secondaryStatusCols')[0].value)
+    #get secondary items list
+    secondaryItemsList = Parameter.objects.filter(name='secondaryStatusList')[0].value
+    
+    #set bootstrap col class according cols nb
     colClass = ""
-    if secondaryStatusCols == 1:
+    if secondaryItemsCols == 1:
         colClass = "span12"
-    if secondaryStatusCols == 2:
+    if secondaryItemsCols == 2:
         colClass = "span6"
-    if secondaryStatusCols == 3:
+    if secondaryItemsCols == 3:
         colClass = "span4"
-    if secondaryStatusCols == 4:
+    if secondaryItemsCols == 4:
         colClass = "span3"
 
-    aSecondaryStatus = secondaryStatusList.split(";")
-    rows = [secondaryStatusRows, secondaryStatusCols]
-    for secondaryStatus in aSecondaryStatus:
-        secondarySensorItem = SecondarySensorItem(secondaryStatus)
-        rows[1][1] = 33
+    #split list to array
+    aSecondaryItems = secondaryItemsList.split(";")
+    hItems = {}
+    #iterate over items
+    for strSecondaryItem in aSecondaryItems:
+        secondaryItem = SecondaryItem(strSecondaryItem)
+        #use hash to store sensorname h[row.col] -> sensor name
+        hItems[secondaryItem.rowPos + "." + secondaryItem.colPos] = secondaryItem.sensor
     
-    secondarySensors = ""
-    for row in range(0, secondaryStatusRows):
-        secondarySensors += "<div class=\"row\">"
-        for col in range(0, secondaryStatusCols):
-            secondarySensors += "<div class=\""+colClass+"\">"
-            secondarySensors += "<p id=\"" + "sensorid" + "\">" + "sensorname" + "</p>"
-            secondarySensors += "</div>"
-        secondarySensors += "</div>"
+    #prepare bootstrap "table" of items
+    htmlSecondaryItems = ""
+    htmlAjaxSensorsToRequest = ""
+    for row in range(0, secondaryItemsRows):
+        htmlSecondaryItems += "<div class=\"row\">"
+        for col in range(0, secondaryItemsCols):
+            hashAdress = str(row + 1) + "." + str(col + 1)
+            #request display name
+            sensor = Sensor.objects.filter(name=hItems[hashAdress])
+            sensorLoadingText = "<span class=\"label labelState\">" + hItems[hashAdress] + "?</span>"
+            if sensor.count() > 0:
+                htmlAjaxSensorsToRequest += hItems[hashAdress] + ","
+                sensorLoadingText = "loading..."
+            htmlSecondaryItems += "<div class=\""+colClass+" columnCentered\">"
+            htmlSecondaryItems += "<p id=\"" + hItems[hashAdress] + "\">" + sensorLoadingText + "</p>"
+            htmlSecondaryItems += "</div>"
+        htmlSecondaryItems += "</div>"
 
-    return render_to_response('index.html', {'listEvents': listEvents, 'listCommands':listCommands, 'secondarySensors':secondarySensors}, context_instance=RequestContext(request))
+    return render_to_response('index.html', {'listEvents': listEvents, 'listCommands':listCommands, 'htmlSecondaryItems':htmlSecondaryItems, 'htmlAjaxSensorsToRequest':htmlAjaxSensorsToRequest,}, context_instance=RequestContext(request))
 
 def getLastSensorState(request, sensorName):
     sensor = Sensor.objects.filter(name=sensorName)
