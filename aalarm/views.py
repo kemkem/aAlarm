@@ -21,10 +21,10 @@ def index(request):
     listCommands = Command.objects.all()
     
     #get secondary items defined rows and cols 
-    secondaryItemsRows = int(Parameter.objects.filter(name='secondaryStatusRows')[0].value)
-    secondaryItemsCols = int(Parameter.objects.filter(name='secondaryStatusCols')[0].value)
+    secondaryItemsRows = int(Parameter.objects.filter(name='secondaryItemsRows')[0].value)
+    secondaryItemsCols = int(Parameter.objects.filter(name='secondaryItemsCols')[0].value)
     #get secondary items list
-    secondaryItemsList = Parameter.objects.filter(name='secondaryStatusList')[0].value
+    secondaryItemsList = Parameter.objects.filter(name='secondaryItemsList')[0].value
     
     #set bootstrap col class according cols nb
     colClass = ""
