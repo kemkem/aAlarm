@@ -58,7 +58,16 @@
 
     }
 
+    function alertBox(msg)
+    {
+        $("#idAlertBoxText").html(msg);
+        $("#idAlertBox").show();
+    }
+
     $(document).ready(function(){
+        $("#idBtnAlertBoxClose").click(function(){
+            $("#idAlertBox").hide();
+        });
         $(".aalarmStateBtn").click(function(data){
             //this fix bootstrap bug (dropdown not closing)
             $('[data-toggle="dropdown"]').parent().removeClass('open');
@@ -70,7 +79,7 @@
                 success: function(data) {
                     if(data == "ko")
                     {
-                        alert("State cannot be change now");
+                        alertBox("State cannot be change now")
                     }
                 }
             });
@@ -103,6 +112,7 @@
 <form name="formState" id="idFormState">
     {% csrf_token %}
 </form>
+
 
 <div class="row">
     <div class="span12">
