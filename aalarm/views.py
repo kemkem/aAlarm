@@ -72,7 +72,9 @@ def index(request):
     lastGlobalState = Event.objects.filter(sensor=sensor).latest('id')
     stateOffline = RefState.objects.filter(state="Offline")
     stateOnline = RefState.objects.filter(state="Online")
+    #by default, propose next command is setOffline (from every other state than offline)
     nextCommand = Command.objects.filter(command="setOffline")[0]
+    #if current state is offline, next command is setOnline
     if lastGlobalState.state == stateOffline[0]:
         nextCommand = Command.objects.filter(command="setOnline")[0]
 
