@@ -67,7 +67,16 @@ def index(request):
                 htmlSecondaryItems += "</div>"
         htmlSecondaryItems += "</div>"
 
-    return render_to_response('index.html', {'listEvents': listEvents, 'listCommands':listCommands, 'htmlSecondaryItems':htmlSecondaryItems, 'htmlAjaxSensorsToRequest':htmlAjaxSensorsToRequest,}, context_instance=RequestContext(request))
+    #Next Online/Offline command 
+    sensor = Sensor.objects.filter(name='Global')
+    lastGlobalState = Event.objects.filter(sensor=sensor).latest('id')
+    stateOffline = RefState.objects.filter(state="Offline")
+    stateOnline = RefState.objects.filter(state="Online")
+    nextCommand = Command.objects.filter(command="setOffline")[0]
+    if lastGlobalState.state == stateOffline[0]:
+        nextCommand = Command.objects.filter(command="setOnline")[0]
+
+    return render_to_response('index.html', {'listEvents': listEvents, 'listCommands':listCommands, 'htmlSecondaryItems':htmlSecondaryItems, 'htmlAjaxSensorsToRequest':htmlAjaxSensorsToRequest,'nextCommand':nextCommand,}, context_instance=RequestContext(request))
 
 def getLastSensorState(request, sensorName):
     sensor = Sensor.objects.filter(name=sensorName)
