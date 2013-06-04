@@ -146,9 +146,20 @@
 </div>
 
 
+
 <div class="row">
 {{ htmlSecondaryItems|safe }}
 </div>
+
+    <div class="span4 columnCentered">
+        <p id="idSensor"></p>
+    </div>
+    <div class="span4 columnCentered">
+        <span class="label labelState {{ lastEvent.state.css }}">Sound Off</span>
+    </div>
+    <div class="span4 columnCentered">
+        <span class="label labelState {{ lastEvent.state.css }}">ZoneMinder Running</span>
+    </div>
 
 <div class="row">
     <div class="span12">
