@@ -155,6 +155,10 @@ debug("DelayIntrusionAlarm : $delayIntrusionAlarm");
 debug("DelayIntrusionWarningTimeout : $delayIntrusionWarningTimeout");
 debug("DelayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout");
 
+            updateZMStatusInDB();
+            updateMusicPlaylistStatusInDB();
+exit;
+
 while (1)
 {
 for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
@@ -380,6 +384,37 @@ sub queryMusicPlaylistStatus
     return 0;
 }
 
+sub updateZMStatusInDB
+{
+    my $state = "Stopped";
+    if(queryZMStatus())
+    {
+        my $state = "Running";
+    }
+	my $tableEvent = configFromFile("tableEvent");
+	
+   	my $idState = getIdRefState($state);
+   	my $idSensor = getIdSensorByName("ZoneMinder");
+    debug("Record ZM Status Event [$state]");
+    dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
+}
+
+sub updateMusicPlaylistStatusInDB
+{
+    my $state = "Stopped";
+    if(queryMusicPlaylistStatus())
+    {
+        my $state = "Running";
+    }
+	my $tableEvent = configFromFile("tableEvent");
+	
+   	my $idState = getIdRefState($state);
+   	my $idSensor = getIdSensorByName("MusicPlaylist");
+    debug("Record ZM Status Event [$state]");
+    dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
+}
+
+
 #
 # DB
 #
@@ -391,7 +426,7 @@ sub recordEventGlobal
 	my $tableEvent = configFromFile("tableEvent");
 	
    	my $idState = getIdRefState($state);
-   	my $idSensor = getIdSensor(0);
+   	my $idSensor = getIdSensorByName("Global");
     debug("Record Global Event [$state]");
     dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
 }
@@ -462,6 +497,20 @@ sub getIdSensor
 	my $tableSensor = configFromFile("tableSensor");
 
     my $result = dbSelectFetch("select s.id from $tableSensor s where s.pin = '$sensorNb'");
+	if ($result)
+	{
+		my $idSensor = $result->{id};
+		return $idSensor;
+	}
+}
+
+# Get Sensor Id by sensor name
+sub getIdSensorByName
+{
+	my $sensorName = shift;
+	my $tableSensor = configFromFile("tableSensor");
+
+    my $result = dbSelectFetch("select s.id from $tableSensor s where s.name = '$sensorName'");
 	if ($result)
 	{
 		my $idSensor = $result->{id};
