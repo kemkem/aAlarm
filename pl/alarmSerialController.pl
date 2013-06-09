@@ -391,12 +391,24 @@ sub executeCommand
 	{
 		my $command = $result->{command};
 		my $idExecute = $result->{id};
+        my $executed = 0;
 
-		#TODO complete when called command has been executed
+        if($command =~ /setOnline/ && $globalState eq $stateGlobalOffline)
+	    {
+		    setOnline();
+            $executed = 1;				
+	    }
+	    elsif($command =~ /setOffline/ && $globalState ne $stateGlobalOffline)
+	    {
+		    setOffline();
+            $executed = 1;
+	    }
+
+        #TODO : do something with executed = 0
         dbExecute("update $tableExecute e set e.completed=1 where e.id = $idExecute");
 
-		setOnline() if ($command =~ /setOnline/);
-		setOffline() if ($command =~ /setOffline/);
+		#setOnline() if ($command =~ /setOnline/);
+		#setOffline() if ($command =~ /setOffline/);
 	}
 }
 
