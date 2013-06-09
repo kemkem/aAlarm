@@ -155,26 +155,6 @@ debug("DelayIntrusionAlarm : $delayIntrusionAlarm");
 debug("DelayIntrusionWarningTimeout : $delayIntrusionWarningTimeout");
 debug("DelayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout");
 
-if (queryZMStatus())
-{
-    debug("zm run");
-}
-else
-{
-    debug("zm not run");
-}
-
-
-if (queryMusicPlaylistStatus())
-{
-    debug("mp run");
-}
-else
-{
-    debug("mp not run");
-}
-exit;
-
 while (1)
 {
 for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
