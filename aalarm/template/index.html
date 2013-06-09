@@ -73,7 +73,7 @@
             $('[data-toggle="dropdown"]').parent().removeClass('open');
             var idButton = $(this).attr('id');
             $.ajax({
-                data: $("#idFormCommand").serialize(),
+                data: $("#idFormCSRFToken").serialize(),
                 type: "post",
                 url: "command/" + idButton,
                 success: function(data) {
