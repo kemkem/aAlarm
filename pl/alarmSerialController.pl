@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-#use Device::SerialPort;
+use Device::SerialPort;
 #use MIME::Lite;
 use Time::HiRes qw(usleep);
 use DBI;
@@ -155,6 +155,26 @@ debug("DelayIntrusionAlarm : $delayIntrusionAlarm");
 debug("DelayIntrusionWarningTimeout : $delayIntrusionWarningTimeout");
 debug("DelayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout");
 
+if (queryZMStatus())
+{
+    debug("zm run");
+}
+else
+{
+    debug("zm not run");
+}
+
+
+if (queryMusicPlaylistStatus())
+{
+    debug("mp run");
+}
+else
+{
+    debug("mp not run");
+}
+exit;
+
 while (1)
 {
 for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
@@ -212,7 +232,8 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 						    $globalState = $stateGlobalIntrusion;
 						    #record global state change
 						    recordEventGlobal($globalState);
-						    system($pathStopPlaylist);
+						    #system($pathStopPlaylist);
+                            shellExecute($pathStopPlaylist);
 					    }
 				    }
 			    }
@@ -279,7 +300,7 @@ sub setOnline
 	#record global state change
 	recordEventGlobal($globalState);
 	$tOnlineTimed = setTimer($delayOnlineTimed, "ckbOnline");
-	system($pathStartZM);
+	shellExecute($pathStartZM);
 }
 
 sub setOffline
@@ -294,7 +315,8 @@ sub setOffline
 	$globalState = $stateGlobalOffline;
 	#record global state change
 	recordEventGlobal($globalState);
-	system($pathStopZM);
+	shellExecute($pathStopZM);
+    shellExecute($pathStopPlaylist);
 	$nextCommand = "setLedGreen";
 }
 
@@ -308,7 +330,7 @@ sub ckbOnline
 	#record global state change
 	recordEventGlobal($globalState);
 	setTimer(2, "ckbOnlineTimeout");
-	system($pathStartPlaylist);
+	shellExecute($pathStartPlaylist);
 	$nextCommand = "setLedGreenBuzzer";
 }
 
@@ -326,7 +348,7 @@ sub ckbIntrusionWarning
 	#record global state change
 	recordEventGlobal($globalState);
 	sendMail("Intrusion Warning");
-	system($pathZmLast);
+	shellExecute($pathZmLast);
 }
 
 sub ckbIntrusionWarningTimeout
@@ -349,6 +371,33 @@ sub ckbIntrusionAlarmTimeout
 {
     debug("Callback AlarmTimeout");
     debug("(Do nothing)");
+}
+
+#
+# Query services status
+#
+sub queryZMStatus
+{
+    my $pathStatus = config("pathStatusZM");
+    debug("Query ZM status, execute $pathStatus");
+    my $status = `$pathStatus`;
+    if ($status =~ /ZoneMinder is running/)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+sub queryMusicPlaylistStatus
+{
+    my $pathStatus = config("pathStatusMusicPlaylist");
+    debug("Query Music Playlist status, execute $pathStatus");
+    my $status = `$pathStatus`;
+    if ($status =~ /Music playlist is running/)
+    {
+        return 1;
+    }
+    return 0;
 }
 
 #
@@ -507,7 +556,6 @@ sub dbExecute
     my $prepare = $dbh->do($req) or die("[DB execute] Error when execute request\n");
 }
 
-
 #
 # Utils
 #
@@ -530,6 +578,13 @@ sub dbExecute
 #		$msg->send;
 #	}
 #}
+
+sub shellExecute()
+{
+    my $cmd = shift;
+    debug("Execute : ".$cmd);
+    system($cmd);
+}
 
 sub getCurDate
 {
