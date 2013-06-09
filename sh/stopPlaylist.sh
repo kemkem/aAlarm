@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PID_PATH=/home/kemkem/aalarmv2/arduinoAlarm/sh
+PID_PATH=/home/kemkem/Work/arduinoAlarm/sh
 
 if [ -f $PID_PATH/mpg123.pid ];then
 	PID=`/bin/cat $PID_PATH/mpg123.pid`
