@@ -155,8 +155,9 @@ debug("DelayIntrusionAlarm : $delayIntrusionAlarm");
 debug("DelayIntrusionWarningTimeout : $delayIntrusionWarningTimeout");
 debug("DelayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout");
 
-#updateZMStatusInDB();
-#updateMusicPlaylistStatusInDB();
+#update services status every 5 secs
+setTimer(5, "updateZMStatusInDB");
+setTimer(5, "updateMusicPlaylistStatusInDB");
 
 while (1)
 {
@@ -388,14 +389,29 @@ sub updateZMStatusInDB
     my $state = "Stopped";
     if(queryZMStatus())
     {
-        my $state = "Running";
+        $state = "Running";
     }
 	my $tableEvent = configFromFile("tableEvent");
 	
    	my $idState = getIdRefState($state);
    	my $idSensor = getIdSensorByName("ZoneMinder");
-    debug("Record ZM Status Event [$state]");
-    dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
+
+    my $result = dbSelectFetch("select e.state_id as state_id from $tableEvent e where sensor_id=$idSensor order by e.id desc limit 0,1");
+    my $lastStateId = -1;
+	if ($result)
+	{
+		$lastStateId = $result->{state_id};
+    }
+    if($idState != $lastStateId)
+    {
+        debug("Record ZM  Status Event [$state]");
+        dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
+    }
+    else
+    {
+        debug("No ZM Status change");
+    }
+    setTimer(5, "updateZMStatusInDB");
 }
 
 sub updateMusicPlaylistStatusInDB
@@ -403,16 +419,30 @@ sub updateMusicPlaylistStatusInDB
     my $state = "Stopped";
     if(queryMusicPlaylistStatus())
     {
-        my $state = "Running";
+        $state = "Running";
     }
 	my $tableEvent = configFromFile("tableEvent");
 	
    	my $idState = getIdRefState($state);
    	my $idSensor = getIdSensorByName("MusicPlaylist");
-    debug("Record ZM Status Event [$state]");
-    dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
-}
 
+    my $result = dbSelectFetch("select e.state_id as state_id from $tableEvent e where sensor_id=$idSensor order by e.id desc limit 0,1");
+    my $lastStateId = -1;
+	if ($result)
+	{
+		$lastStateId = $result->{state_id};
+    }
+    if($idState != $lastStateId)
+    {
+        debug("Record MusicPlaylist Status Event [$state]");
+        dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
+    }
+    else
+    {
+        debug("No MusicPlaylist Status change");
+    }
+    setTimer(5, "updateMusicPlaylistStatusInDB");
+}
 
 #
 # DB
