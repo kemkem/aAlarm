@@ -155,9 +155,8 @@ debug("DelayIntrusionAlarm : $delayIntrusionAlarm");
 debug("DelayIntrusionWarningTimeout : $delayIntrusionWarningTimeout");
 debug("DelayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout");
 
-            updateZMStatusInDB();
-            updateMusicPlaylistStatusInDB();
-exit;
+#updateZMStatusInDB();
+#updateMusicPlaylistStatusInDB();
 
 while (1)
 {
