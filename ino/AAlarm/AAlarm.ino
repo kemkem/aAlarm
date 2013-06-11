@@ -77,7 +77,7 @@ String pollSensor(int nb)
 
 void pollSensors()
 {
-  for (int i = 0; i < NB_SENSORS; i++)
+  for (int i = 0; i < nbSensors; i++)
   {
     String sensorStatus = pollSensor(i);
     if (sensorStatus.length() > 0)
