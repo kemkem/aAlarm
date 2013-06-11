@@ -1,17 +1,8 @@
-model : 
-sensor : display name ok
-parameter : sensor list display select
+features
 
-home :
-commands select ok
-commands select blocked until last command not executed
-table style ok
-
-feat
-
-program state
+program states
 set music on/off
-history page
+history page filters
 zmlast page
 users
 keypad passwd by user
@@ -19,3 +10,15 @@ sensors zones by user
 flush events
 restart
 set siren/buzzer on/off
+
+register sensors
+
+send sensorNb to ino
+complete command when really done
+disable music when offline (& intrusion ?)
+prevent from concurrent actions
+
+
+perl modules
+
+dj request all sensors with one json req
