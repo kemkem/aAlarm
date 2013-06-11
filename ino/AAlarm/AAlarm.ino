@@ -17,6 +17,8 @@
 #define SENSOR_CLOSED  "CLOSE"
 #define SENSOR_UNKNOWN  "UNKNOWN"
 #define NB_SENSORS 1
+#define DEFAULT_NB_SENSORS 1
+#define MAX_NB_SENSORS 2
 
 //SensorState
 int lastSensorValue = 0;
@@ -30,10 +32,11 @@ i2ckeypad kpd = i2ckeypad(I2Ck, ROWS, COLS);
 int sensorValue = -1;
 String keys = "";
 String keysBuffer = "";
-int nbSensors = NB_SENSORS;
+int nbSensors = DEFAULT_NB_SENSORS;
 String sensors = "";
-int tabSensorCurrent[NB_SENSORS];
-int tabSensorLast[NB_SENSORS];
+int tabSensorCurrent[MAX_NB_SENSORS];
+int tabSensorLast[MAX_NB_SENSORS];
+int tabSensorPin[MAX_NB_SENSORS] = {2, 2};
 
 void setup()
 {
@@ -46,12 +49,12 @@ void setup()
   kpd.init();
   
   //init sensor tab
-  for(int i = 0; i < NB_SENSORS; i++)
+  for(int i = 0; i < nbSensors; i++)
   {
     tabSensorCurrent[i] = 0;
   }
   //init sensor tab last
-  for(int i = 0; i < NB_SENSORS; i++)
+  for(int i = 0; i < nbSensors; i++)
   {
     tabSensorLast[i] = 0;
   }
@@ -63,7 +66,7 @@ String pollSensor(int nb)
 {
   String newStatus = "";
   
-  tabSensorCurrent[nb] = digitalRead(sensorPin);
+  tabSensorCurrent[nb] = digitalRead(tabSensorPin[nb]);
   if (tabSensorCurrent[nb] != tabSensorLast[nb]) {
     tabSensorLast[nb] = tabSensorCurrent[nb];
     newStatus = getSensorStatus(tabSensorCurrent[nb]);
