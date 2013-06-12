@@ -121,6 +121,8 @@ def command(request, name):
     return HttpResponse("ok")
 
 def config(request):
+    #controller general ui delays
+
     ParameterFormSet = modelformset_factory(Parameter, extra=0, fields=('value',))
     if request.method == "POST":
         try:
@@ -130,9 +132,11 @@ def config(request):
             return HttpResponse("ko")
         if formset.is_valid():
             formset.save()
-            #return HttpResponse("ok")
-    parameterFormSet = ParameterFormSet(queryset=Parameter.objects.filter(showInUI=1))
-    return render_to_response('config.html', {'parameterFormSet': parameterFormSet,}, context_instance=RequestContext(request))
+    parameterFormSetController = ParameterFormSet(queryset=Parameter.objects.filter(showInUI=1, group="controller").order_by('order'))
+    parameterFormSetGeneral = ParameterFormSet(queryset=Parameter.objects.filter(showInUI=1, group="general").order_by('order'))
+    parameterFormSetUi = ParameterFormSet(queryset=Parameter.objects.filter(showInUI=1, group="ui").order_by('order'))
+    parameterFormSetDelay = ParameterFormSet(queryset=Parameter.objects.filter(showInUI=1, group="delay").order_by('order'))
+    return render_to_response('config.html', {'parameterFormSetController': parameterFormSetController,'parameterFormSetGeneral': parameterFormSetGeneral,'parameterFormSetUi': parameterFormSetUi,'parameterFormSetDelay': parameterFormSetDelay,}, context_instance=RequestContext(request))
 
 def history(request):
     return render_to_response('history.html', {}, context_instance=RequestContext(request))

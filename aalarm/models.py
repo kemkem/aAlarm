@@ -50,5 +50,6 @@ class Parameter(models.Model):
     name = models.CharField(max_length=30)
     description = models.CharField(max_length=255,blank=True, null=True)
     showInUI = models.SmallIntegerField(default=0)
+    order = models.SmallIntegerField(default=0)
     def __unicode__(self):
         return self.key

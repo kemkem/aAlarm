@@ -14,10 +14,54 @@
 
 {% block mainContent %}
 
+
+    <!-- General -->
 <form method="post">
     {% csrf_token %}
-    {{ parameterFormSet.management_form }}
-    {% for form in parameterFormSet %}
+    {{ parameterFormSetGeneral.management_form }}
+    {% for form in parameterFormSetGeneral %}
+        <div>
+            <label for="{{ form.value.auto_id }}">{{ form.instance.name }}</label>
+            <input type="text" id="{{ form.value.auto_id }}" name="{{ form.value.html_name }}" value="{{ form.value.value }}" />
+            <input type="hidden" id="{{ form.id.auto_id }}" name="{{ form.id.html_name }}" value="{{ form.id.value }}" />
+        </div>
+    {% endfor %}
+    <input type="submit" class="btn" value="Validate" />
+</form>
+
+    <!-- Controller -->
+<form method="post">
+    {% csrf_token %}
+    {{ parameterFormSetController.management_form }}
+    {% for form in parameterFormSetController %}
+        <div>
+            <label for="{{ form.value.auto_id }}">{{ form.instance.name }}</label>
+            <input type="text" id="{{ form.value.auto_id }}" name="{{ form.value.html_name }}" value="{{ form.value.value }}" />
+            <input type="hidden" id="{{ form.id.auto_id }}" name="{{ form.id.html_name }}" value="{{ form.id.value }}" />
+        </div>
+    {% endfor %}
+    <input type="submit" class="btn" value="Validate" />
+</form>
+
+    <!-- Ui -->
+<form method="post">
+    {% csrf_token %}
+    {{ parameterFormSetUi.management_form }}
+    {% for form in parameterFormSetUi %}
+        <div>
+            <label for="{{ form.value.auto_id }}">{{ form.instance.name }}</label>
+            <input type="text" id="{{ form.value.auto_id }}" name="{{ form.value.html_name }}" value="{{ form.value.value }}" />
+            <input type="hidden" id="{{ form.id.auto_id }}" name="{{ form.id.html_name }}" value="{{ form.id.value }}" />
+        </div>
+    {% endfor %}
+    <input type="submit" class="btn" value="Validate" />
+</form>
+
+    <!-- Delay -->
+<form method="post">
+    {% csrf_token %}
+    {{ parameterFormSetDelay.management_form }}
+    {% for form in parameterFormSetDelay %}
         <div>
             <label for="{{ form.value.auto_id }}">{{ form.instance.name }}</label>
             <input type="text" id="{{ form.value.auto_id }}" name="{{ form.value.html_name }}" value="{{ form.value.value }}" />
