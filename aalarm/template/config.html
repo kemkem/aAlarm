@@ -14,8 +14,17 @@
 
 {% block mainContent %}
 
+<div class="tabbable">
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#tabGeneral" data-toggle="tab">General</a></li>
+    <li><a href="#tabController" data-toggle="tab">Controller</a></li>
+    <li><a href="#tabUi" data-toggle="tab">Ui</a></li>
+    <li><a href="#tabDelays" data-toggle="tab">Delays</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane active" id="tabGeneral">
 
-    <!-- General -->
+<!-- General -->
 <form method="post">
     {% csrf_token %}
     {{ parameterFormSetGeneral.management_form }}
@@ -29,7 +38,11 @@
     <input type="submit" class="btn" value="Validate" />
 </form>
 
-    <!-- Controller -->
+    </div>
+
+    <div class="tab-pane" id="tabController">
+
+<!-- Controller -->
 <form method="post">
     {% csrf_token %}
     {{ parameterFormSetController.management_form }}
@@ -42,8 +55,12 @@
     {% endfor %}
     <input type="submit" class="btn" value="Validate" />
 </form>
+      
+    </div>
 
-    <!-- Ui -->
+    <div class="tab-pane" id="tabUi">
+
+<!-- Ui -->
 <form method="post">
     {% csrf_token %}
     {{ parameterFormSetUi.management_form }}
@@ -56,8 +73,13 @@
     {% endfor %}
     <input type="submit" class="btn" value="Validate" />
 </form>
+      
+    </div>
 
-    <!-- Delay -->
+
+    <div class="tab-pane" id="tabDelays">
+
+<!-- Delay -->
 <form method="post">
     {% csrf_token %}
     {{ parameterFormSetDelay.management_form }}
@@ -70,5 +92,19 @@
     {% endfor %}
     <input type="submit" class="btn" value="Validate" />
 </form>
+      
+    </div>
+
+  </div>
+</div>
+
+
+   
+
+
+
+
+
+
 
 {% endblock %}
