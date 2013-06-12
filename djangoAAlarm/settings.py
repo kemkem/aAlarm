@@ -156,3 +156,7 @@ LOGGING = {
         },
     }
 }
+
+LOGIN_REDIRECT_URL = '/aalarm/'
+LOGIN_URL = '/aalarm/login'
+

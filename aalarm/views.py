@@ -8,15 +8,19 @@ from django.forms.models import modelformset_factory
 from django import forms
 from django.forms import TextInput, BooleanField
 from django.core.exceptions import ValidationError
+from django.contrib.auth.decorators import login_required
 
 class SecondaryItem():
     def __init__(self, pConfig):
         self.rowPos = pConfig.split(":")[0].split(",")[0]
         self.colPos = pConfig.split(":")[0].split(",")[1]
         self.sensor = pConfig.split(":")[1]
-    
 
+@login_required
 def index(request):
+#    if not request.user.is_authenticated():
+#        return HttpResponseRedirect('/aalarm/login')
+
     listEvents = Event.objects.all().order_by('id').reverse()
     listCommands = Command.objects.all()
     
@@ -80,6 +84,7 @@ def index(request):
 
     return render_to_response('index.html', {'listEvents': listEvents, 'listCommands':listCommands, 'htmlSecondaryItems':htmlSecondaryItems, 'htmlAjaxSensorsToRequest':htmlAjaxSensorsToRequest,'nextCommand':nextCommand,}, context_instance=RequestContext(request))
 
+@login_required
 def getLastSensorState(request, sensorName):
     try:
         sensor = Sensor.objects.get(name=sensorName)
@@ -92,6 +97,7 @@ def getLastSensorState(request, sensorName):
     return render_to_response('getLastSensorState.html', {'lastEvent': lastEvent}, context_instance=RequestContext(request))
 
 #thats repeated,to get a bigger label and different text
+@login_required
 def getLastGlobalState(request, sensorName):
     try:
         sensor = Sensor.objects.get(name=sensorName)
@@ -103,6 +109,7 @@ def getLastGlobalState(request, sensorName):
         return HttpResponse(sensor.displayName + " no events")
     return render_to_response('getLastGlobalState.html', {'lastEvent': lastEvent}, context_instance=RequestContext(request))
 
+@login_required
 def getLastEvents(request, nbEvents):
     try:
         listEvents = Event.objects.all().order_by('id').reverse()[:nbEvents]
@@ -110,6 +117,7 @@ def getLastEvents(request, nbEvents):
         return HttpResponse("no events")
     return render_to_response('getLastEvents.html', {'listEvents': listEvents}, context_instance=RequestContext(request))
 
+@login_required
 def command(request, name):
     if Execute.objects.count() > 0:    
         executeNotCompleted = Execute.objects.filter(completed=0)
@@ -120,6 +128,7 @@ def command(request, name):
     execute.save()
     return HttpResponse("ok")
 
+@login_required
 def config(request):
     #controller general ui delays
 
@@ -138,9 +147,11 @@ def config(request):
     parameterFormSetDelay = ParameterFormSet(queryset=Parameter.objects.filter(showInUI=1, group="delay").order_by('order'))
     return render_to_response('config.html', {'parameterFormSetController': parameterFormSetController,'parameterFormSetGeneral': parameterFormSetGeneral,'parameterFormSetUi': parameterFormSetUi,'parameterFormSetDelay': parameterFormSetDelay,}, context_instance=RequestContext(request))
 
+@login_required
 def history(request):
     return render_to_response('history.html', {}, context_instance=RequestContext(request))
 
+@login_required
 def lastZmEvent(request):
     return render_to_response('lastZmEvent.html', {}, context_instance=RequestContext(request))
 

@@ -11,5 +11,6 @@ urlpatterns = patterns('',
     url(r'^getLastGlobalState/(?P<sensorName>\w+)$', views.getLastGlobalState),
     url(r'^getLastSensorState/(?P<sensorName>\w+)$', views.getLastSensorState),
     url(r'^getLastEvents/(?P<nbEvents>\w+)$', views.getLastEvents),
+    url(r'^login$', 'django.contrib.auth.views.login'),
 )
 
