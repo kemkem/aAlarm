@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-use Device::SerialPort;
+#use Device::SerialPort;
 #use MIME::Lite;
 use Time::HiRes qw(usleep);
 use DBI;
@@ -572,10 +572,11 @@ sub setDbParameter
     my $group = shift;
 	my $value = shift;
     my $showInUi = shift;
+    my $order = shift;
 	my $dbh = getDbConnection();
     my $tableParameter = configFromFile("tableParameter");
 
-    dbExecute("insert into $tableParameter (`key`, `group`, `value`, `showInUi`, `name`) values ('$key', '$group', '$value', '$showInUi', '$key')");
+    dbExecute("insert into $tableParameter (`key`, `group`, `value`, `showInUi`, `name`, `order`) values ('$key', '$group', '$value', '$showInUi', '$key', '$order')");
 }
 
 #
@@ -705,6 +706,8 @@ sub loadConfigFile()
 	$path = shift;
 	my %hashParameters;
 	open IN, $path;
+    my $order = 0;
+    my $lastGroup;
 	while (<IN>)
 	{
 		chomp();
@@ -713,14 +716,17 @@ sub loadConfigFile()
 		{
 			#($key,$value) = split("=");
 			#print $1."|".$2."|\n";
-            $group = $1;
-            $key = $2;
-            $showInUi = $3;
-            $value = $4;
+            my $group = $1;
+            $order = 0 if $group ne $lastGroup;
+            $lastGroup = $group;
+            my $key = $2;
+            my $showInUi = $3;
+            my $value = $4;
+            $order++;
             if($initDbAfterLoadedParameters)
             {
-                debug("InitDb key $key, group $group, showInUi $showInUi, value $value");
-                initDbParameter($key, $group, $showInUi, $value);
+                debug("InitDb key $key, group $group, showInUi $showInUi, value $value, order $order");
+                initDbParameter($key, $group, $showInUi, $order);
             }
             else
             {
@@ -739,11 +745,12 @@ sub initDbParameter
 	my $key = shift;
     my $group = shift;
     my $showInUi = shift;
+    my $order = shift;
 
 	if(exists($hParameters{$key}))
 	{
 		my $value = $hParameters{$key};
-		setDbParameter($key, $group, $value, $showInUi);
+		setDbParameter($key, $group, $value, $showInUi, $order);
 		return $value;
 	}
 	else
