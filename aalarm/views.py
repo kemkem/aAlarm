@@ -104,7 +104,10 @@ def getLastGlobalState(request, sensorName):
     return render_to_response('getLastGlobalState.html', {'lastEvent': lastEvent}, context_instance=RequestContext(request))
 
 def getLastEvents(request, nbEvents):
-    listEvents = Event.objects.all().order_by('id').reverse()[:nbEvents]
+    try:
+        listEvents = Event.objects.all().order_by('id').reverse()[:nbEvents]
+    except Event.DoesNotExist:
+        return HttpResponse("no events")
     return render_to_response('getLastEvents.html', {'listEvents': listEvents}, context_instance=RequestContext(request))
 
 def command(request, name):
