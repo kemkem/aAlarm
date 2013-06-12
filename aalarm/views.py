@@ -81,13 +81,26 @@ def index(request):
     return render_to_response('index.html', {'listEvents': listEvents, 'listCommands':listCommands, 'htmlSecondaryItems':htmlSecondaryItems, 'htmlAjaxSensorsToRequest':htmlAjaxSensorsToRequest,'nextCommand':nextCommand,}, context_instance=RequestContext(request))
 
 def getLastSensorState(request, sensorName):
-    sensor = Sensor.objects.filter(name=sensorName)
-    lastEvent = Event.objects.filter(sensor=sensor).latest('id')    
+    try:
+        sensor = Sensor.objects.get(name=sensorName)
+    except Sensor.DoesNotExist:
+        return HttpResponse("Sensor " + sensorName + " does not exists")
+    try:
+        lastEvent = Event.objects.filter(sensor=sensor).latest('id')
+    except Event.DoesNotExist:
+        return HttpResponse(sensor.displayName + " no events")
     return render_to_response('getLastSensorState.html', {'lastEvent': lastEvent}, context_instance=RequestContext(request))
 
+#thats repeated,to get a bigger label and different text
 def getLastGlobalState(request, sensorName):
-    sensor = Sensor.objects.filter(name=sensorName)
-    lastEvent = Event.objects.filter(sensor=sensor).latest('id')    
+    try:
+        sensor = Sensor.objects.get(name=sensorName)
+    except Sensor.DoesNotExist:
+        return HttpResponse("Sensor " + sensorName + " does not exists")
+    try:
+        lastEvent = Event.objects.filter(sensor=sensor).latest('id')
+    except Event.DoesNotExist:
+        return HttpResponse(sensor.displayName + " no events")
     return render_to_response('getLastGlobalState.html', {'lastEvent': lastEvent}, context_instance=RequestContext(request))
 
 def getLastEvents(request, nbEvents):
