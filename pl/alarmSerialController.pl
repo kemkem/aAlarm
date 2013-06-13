@@ -83,6 +83,11 @@ my $portNumMin = config("portNumMin");
 my $portNumMax = config("portNumMax");
 my $reconnectTimeoutSecs = config("reconnectTimeoutSecs");
 
+#Services
+my $enableZoneMinder = config("zoneMinderEnable");
+my $enableMusicPlaylist = config("musicPlaylistEnable");
+my $enableZoneMinderLastIntrusion = config("zoneMinderLastIntrusionEnable");
+
 #Music service scripts
 my $pathStartPlaylist = config("pathStartPlaylist");
 my $pathStopPlaylist = config("pathStopPlaylist");
@@ -156,8 +161,8 @@ debug("DelayIntrusionWarningTimeout : $delayIntrusionWarningTimeout");
 debug("DelayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout");
 
 #update services status every 5 secs
-setTimer(5, "updateZMStatusInDB");
-setTimer(5, "updateMusicPlaylistStatusInDB");
+setTimer(5, "updateMusicPlaylistStatusInDB") if $enableMusicPlaylist;
+setTimer(5, "updateZMStatusInDB") if $enableZoneMinder;
 
 while (1)
 {
@@ -216,8 +221,8 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 						    $globalState = $stateGlobalIntrusion;
 						    #record global state change
 						    recordEventGlobal($globalState);
-						    #system($pathStopPlaylist);
-                            shellExecute($pathStopPlaylist);
+                            #stop music if enabled
+                            shellExecute($pathStopPlaylist) if $enableMusicPlaylist;
 					    }
 				    }
 			    }
@@ -284,7 +289,8 @@ sub setOnline
 	#record global state change
 	recordEventGlobal($globalState);
 	$tOnlineTimed = setTimer($delayOnlineTimed, "ckbOnline");
-	shellExecute($pathStartZM);
+    #start zm if enabled
+	shellExecute($pathStartZM) if $enableZoneMinder;
 }
 
 sub setOffline
@@ -299,8 +305,9 @@ sub setOffline
 	$globalState = $stateGlobalOffline;
 	#record global state change
 	recordEventGlobal($globalState);
-	shellExecute($pathStopZM);
-    shellExecute($pathStopPlaylist);
+	shellExecute($pathStopZM) if $enableZoneMinder;
+    #stop music if enabled
+    shellExecute($pathStopPlaylist) if $enableMusicPlaylist;
 	$nextCommand = "setLedGreen";
 }
 
@@ -314,7 +321,8 @@ sub ckbOnline
 	#record global state change
 	recordEventGlobal($globalState);
 	setTimer(2, "ckbOnlineTimeout");
-	shellExecute($pathStartPlaylist);
+    #start music if enabled
+	shellExecute($pathStartPlaylist) if $enableMusicPlaylist;
 	$nextCommand = "setLedGreenBuzzer";
 }
 
@@ -332,7 +340,8 @@ sub ckbIntrusionWarning
 	#record global state change
 	recordEventGlobal($globalState);
 	sendMail("Intrusion Warning");
-	shellExecute($pathZmLast);
+    #start zmlast script to copy last instrusion pictures
+	shellExecute($pathZmLast) if $enableZoneMinder && $enableZoneMinderLastIntrusion;
 }
 
 sub ckbIntrusionWarningTimeout
