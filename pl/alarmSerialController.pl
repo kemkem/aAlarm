@@ -490,6 +490,8 @@ sub executeCommand
 	my $tableCommand = configFromFile("tableCommand");
 	my $tableExecute = configFromFile("tableExecute");
 	
+    #TODO validate available commands
+
     my $result = dbSelectFetch("select c.command, e.id from $tableCommand c, $tableExecute e where e.completed = 0 and e.command_id = c.id ORDER BY e.id DESC LIMIT 0 , 1");
 	if ($result)
 	{
@@ -507,12 +509,29 @@ sub executeCommand
 		    setOffline();
             $executed = 1;
 	    }
+        elsif($command =~ /startZoneMinder/)
+	    {
+	        shellExecute($pathStartZM);
+            $executed = 1;
+	    }
+        elsif($command =~ /stopZoneMinder/)
+	    {
+            shellExecute($pathStopZM);
+            $executed = 1;
+	    }
+        elsif($command =~ /startMusicPlaylist/)
+	    {
+            shellExecute($pathStartPlaylist);
+            $executed = 1;
+	    }
+        elsif($command =~ /stopMusicPlaylist/)
+	    {
+            shellExecute($pathStopPlaylist);
+            $executed = 1;
+	    }
 
         #TODO : do something with executed = 0
         dbExecute("update $tableExecute e set e.completed=1 where e.id = $idExecute");
-
-		#setOnline() if ($command =~ /setOnline/);
-		#setOffline() if ($command =~ /setOffline/);
 	}
 }
 
