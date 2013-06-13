@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-#use Device::SerialPort;
+use Device::SerialPort;
 #use MIME::Lite;
 use Time::HiRes qw(usleep);
 use DBI;
@@ -305,9 +305,10 @@ sub setOffline
 	$globalState = $stateGlobalOffline;
 	#record global state change
 	recordEventGlobal($globalState);
-	shellExecute($pathStopZM) if $enableZoneMinder;
     #stop music if enabled
     shellExecute($pathStopPlaylist) if $enableMusicPlaylist;
+    #stop Zoneminder if enabled (longer)
+	shellExecute($pathStopZM) if $enableZoneMinder;
 	$nextCommand = "setLedGreen";
 }
 
