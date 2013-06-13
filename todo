@@ -22,3 +22,7 @@ prevent from concurrent actions
 perl modules
 
 dj request all sensors with one json req
+
+fastest service status check
+and/or
+move service check to another script
