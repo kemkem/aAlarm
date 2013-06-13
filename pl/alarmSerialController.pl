@@ -325,13 +325,13 @@ sub ckbOnline
 	setTimer(2, "ckbOnlineTimeout");
     #start music if enabled
 	shellExecute($pathStartPlaylist) if $enableMusicPlaylist;
-	$nextCommand = "setLedGreenBuzzer";
+	$nextCommand = "setLedRedBuzzer";
 }
 
 sub ckbOnlineTimeout
 {
-    #debug("Callback OnlineTimeout");
-	#$nextCommand = "setLedRed";
+    debug("Callback OnlineTimeout");
+	$nextCommand = "setLedRed";
 }
 
 sub ckbIntrusionWarning
