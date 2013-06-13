@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 use Device::SerialPort;
-#use MIME::Lite;
+use MIME::Lite;
 use Time::HiRes qw(usleep);
 use DBI;
 
@@ -291,6 +291,7 @@ sub setOnline
 	$tOnlineTimed = setTimer($delayOnlineTimed, "ckbOnline");
     #start zm if enabled
 	shellExecute($pathStartZM) if $enableZoneMinder;
+    $nextCommand = "setLedRed";
 }
 
 sub setOffline
@@ -329,8 +330,8 @@ sub ckbOnline
 
 sub ckbOnlineTimeout
 {
-    debug("Callback OnlineTimeout");
-	$nextCommand = "setLedRed";
+    #debug("Callback OnlineTimeout");
+	#$nextCommand = "setLedRed";
 }
 
 sub ckbIntrusionWarning
@@ -630,23 +631,23 @@ sub dbExecute
 #
 
 # Send Email
-#sub sendMail
-#{
-#	$globalStateName = shift;
-#	if($sendAlertMails == 1)
-#	{
-#		$strBody = "\"$globalStateName\" has been triggered at ".getCurDate();
-#	
-#		print "> Sending mail \"$globalStateName\"\n";
-#		$msg = MIME::Lite->new(
-#		             From     => 'arduino@kprod.net',
-#		             To       => config("emailAlerts"),
-#		             Subject  => "AAlarm alert",
-#		             Data     => $strBody
-#		             );
-#		$msg->send;
-#	}
-#}
+sub sendMail
+{
+	$globalStateName = shift;
+	if($sendAlertMails == 1)
+	{
+		$strBody = "\"$globalStateName\" has been triggered at ".getCurDate();
+	
+		print "> Sending mail \"$globalStateName\"\n";
+		$msg = MIME::Lite->new(
+		             From     => 'arduino@kprod.net',
+		             To       => config("emailAlerts"),
+		             Subject  => "AAlarm alert",
+		             Data     => $strBody
+		             );
+		$msg->send;
+	}
+}
 
 sub shellExecute()
 {
