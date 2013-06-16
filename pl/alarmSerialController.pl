@@ -88,6 +88,11 @@ my $enableZoneMinder = config("zoneMinderEnable");
 my $enableMusicPlaylist = config("musicPlaylistEnable");
 my $enableZoneMinderLastIntrusion = config("zoneMinderLastIntrusionEnable");
 
+#Buzzer
+my $enableBuzzer = config("buzzerEnable");
+#Siren
+my $enableSiren = config("sirenEnable");
+
 #Music service scripts
 my $pathStartPlaylist = config("pathStartPlaylist");
 my $pathStopPlaylist = config("pathStopPlaylist");
@@ -147,7 +152,7 @@ my $stateSensorOpen = "open";
 my $timerNextId = 0;
 my %timers = ();
 
-my $sendAlertMails = 1;
+my $sendAlertMails = config("sendEmailAlerts");
 
 #initial current state
 my $globalState = $stateGlobalOffline;
@@ -320,12 +325,8 @@ sub setOffline
 	$globalState = $stateGlobalOffline;
 	#record global state change
 	recordEventGlobal($globalState);
-    #stop music if enabled
-    shellExecute($pathStopPlaylist) if $enableMusicPlaylist;
-    #stop Zoneminder if enabled (longer)
-	shellExecute($pathStopZM) if $enableZoneMinder;
-	#$nextCommand = "setLedGreen";
-    sendCommand($port, "setLedGreen");
+
+    actionsSetOffline();
 }
 
 # Intrusion (online -> intrusion)
@@ -337,8 +338,8 @@ sub intrusion()
     $globalState = $stateGlobalIntrusion;
     #record global state change
     recordEventGlobal($globalState);
-    #stop music if enabled
-    shellExecute($pathStopPlaylist) if $enableMusicPlaylist;
+
+    actionsIntrusion();
 }
 
 #
@@ -353,18 +354,16 @@ sub ckbOnline
 	#record global state change
 	recordEventGlobal($globalState);
 	setTimer(2, "ckbOnlineTimeout");
-    #start music if enabled
-	shellExecute($pathStartPlaylist) if $enableMusicPlaylist;
-	#$nextCommand = "setLedRedBuzzer";
-    sendCommand($port, "setLedRedBuzzer");
+
+    actionsOnline();
 }
 
 # (after timed -> online)
 sub ckbOnlineTimeout
 {
     debug("Callback OnlineTimeout");
-	#$nextCommand = "setLedRed";
-    sendCommand($port, "setLedRed");
+
+    actionsOnlineTimeout();
 }
 
 # (intrusion -> warning)
@@ -375,16 +374,16 @@ sub ckbIntrusionWarning
 	$globalState = $stateGlobalWarning;
 	#record global state change
 	recordEventGlobal($globalState);
-	sendMail("Intrusion Warning");
-    #start zmlast script to copy last instrusion pictures
-	shellExecute($pathZmLast) if $enableZoneMinder && $enableZoneMinderLastIntrusion;
+    
+    actionsWarning();
 }
 
 # (after intrusion -> warning)
 sub ckbIntrusionWarningTimeout
 {
     debug("Callback WarningTimeout");
-    debug("(Do nothing)");
+
+    actionsWarningTimeout();
 }
 
 # (warning -> alarm)
@@ -395,14 +394,16 @@ sub ckbIntrusionAlarm
 	$globalState = $stateGlobalAlert;
 	#record global state change
 	recordEventGlobal($globalState);
-	sendMail("Intrusion Alarm");
+	
+    actionsAlarm();
 }
 
 # (after warning -> alarm)
 sub ckbIntrusionAlarmTimeout
 {
     debug("Callback AlarmTimeout");
-    debug("(Do nothing)");
+    
+    actionsAlarmTimeout();
 }
 
 # Actions (done specific states or callbacks)
@@ -416,18 +417,33 @@ sub actionsSetOnline
 
 sub actionsSetOffline
 {
+    #stop music if enabled
+    shellExecute($pathStopPlaylist) if $enableMusicPlaylist;
+    #stop Zoneminder if enabled (longer)
+	shellExecute($pathStopZM) if $enableZoneMinder;
+	#$nextCommand = "setLedGreen";
+    sendCommand($port, "setLedGreen");
+
 }
 
 sub actionsOnline
 {
+    #start music if enabled
+	shellExecute($pathStartPlaylist) if $enableMusicPlaylist;
+	#$nextCommand = "setLedRedBuzzer";
+    sendCommand($port, "setLedRedBuzzer");
 }
 
 sub actionsOnlineTimeout
 {
+   	#$nextCommand = "setLedRed";
+    sendCommand($port, "setLedRed");
 }
 
 sub actionsIntrusion
 {
+    #stop music if enabled
+    shellExecute($pathStopPlaylist) if $enableMusicPlaylist;
 }
 
 sub actionsIntrusionTimeout
@@ -436,6 +452,9 @@ sub actionsIntrusionTimeout
 
 sub actionsWarning
 {
+    sendMail("Intrusion Warning");
+    #start zmlast script to copy last instrusion pictures
+	shellExecute($pathZmLast) if $enableZoneMinder && $enableZoneMinderLastIntrusion;
 }
 
 sub actionsWarningTimeout
@@ -444,6 +463,7 @@ sub actionsWarningTimeout
 
 sub actionsAlarm
 {
+    sendMail("Intrusion Alarm");
 }
 
 sub actionsAlarmTimeout
@@ -740,7 +760,7 @@ sub sendMail
 	{
 		$strBody = "\"$globalStateName\" has been triggered at ".getCurDate();
 	
-		print "> Sending mail \"$globalStateName\"\n";
+		debug("Sending mail \"$globalStateName\" to " + config("emailAlerts"));
 		$msg = MIME::Lite->new(
 		             From     => 'arduino@kprod.net',
 		             To       => config("emailAlerts"),
@@ -903,7 +923,7 @@ sub setTimer
 	my $delay = shift;
 	my $function = shift;
 	my $timer = time + $delay;
-	debug("New timer id $timerNextId in $delay s");
+	debug("New timer '$function' in $delay s (id $timerNextId)");
 	$timers{$timerNextId} = $timer."|".$function;
 	$timerNextId++;
 	return $timerNextId - 1;
