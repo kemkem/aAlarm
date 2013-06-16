@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include <i2ckeypadMod.h>
+#include "/home/kemkem/Work/arduinoAlarm/ino/libs/i2cKeypadMod/i2ckeypadMod.h"
 
 //Keypad
 #define ROWS 4
@@ -158,7 +158,7 @@ int stringToNumber(String thisString) {
 
 int getNbAfterCommand(String command, String commandString)
 {
-  String strNb = commandString.substring(command.length());
+  String strNb = command.substring(commandString.length());
   strNb.trim();
   int sensorNb = stringToNumber(strNb);
   return sensorNb;
@@ -216,6 +216,7 @@ void execCommand(String serialReadString)
   {
     int sensorNb = getNbAfterCommand(serialReadString, cmdSetSensorsNb);
     nbSensors = sensorNb;
+    Serial.println("sensors nb set to " + String(sensorNb));
   }
   
 }

@@ -164,6 +164,8 @@ debug("DelayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout");
 setTimer(5, "updateMusicPlaylistStatusInDB") if $enableMusicPlaylist;
 setTimer(5, "updateZMStatusInDB") if $enableZoneMinder;
 
+$nextCommand = "setSensorsNb 2";
+
 while (1)
 {
 for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
