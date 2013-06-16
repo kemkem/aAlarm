@@ -1,18 +1,11 @@
 #!/bin/sh
 
-rm /home/kemkem/aalarm/web/zmlast/*
-find /usr/share/zoneminder/events/Door/ -cmin -5 -exec cp {} /home/kemkem/aalarm/web/zmlast \;
-rm /home/kemkem/aalarm/web/zmlast/*analyse*.jpg
-echo "<html><head><title></title></head><body>" > /home/kemkem/aalarm/web/zmlast/index.prepare
-echo "<p>Last Event @" >> /home/kemkem/aalarm/web/zmlast/index.prepare
-date >> /home/kemkem/aalarm/web/zmlast/index.prepare
-echo "</p>" >>/home/kemkem/aalarm/web/zmlast/index.prepare
-#find /home/kemkem/aalarm/web/zmlast/ -exec echo "<p><img src=\""{}"\"></p>" \; >> /home/kemkem/aalarm/web/zmlast/index.prepare
+PATH_SOURCE="/usr/share/zoneminder/events/Door"
+PATH_TARGET="/home/kemkem/Work/djangoAAlarm/aalarm/template/images"
 
-for item in `ls /home/kemkem/aalarm/web/zmlast/`;
-do 
-echo "<p><img src=\"$item\"></p>" >> /home/kemkem/aalarm/web/zmlast/index.prepare
-done
+#rm $PATH_TARGET/*
+#find $PATH_SOURCE/ -cmin -60 -exec cp {} $PATH_TARGET \;
+#find $PATH_TARGET -name '*analyse*jpg' -exec rm {} \;
+find $PATH_TARGET -name '*jpg' > $PATH_TARGET/list
 
-echo "</body></html>" >> /home/kemkem/aalarm/web/zmlast/index.prepare
-sed 's/\/home\/kemkem\/aalarm\/web\/zmlast\///' /home/kemkem/aalarm/web/zmlast/index.prepare > /home/kemkem/aalarm/web/zmlast/index.html
+

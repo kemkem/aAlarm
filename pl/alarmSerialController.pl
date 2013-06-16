@@ -102,6 +102,7 @@ my $pathStopPlaylist = config("pathStopPlaylist");
 my $pathStartZM = config("pathStartZM");
 my $pathStopZM = config("pathStopZM");
 my $pathZmLast = config("pathZmLast");
+my $pathZmLastTarget = config("pathZmLastTarget");
 
 #Delays
 my $delayOnlineTimed = config("delayOnlineTimed");
@@ -170,8 +171,8 @@ debug("DelayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout");
 setTimer(5, "updateMusicPlaylistStatusInDB") if $enableMusicPlaylist;
 setTimer(5, "updateZMStatusInDB") if $enableZoneMinder;
 
-#set sensors nb
-#$nextCommand = "setSensorsNb $sensorsNb";
+zmLast();
+exit();
 
 my $port;
 
@@ -458,7 +459,7 @@ sub actionsWarning
 {
     sendMail("Intrusion Warning");
     #start zmlast script to copy last instrusion pictures
-	shellExecute($pathZmLast) if $enableZoneMinder && $enableZoneMinderLastIntrusion;
+    zmLast() if $enableZoneMinder && $enableZoneMinderLastIntrusion;
     sendCommand($port, "setLedRedBuzzer") if ($enabledBuzzer);
 }
 
@@ -484,6 +485,17 @@ sub actionsAlarmTimeout
     }
 }
 
+sub zmLast
+{
+    shellExecute($pathZmLast);
+    debug("open $pathZmLastTarget");
+    open LIST, $pathZmLastTarget."/list" or die "nooot\n";
+    foreach (<LIST>)
+    {
+        
+    }
+    close LIST;
+}
 
 #
 # Query services status
