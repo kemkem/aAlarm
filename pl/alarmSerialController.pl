@@ -459,12 +459,12 @@ sub actionsWarning
     sendMail("Intrusion Warning");
     #start zmlast script to copy last instrusion pictures
 	shellExecute($pathZmLast) if $enableZoneMinder && $enableZoneMinderLastIntrusion;
-    sendCommand($port, "setLedRed") if ($enabledBuzzer);
+    sendCommand($port, "setLedRedBuzzer") if ($enabledBuzzer);
 }
 
 sub actionsWarningTimeout
 {
-    sendCommand($port, "setLedRedBuzzer") if ($enabledBuzzer);
+    sendCommand($port, "setLedRed") if ($enabledBuzzer);
 }
 
 sub actionsAlarm
