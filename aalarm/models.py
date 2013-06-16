@@ -53,3 +53,13 @@ class Parameter(models.Model):
     order = models.SmallIntegerField(default=0)
     def __unicode__(self):
         return self.key
+
+class ZMIntrusion(models.Model):
+    date = models.DateTimeField(default=datetime.now())
+
+class ZMIntrusionPicture(models.Model):
+    zmIntrusion = models.ForeignKey(ZMIntrusion)
+    path = models.CharField(max_length=250)
+    def __unicode__(self):
+        return self.path
+

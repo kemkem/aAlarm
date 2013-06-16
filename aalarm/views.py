@@ -1,7 +1,7 @@
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from aalarm.models import Command, Execute, RefSensorType, RefState, Sensor, Event, Parameter
+from aalarm.models import Command, Execute, RefSensorType, RefState, Sensor, Event, Parameter, ZMIntrusion, ZMIntrusionPicture
 #from datetime import datetime
 from django.forms.models import modelformset_factory
 #from django.forms.formsets import formset_factory
@@ -153,5 +153,15 @@ def history(request):
 
 @login_required
 def lastZmEvent(request):
-    return render_to_response('lastZmEvent.html', {}, context_instance=RequestContext(request))
+    try:
+        lastZmIntrusion = ZMIntrusion.objects.latest('id')
+    except ZMIntrusion.DoesNotExist:
+        truc = ""
+
+    try:
+        lastZmIntrusionPictures = ZMIntrusionPicture.objects.filter(zmIntrusion=lastZmIntrusion)
+    except ZMIntrusionPicture.DoesNotExist:
+        truc = ""
+
+    return render_to_response('lastZmEvent.html', {'lastZmIntrusion':lastZmIntrusion, 'lastZmIntrusionPictures':lastZmIntrusionPictures,}, context_instance=RequestContext(request))
 

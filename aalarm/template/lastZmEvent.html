@@ -14,5 +14,10 @@
 
 {% block mainContent %}
 
+<h2>{{ lastZmIntrusion.date|date:"d/m/Y H:m:s" }}</h2>
+
+{% for picture in lastZmIntrusionPictures %}
+<img src="/site_media/img/zmlast/{{ picture }}" />
+{% endfor %}
 
 {% endblock %}
