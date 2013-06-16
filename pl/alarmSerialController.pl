@@ -89,9 +89,10 @@ my $enableMusicPlaylist = config("musicPlaylistEnable");
 my $enableZoneMinderLastIntrusion = config("zoneMinderLastIntrusionEnable");
 
 #Buzzer
-my $enableBuzzer = config("buzzerEnable");
+my $enabledBuzzer = config("buzzerEnable");
 #Siren
-my $enableSiren = config("sirenEnable");
+my $enabledSiren = config("sirenEnable");
+my $useBuzzerAsSiren = config("buzzerAsSiren");
 
 #Music service scripts
 my $pathStartPlaylist = config("pathStartPlaylist");
@@ -406,7 +407,10 @@ sub ckbIntrusionAlarmTimeout
     actionsAlarmTimeout();
 }
 
-# Actions (done specific states or callbacks)
+#
+# Actions (done on specific states or callbacks)
+#
+
 sub actionsSetOnline
 {
     #start zm if enabled
@@ -423,7 +427,6 @@ sub actionsSetOffline
 	shellExecute($pathStopZM) if $enableZoneMinder;
 	#$nextCommand = "setLedGreen";
     sendCommand($port, "setLedGreen");
-
 }
 
 sub actionsOnline
@@ -431,7 +434,8 @@ sub actionsOnline
     #start music if enabled
 	shellExecute($pathStartPlaylist) if $enableMusicPlaylist;
 	#$nextCommand = "setLedRedBuzzer";
-    sendCommand($port, "setLedRedBuzzer");
+    sendCommand($port, "setLedRedBuzzer") if ($enabledBuzzer);
+    sendCommand($port, "setLedRed") if not ($enabledBuzzer);
 }
 
 sub actionsOnlineTimeout
@@ -464,10 +468,18 @@ sub actionsWarningTimeout
 sub actionsAlarm
 {
     sendMail("Intrusion Alarm");
+    if($enabledSiren)
+    {
+        sendCommand($port, "setLedRedBuzzer") if ($useBuzzerAsSiren);
+    }
 }
 
 sub actionsAlarmTimeout
 {
+    if($enabledSiren)
+    {
+        sendCommand($port, "setLedRed") if ($useBuzzerAsSiren);
+    }
 }
 
 
