@@ -281,7 +281,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 }#for end
 }#while end
 
-# setOnline (from keypad or command)
+# setOnline (from keypad or command) (state offline -> timed)
 sub setOnline
 {
 	debug("SetOnline called");
@@ -294,8 +294,8 @@ sub setOnline
     $nextCommand = "setLedRed";
 }
 
-# setOffline (from keypad or command)
-sub setOffline
+# setOffline (from keypad or command) (any state -> offline)
+sub setOffline 
 {
     debug("SetOffline called");
 	removeTimer($tOnlineTimed);
@@ -314,9 +314,16 @@ sub setOffline
 	$nextCommand = "setLedGreen";
 }
 
+# Intrusion (online -> intrusion)
+sub intrusion() 
+{
+}
+
 #
 # Callbacks from Timers
 #
+
+# (timed -> online)
 sub ckbOnline
 {
     debug("Callback Online");
@@ -329,12 +336,14 @@ sub ckbOnline
 	$nextCommand = "setLedRedBuzzer";
 }
 
+# (after timed -> online)
 sub ckbOnlineTimeout
 {
     debug("Callback OnlineTimeout");
 	$nextCommand = "setLedRed";
 }
 
+# (intrusion -> warning)
 sub ckbIntrusionWarning
 {
     debug("Callback Warning");
@@ -347,12 +356,14 @@ sub ckbIntrusionWarning
 	shellExecute($pathZmLast) if $enableZoneMinder && $enableZoneMinderLastIntrusion;
 }
 
+# (after intrusion -> warning)
 sub ckbIntrusionWarningTimeout
 {
     debug("Callback WarningTimeout");
     debug("(Do nothing)");
 }
 
+# (warning -> alarm)
 sub ckbIntrusionAlarm
 {
     debug("Callback Alarm");
@@ -363,6 +374,7 @@ sub ckbIntrusionAlarm
 	sendMail("Intrusion Alarm");
 }
 
+# (after warning -> alarm)
 sub ckbIntrusionAlarmTimeout
 {
     debug("Callback AlarmTimeout");
