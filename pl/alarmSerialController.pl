@@ -112,7 +112,7 @@ my $refreshMs = config("refreshMs");
 my $passwd = config("passwd");
 
 #Sensors total
-$sensorsNb = 1;
+$sensorsNb = config("sensorsNb");
 
 #Init
 
