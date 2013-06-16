@@ -135,7 +135,7 @@ my $stateGlobalIntrusion = "intrusion";
 my $stateGlobalWarning = "warning";
 my $stateGlobalAlert = "alert";
 
-my $nextCommand = "";
+#my $nextCommand = "";
 
 my @sensorsStates;
 # 0 closed
@@ -165,7 +165,17 @@ setTimer(5, "updateMusicPlaylistStatusInDB") if $enableMusicPlaylist;
 setTimer(5, "updateZMStatusInDB") if $enableZoneMinder;
 
 #set sensors nb
-$nextCommand = "setSensorsNb $sensorsNb";
+#$nextCommand = "setSensorsNb $sensorsNb";
+
+my $port;
+
+#send command to arduino
+sub sendCommand
+{
+    my $pPort = shift;
+    my $command = shift;
+    $pPort->write($command."\n");
+}
 
 while (1)
 {
@@ -173,7 +183,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 {
 	my $connectPort = $portBase.$portNum;
 	debug("Trying to connect to $connectPort");
-	if (my $port = Device::SerialPort->new($connectPort))
+	if ($port = Device::SerialPort->new($connectPort))
 	{
 		debug("Connected");
 		$port->databits(8);
@@ -184,13 +194,23 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 		#record global state init
 		recordEventGlobal($globalState);
 
-		while (1) 
+        debug("Waiting board for 'ready' response");
+        my $response = "";
+        while ($response eq "ready") 
+        {
+		    my $response = $port->lookfor();
+        }
+
+        debug("Set sensors nb to $sensorsNb");
+        sendCommand($port, "setSensorsNb $sensorsNb");
+
+		while (1)
         {
 		    my $response = $port->lookfor();
 		
 		    if ($response) 
             {
-		    	$nextCommand = "";
+		    	#$nextCommand = "";
 			    chop $response;
 			    debug("Board Response [".$response."]");
 		
@@ -218,14 +238,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 				    {
 					    if ($sensorsStates[$sensorNb] = 1)
 					    {
-						    debug("Intrusion alert !");
-						    $tIntrusionWarning = setTimer($delayIntrusionWarning, "ckbIntrusionWarning");
-						    $tIntrusionAlarm = setTimer($delayIntrusionAlarm, "ckbIntrusionAlarm");
-						    $globalState = $stateGlobalIntrusion;
-						    #record global state change
-						    recordEventGlobal($globalState);
-                            #stop music if enabled
-                            shellExecute($pathStopPlaylist) if $enableMusicPlaylist;
+                            intrusion();
 					    }
 				    }
 			    }
@@ -263,8 +276,8 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 	        {
 		    usleep($refresh);
 		    executeCommand();
-		    $send = $nextCommand;
-		    $port->write($send."\n");
+		    #$send = $nextCommand;
+		    #$port->write($send."\n");
 	        }
 	        runTimers();						
 		}
@@ -288,10 +301,10 @@ sub setOnline
 	$globalState = $stateGlobalTimed;
 	#record global state change
 	recordEventGlobal($globalState);
+    #timer call ckbOnline
 	$tOnlineTimed = setTimer($delayOnlineTimed, "ckbOnline");
-    #start zm if enabled
-	shellExecute($pathStartZM) if $enableZoneMinder;
-    $nextCommand = "setLedRed";
+    
+    actionsSetOnline();
 }
 
 # setOffline (from keypad or command) (any state -> offline)
@@ -311,12 +324,21 @@ sub setOffline
     shellExecute($pathStopPlaylist) if $enableMusicPlaylist;
     #stop Zoneminder if enabled (longer)
 	shellExecute($pathStopZM) if $enableZoneMinder;
-	$nextCommand = "setLedGreen";
+	#$nextCommand = "setLedGreen";
+    sendCommand($port, "setLedGreen");
 }
 
 # Intrusion (online -> intrusion)
 sub intrusion() 
 {
+    debug("Intrusion alert !");
+    $tIntrusionWarning = setTimer($delayIntrusionWarning, "ckbIntrusionWarning");
+    $tIntrusionAlarm = setTimer($delayIntrusionAlarm, "ckbIntrusionAlarm");
+    $globalState = $stateGlobalIntrusion;
+    #record global state change
+    recordEventGlobal($globalState);
+    #stop music if enabled
+    shellExecute($pathStopPlaylist) if $enableMusicPlaylist;
 }
 
 #
@@ -333,14 +355,16 @@ sub ckbOnline
 	setTimer(2, "ckbOnlineTimeout");
     #start music if enabled
 	shellExecute($pathStartPlaylist) if $enableMusicPlaylist;
-	$nextCommand = "setLedRedBuzzer";
+	#$nextCommand = "setLedRedBuzzer";
+    sendCommand($port, "setLedRedBuzzer");
 }
 
 # (after timed -> online)
 sub ckbOnlineTimeout
 {
     debug("Callback OnlineTimeout");
-	$nextCommand = "setLedRed";
+	#$nextCommand = "setLedRed";
+    sendCommand($port, "setLedRed");
 }
 
 # (intrusion -> warning)
@@ -382,43 +406,47 @@ sub ckbIntrusionAlarmTimeout
 }
 
 # Actions (done specific states or callbacks)
-sub actionSetOnline
+sub actionsSetOnline
+{
+    #start zm if enabled
+	shellExecute($pathStartZM) if $enableZoneMinder;
+    #$nextCommand = "setLedRed";
+    sendCommand($port, "setLedRed");
+}
+
+sub actionsSetOffline
 {
 }
 
-sub actionSetOffline
+sub actionsOnline
 {
 }
 
-sub actionOnline
+sub actionsOnlineTimeout
 {
 }
 
-sub actionOnlineTimeout
+sub actionsIntrusion
 {
 }
 
-sub actionIntrusion
+sub actionsIntrusionTimeout
 {
 }
 
-sub actionIntrusionTimeout
+sub actionsWarning
 {
 }
 
-sub actionWarning
+sub actionsWarningTimeout
 {
 }
 
-sub actionWarningTimeout
+sub actionsAlarm
 {
 }
 
-sub actionAlarm
-{
-}
-
-sub actionAlarmTimeout
+sub actionsAlarmTimeout
 {
 }
 
