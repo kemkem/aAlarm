@@ -172,9 +172,6 @@ debug("DelayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout");
 setTimer(5, "updateMusicPlaylistStatusInDB") if $enableMusicPlaylist;
 setTimer(5, "updateZMStatusInDB") if $enableZoneMinder;
 
-zmLast();
-exit();
-
 my $port;
 
 #send command to arduino
