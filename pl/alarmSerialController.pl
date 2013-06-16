@@ -164,7 +164,8 @@ debug("DelayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout");
 setTimer(5, "updateMusicPlaylistStatusInDB") if $enableMusicPlaylist;
 setTimer(5, "updateZMStatusInDB") if $enableZoneMinder;
 
-$nextCommand = "setSensorsNb 2";
+#set sensors nb
+$nextCommand = "setSensorsNb $sensorsNb";
 
 while (1)
 {
@@ -280,10 +281,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 }#for end
 }#while end
 
-#
-# KeyPad function callbacks
-# 
-
+# setOnline (from keypad or command)
 sub setOnline
 {
 	debug("SetOnline called");
@@ -296,6 +294,7 @@ sub setOnline
     $nextCommand = "setLedRed";
 }
 
+# setOffline (from keypad or command)
 sub setOffline
 {
     debug("SetOffline called");
@@ -316,7 +315,7 @@ sub setOffline
 }
 
 #
-# timers callbacks
+# Callbacks from Timers
 #
 sub ckbOnline
 {
@@ -369,6 +368,48 @@ sub ckbIntrusionAlarmTimeout
     debug("Callback AlarmTimeout");
     debug("(Do nothing)");
 }
+
+# Actions (done specific states or callbacks)
+sub actionSetOnline
+{
+}
+
+sub actionSetOffline
+{
+}
+
+sub actionOnline
+{
+}
+
+sub actionOnlineTimeout
+{
+}
+
+sub actionIntrusion
+{
+}
+
+sub actionIntrusionTimeout
+{
+}
+
+sub actionWarning
+{
+}
+
+sub actionWarningTimeout
+{
+}
+
+sub actionAlarm
+{
+}
+
+sub actionAlarmTimeout
+{
+}
+
 
 #
 # Query services status
