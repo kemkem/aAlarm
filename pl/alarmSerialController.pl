@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 
+use File::Basename;
 use Device::SerialPort;
 use MIME::Lite;
 use Time::HiRes qw(usleep);
@@ -485,14 +486,29 @@ sub actionsAlarmTimeout
     }
 }
 
+# call zmlast script (copy last intrusion pictures and record them in db)
+
 sub zmLast
 {
+    my $tableZmIntrusion = configFromFile("tableZmIntrusion");
+    my $tableZmIntrusionPicture = configFromFile("tableZmIntrusionPicture");
+
+    debug("ZmLast : Get latest intrusion pictures");
     shellExecute($pathZmLast);
-    debug("open $pathZmLastTarget");
+
+    #insert new zmintrusion
+    my $idZmIntrusion = dbInsert("insert into $tableZmIntrusion (date) values (now())");
+
     open LIST, $pathZmLastTarget."/list" or die "nooot\n";
     foreach (<LIST>)
     {
+        chomp();
+        my $filename = basename($_);
+        print $filename."\n";
         
+        #insert
+        dbExecute("insert into $tableZmIntrusionPicture (zmIntrusion_id, path) values ($idZmIntrusion, '$filename')");
+
     }
     close LIST;
 }
@@ -772,6 +788,17 @@ sub dbExecute
 
     debugDb("[Execute] $req");
     my $prepare = $dbh->do($req) or die("[DB execute] Error when execute request\n");
+}
+
+#insert and return last id
+sub dbInsert
+{
+    my $req = shift;$dbh->{ q{mysql_insertid}};
+    my $dbh = getDbConnection();
+
+    debugDb("[Insert] $req");
+    my $prepare = $dbh->do($req) or die("[DB insert] Error when execute request\n");
+    return $dbh->{ q{mysql_insertid}};
 }
 
 #
