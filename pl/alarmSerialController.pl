@@ -304,19 +304,21 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 sub setOnline
 {
 	debug("SetOnline called");
+    actionsSetOnline();
+
 	$globalState = $stateGlobalTimed;
 	#record global state change
 	recordEventGlobal($globalState);
     #timer call ckbOnline
 	$tOnlineTimed = setTimer($delayOnlineTimed, "ckbOnline");
-    
-    actionsSetOnline();
 }
 
 # setOffline (from keypad or command) (any state -> offline)
 sub setOffline 
 {
     debug("SetOffline called");
+    actionsSetOffline();
+
 	removeTimer($tOnlineTimed);
 	removeTimer($tIntrusionWarning);
 	removeTimer($tIntrusionAlarm);
@@ -326,21 +328,19 @@ sub setOffline
 	$globalState = $stateGlobalOffline;
 	#record global state change
 	recordEventGlobal($globalState);
-
-    actionsSetOffline();
 }
 
 # Intrusion (online -> intrusion)
 sub intrusion() 
 {
     debug("Intrusion alert !");
+    actionsIntrusion();
+
     $tIntrusionWarning = setTimer($delayIntrusionWarning, "ckbIntrusionWarning");
     $tIntrusionAlarm = setTimer($delayIntrusionAlarm, "ckbIntrusionAlarm");
     $globalState = $stateGlobalIntrusion;
     #record global state change
     recordEventGlobal($globalState);
-
-    actionsIntrusion();
 }
 
 #
@@ -350,61 +350,61 @@ sub intrusion()
 # (timed -> online)
 sub ckbOnline
 {
+    actionsOnline();
+
     debug("Callback Online");
 	$globalState = $stateGlobalOnline;
 	#record global state change
 	recordEventGlobal($globalState);
 	setTimer(2, "ckbOnlineTimeout");
-
-    actionsOnline();
 }
 
 # (after timed -> online)
 sub ckbOnlineTimeout
 {
     debug("Callback OnlineTimeout");
-
     actionsOnlineTimeout();
+
 }
 
 # (intrusion -> warning)
 sub ckbIntrusionWarning
 {
     debug("Callback Warning");
+    actionsWarning();
+
 	setTimer($delayIntrusionWarningTimeout, "ckbIntrusionWarningTimeout");
 	$globalState = $stateGlobalWarning;
 	#record global state change
 	recordEventGlobal($globalState);
-    
-    actionsWarning();
 }
 
 # (after intrusion -> warning)
 sub ckbIntrusionWarningTimeout
 {
     debug("Callback WarningTimeout");
-
     actionsWarningTimeout();
+
 }
 
 # (warning -> alarm)
 sub ckbIntrusionAlarm
 {
     debug("Callback Alarm");
+    actionsAlarm();
+
 	setTimer($delayIntrusionAlarmTimeout, "ckbIntrusionAlarmTimeout");
 	$globalState = $stateGlobalAlert;
 	#record global state change
 	recordEventGlobal($globalState);
-	
-    actionsAlarm();
 }
 
 # (after warning -> alarm)
 sub ckbIntrusionAlarmTimeout
 {
     debug("Callback AlarmTimeout");
-    
     actionsAlarmTimeout();
+    
 }
 
 #
