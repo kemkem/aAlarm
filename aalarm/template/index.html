@@ -68,6 +68,9 @@
         $("#idBtnAlertBoxClose").click(function(){
             $("#idAlertBox").hide();
         });
+        $("#idBtnRefresh").click(function(){
+            refresh();
+        });
         $(".aalarmStateBtn").click(function(data){
             //this fix bootstrap bug (dropdown not closing)
             $('[data-toggle="dropdown"]').parent().removeClass('open');
@@ -146,7 +149,7 @@
     </div>
 
     <div class="span2">
-        <button type="button" class="btn">Refresh</button>
+        <button id="idBtnRefresh" type="button" class="btn">Refresh</button>
     </div>
 
 </div>
