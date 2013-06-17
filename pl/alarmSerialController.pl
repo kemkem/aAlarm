@@ -517,7 +517,7 @@ sub zmLast
 sub queryZMStatus
 {
     my $pathStatus = config("pathStatusZM");
-    debug("Query ZM status, execute $pathStatus");
+    #debug("Query ZM status, execute $pathStatus");
     my $status = `$pathStatus`;
     if ($status =~ /ZoneMinder is running/)
     {
@@ -529,7 +529,7 @@ sub queryZMStatus
 sub queryMusicPlaylistStatus
 {
     my $pathStatus = config("pathStatusMusicPlaylist");
-    debug("Query Music Playlist status, execute $pathStatus");
+    #debug("Query Music Playlist status, execute $pathStatus");
     my $status = `$pathStatus`;
     if ($status =~ /Music playlist is running/)
     {
@@ -563,7 +563,7 @@ sub updateZMStatusInDB
     }
     else
     {
-        debug("No ZM Status change");
+        #debug("No ZM Status change");
     }
     setTimer(5, "updateZMStatusInDB");
 }
@@ -593,7 +593,7 @@ sub updateMusicPlaylistStatusInDB
     }
     else
     {
-        debug("No MusicPlaylist Status change");
+        #debug("No MusicPlaylist Status change");
     }
     setTimer(5, "updateMusicPlaylistStatusInDB");
 }
@@ -974,7 +974,7 @@ sub setTimer
 	my $delay = shift;
 	my $function = shift;
 	my $timer = time + $delay;
-	debug("New timer '$function' in $delay s (id $timerNextId)");
+	#debug("New timer '$function' in $delay s (id $timerNextId)");
 	$timers{$timerNextId} = $timer."|".$function;
 	$timerNextId++;
 	return $timerNextId - 1;
