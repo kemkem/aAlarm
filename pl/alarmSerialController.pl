@@ -143,7 +143,7 @@ my $stateGlobalIntrusion = "intrusion";
 my $stateGlobalWarning = "warning";
 my $stateGlobalAlert = "alert";
 
-#my $nextCommand = "";
+my $nextCommand = "";
 
 my @sensorsStates;
 # 0 closed
@@ -179,7 +179,8 @@ sub sendCommand
 {
     my $pPort = shift;
     my $command = shift;
-    $pPort->write($command."\n");
+    #$pPort->write($command."\n");
+    $nextCommand = $command;
 }
 
 while (1)
@@ -215,7 +216,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 		
 		    if ($response) 
             {
-		    	#$nextCommand = "";
+		    	$nextCommand = "";
 			    chop $response;
 			    debug("Board Response [".$response."]");
 		
@@ -281,8 +282,8 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 	        {
 		    usleep($refresh);
 		    executeCommand();
-		    #$send = $nextCommand;
-		    #$port->write($send."\n");
+		    $send = $nextCommand;
+		    $port->write($send."\n");
 	        }
 	        runTimers();						
 		}
