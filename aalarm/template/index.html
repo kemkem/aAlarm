@@ -86,6 +86,11 @@
             return false;
         });
 
+        refresh();
+	});
+
+    function refresh()
+    {
         updateLastEvents();
         updateState();
 
@@ -94,7 +99,9 @@
         {
             updateSensor(aSensorsToRequest[i]);
         }
-	});
+    }
+
+    setInterval(refresh, 5000);
 </script>
 {% endblock %}
 

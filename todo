@@ -26,3 +26,6 @@ dj request all sensors with one json req
 fastest service status check
 and/or
 move service check to another script
+
+refresh only if changes
+
