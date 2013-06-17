@@ -101,7 +101,10 @@
         }
     }
 
-    setInterval(refresh, 5000);
+    if({{ parameterRefresh }} == 1)
+    {
+        setInterval(refresh, {{ parameterDelay }});
+    }
 </script>
 {% endblock %}
 

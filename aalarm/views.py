@@ -82,7 +82,17 @@ def index(request):
     if lastGlobalState.state == stateOffline[0]:
         nextCommand = Command.objects.filter(command="setOnline")[0]
 
-    return render_to_response('index.html', {'listEvents': listEvents, 'listCommands':listCommands, 'htmlSecondaryItems':htmlSecondaryItems, 'htmlAjaxSensorsToRequest':htmlAjaxSensorsToRequest,'nextCommand':nextCommand,}, context_instance=RequestContext(request))
+    try:
+        parameterRefresh = Parameter.objects.get(key='autoRefresh')
+    except Parameter.DoesNotExist:
+        return HttpResponse("error")
+
+    try:
+        parameterRefreshDelay = Parameter.objects.get(key='autoRefreshDelay')
+    except Parameter.DoesNotExist:
+        return HttpResponse("error")
+
+    return render_to_response('index.html',{'listEvents':listEvents,'listCommands':listCommands,'htmlSecondaryItems':htmlSecondaryItems,'htmlAjaxSensorsToRequest':htmlAjaxSensorsToRequest,'nextCommand':nextCommand,'parameterRefresh':parameterRefresh,'parameterRefreshDelay':parameterRefreshDelay,}, context_instance=RequestContext(request))
 
 @login_required
 def getLastSensorState(request, sensorName):
