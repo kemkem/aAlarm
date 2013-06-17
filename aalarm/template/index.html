@@ -101,9 +101,9 @@
         }
     }
 
-    if({{ parameterRefresh }} == 1)
+    if({{ parameterRefresh.value }} == 1)
     {
-        setInterval(refresh, {{ parameterDelay }});
+        setInterval(refresh, {{ parameterRefreshDelay.value }});
     }
 </script>
 {% endblock %}
