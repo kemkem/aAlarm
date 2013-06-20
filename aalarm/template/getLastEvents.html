@@ -1,0 +1,17 @@
+<table class="eventsTable">
+<tr>
+    <th></th>
+    <th>Origin</th>
+    <th>State</th>
+    <th>Date</th>
+</tr>
+{% for event in listEvents %}
+<tr>
+    <td><div style="width:20px;"></div></td>
+    <td>{{ event.sensor.displayName }}</td>
+    <td class="tabState columnCentered {{ event.state.css }}">{{ event.state.displayName }}</td>
+    <td>{{ event.date|date:"d/m/Y H:m:s" }}</td>
+</tr>
+{% endfor %}
+</table>
+

@@ -1,0 +1,23 @@
+{% extends "templateAAlarm.html" %}
+
+{% block title %}aAlarm - Last Zone Minder Event{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+</script>
+{% endblock %}
+
+{% block mainContentTitle %}Last Zone Minder Event{% endblock %}
+
+{% block mainContent %}
+
+<h2>{{ lastZmIntrusion.date|date:"d/m/Y H:m:s" }}</h2>
+
+{% for picture in lastZmIntrusionPictures %}
+<img src="/site_media/img/zmlast/{{ picture }}" />
+{% endfor %}
+
+{% endblock %}

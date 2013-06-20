@@ -1,0 +1,179 @@
+{% extends "templateAAlarm.html" %}
+
+{% block title %}aAlarm - Home{% endblock %}
+
+{% block css %}
+<link href="/site_media/css/aalarmColors.css" rel="stylesheet" media="screen">
+<link href="/site_media/css/aalarmMain.css" rel="stylesheet" media="screen">
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+
+    function updateState()
+    {
+        $("#idState").html("updating...");
+
+        $.ajax({
+            data: $("#idFormCSRFToken").serialize(),
+            type: "post",
+            url: "getLastGlobalState/Global",
+            success: function(data) {
+                $("#idState").html(data);
+            }
+        });
+        return false;        
+
+    }
+
+    function updateSensor(sensorName)
+    {
+        $("#" + sensorName).html("updating...");
+
+        $.ajax({
+            data: $("#idFormCSRFToken").serialize(),
+            type: "post",
+            url: "getLastSensorState/" + sensorName,
+            success: function(data) {
+                $("#" + sensorName).html(data);
+            }
+        });
+        return false;        
+
+    }
+
+    function updateLastEvents()
+    {
+        $("#idLastEvents").html("updating...");
+
+        $.ajax({
+            data: $("#idFormCSRFToken").serialize(),
+            type: "post",
+            url: "getLastEvents/5",
+            success: function(data) {
+                $("#idLastEvents").html(data);
+            }
+        });
+        return false;        
+
+    }
+
+    function alertBox(msg)
+    {
+        $("#idAlertBoxText").html(msg);
+        $("#idAlertBox").show();
+    }
+
+    $(document).ready(function(){
+        $("#idBtnAlertBoxClose").click(function(){
+            $("#idAlertBox").hide();
+        });
+        $("#idBtnRefresh").click(function(){
+            refresh();
+        });
+        $(".aalarmStateBtn").click(function(data){
+            //this fix bootstrap bug (dropdown not closing)
+            $('[data-toggle="dropdown"]').parent().removeClass('open');
+            var idButton = $(this).attr('id');
+            $.ajax({
+                data: $("#idFormCSRFToken").serialize(),
+                type: "post",
+                url: "command/" + idButton,
+                success: function(data) {
+                    if(data == "ko")
+                    {
+                        alertBox("State cannot be change now")
+                    }
+                }
+            });
+            return false;
+        });
+
+        refresh();
+	});
+
+    function refresh()
+    {
+        updateLastEvents();
+        updateState();
+
+        var aSensorsToRequest = "{{htmlAjaxSensorsToRequest}}".split(",");
+        for(var i = 0;i < aSensorsToRequest.length;i++)
+        {
+            updateSensor(aSensorsToRequest[i]);
+        }
+    }
+
+    if({{ parameterRefresh.value }} == 1)
+    {
+        setInterval(refresh, {{ parameterRefreshDelay.value }});
+    }
+</script>
+{% endblock %}
+
+{% block mainContentTitle %}Home{% endblock %}
+
+{% block mainContent %}
+
+<form name="formCSRFToken" id="idFormCSRFToken">
+    {% csrf_token %}
+</form>
+
+<div class="row">
+    <div class="span12">
+    <h2>Main monitor</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span6 columnCentered">
+        <p id="idState"></p>
+    </div>
+
+    <div class="span2">
+        <button type="button" class="btn aalarmStateBtn" id="{{ nextCommand.command }}">{{ nextCommand.name }}</button>
+    </div>
+
+    <div class="span2">
+        <div class="btn-group">
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+            Actions
+            <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+            {% for command in listCommands %}
+                <li><a href="#" id="{{ command.command }}" class="aalarmStateBtn">{{ command.name }}</a></li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="span2">
+        <button id="idBtnRefresh" type="button" class="btn">Refresh</button>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="span12">
+    <h2>Sensors</h2>
+    </div>
+</div>
+
+<div class="row">
+{{ htmlSecondaryItems|safe }}
+</div>
+
+<div class="row">
+    <div class="span12">
+    <h2>Recent events</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span12">
+        <div id="idLastEvents"></div>
+    </div>
+</div>
+
+{% endblock %}

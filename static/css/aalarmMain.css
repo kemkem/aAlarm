@@ -1,0 +1,40 @@
+.labelGlobalState {
+    font-family:Helvetica;
+    font-size:36px;
+    line-height:36px;
+    padding:8px;
+}
+
+.labelState {
+    font-family:Helvetica;
+    font-size:16px;
+    line-height:16px;
+    padding:4px;
+}
+
+.columnCentered {
+    text-align: center;
+}
+
+.tabState {
+    font-weight:bold;
+    text-align:center;
+    padding: 2px;
+    color: white;
+}
+
+table.eventsTable{
+    border:none;
+}
+
+table.eventsTable th{
+
+}
+
+table.eventsTable tr{
+    border:2px solid #fff;
+}
+
+table.eventsTable td{
+    border:2px solid #fff;
+}
