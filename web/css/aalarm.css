@@ -1,0 +1,38 @@
+.statusLabel{
+	padding: 0.2em;
+	font-weight: bold;
+	font-size: 2em;
+}
+
+.statusBlock{
+	margin:1em 0;
+}
+
+.mainMargin{
+	margin:0 1em;
+}
+
+table.historyTable {
+	border-width: 1px;
+	border-spacing: 2px;
+	border-style: none;
+	border-color: gray;
+	border-collapse: separate;
+	background-color: white;
+}
+table.historyTable th {
+	border-width: 2px;
+	padding: 1px;
+	border-style: none;
+	border-color: gray;
+	background-color: white;
+	-moz-border-radius: ;
+}
+table.historyTable td {
+	border-width: 2px;
+	padding: 1px;
+	border-style: none;
+	border-color: gray;
+	/*background-color: white;*/
+	-moz-border-radius: ;
+}
