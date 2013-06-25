@@ -1,0 +1,110 @@
+#config file only parameters
+#group:key:showInUi = value
+
+#database uri
+db:dbUrl:0 = DBI:mysql:database=DBNAME;host=localhost
+#database login
+db:dbLogin:0 = DBLOGIN
+#database password
+db:dbPasswd:0 = DBPASSWD
+
+#Table names
+db:tableCommand:0 = aalarm_command
+db:tableEvent:0 = aalarm_event
+db:tableExecute:0 = aalarm_execute
+db:tableParameter:0 = aalarm_parameter
+db:tableRefSensorType:0 = aalarm_refsensortype
+db:tableRefState:0 = aalarm_refstate
+db:tableSensor:0 = aalarm_sensor
+db:tableZmIntrusion:0 = aalarm_zmintrusion
+db:tableZmIntrusionPicture:0 = aalarm_zmintrusionpicture
+
+#Controller
+
+#log file path
+controller:pathLog:0 = /path/to/aAlarm/pl/log
+#usb port where arduino is connected
+controller:portBase:0 = /dev/ttyACM
+#device number min
+controller:portNumMin:0 = 0
+#device number max
+controller:portNumMax:0 = 5
+#timeout until retry between device number
+controller:reconnectTimeoutSecs:0 = 5
+#Arduino connection speed in bauds
+controller:rate:0 = 9600;
+#Arduino refresh rate speed in Milliseconds
+controller:refreshMs:0 = 200;
+#KeyPad Password
+controller:passwd:1 = 4578
+#Emails to send alerts to
+controller:emailAlerts:1 = EMAIL_FOR_ALERTS_COMMA_SEPARATED
+#Sensors total
+controller:sensorsNb:1 = 1
+
+#General
+#Send emails enable
+general:sendEmailAlerts:1 = 1
+#Use Buzzer
+general:buzzerEnable:1 = 1
+#Use Siren
+general:sirenEnable:1 = 0
+#Use Buzzer as Siren (Siren has to be enabled)
+general:buzzerAsSiren:1 = 1
+#specials sensors names
+general:zoneMinderSensorName:0 = ZoneMinder
+general:musicPlaylistSensorName:0 = MusicPlaylist
+general:globalSensorName:0 = Global
+#use zm
+general:zoneMinderEnable:1 = 0
+#use zmlast
+general:zoneMinderLastIntrusionEnable:1 = 0
+#use music playlist
+general:musicPlaylistEnable:1 = 0
+#path to zm last pictures
+general:pathZmLastTarget:0 = /path/to/aAlarm/static/img/zmlast
+
+#Commands
+#start playlist command
+commands:pathStartPlaylist:0 = /path/to/aAlarm/sh/startPlaylist.sh
+#stop playlist command
+commands:pathStopPlaylist:0 = /path/to/aAlarm/sh/stopPlaylist.sh
+#start ZoneMinder command
+commands:pathStartZM:0 = /path/to/aAlarm/sh/startZM.sh
+#stop ZoneMinder command
+commands:pathStopZM:0 = /path/to/aAlarm/sh/stopZM.sh
+#copy last intrusion shots script 
+commands:pathZmLast:0 = /path/to/aAlarm/sh/zmLast.sh
+#query music playlist status
+commands:pathStatusMusicPlaylist:0 = /path/to/aAlarm/sh/statusPlaylist.sh
+#query zm status
+commands:pathStatusZM:0 = /etc/init.d/zoneminder status
+
+#Web Monitor
+
+#TODO TO REMOVE Sensor to watch from main page (name)
+#ui:sensorsList:1 = Global,Door1
+
+#AutoRefresh
+ui:autoRefresh:1 = 0
+#AutoRefresh every n seconds
+ui:autoRefreshDelay:1 = 10
+#Secondary Items Nb Rows
+ui:secondaryItemsRows:1 = 1
+#Secondary Items Nb Cols
+ui:secondaryItemsCols:1 = 3
+#Secondary Items Devices List [row,col:SensorName];[row,col:SensorName];... 
+ui:secondaryItemsList:1 = 1,1:Door1;1,2:MusicPlaylist;1,3:ZoneMinder
+
+#Delays
+#alarm delays in seconds
+#Duration of Online Timed state (Offline -> Online)
+delay:delayOnlineTimed:1 = 20
+#Delay to trigger Warning from Instrusion detection
+delay:delayIntrusionWarning:1 = 20
+#Delay to trigger Alarm from Instrusion detection
+delay:delayIntrusionAlarm:1 = 40
+#Duration of Warning alert
+delay:delayIntrusionWarningTimeout:1 = 5
+#Duration of Alarm alert
+delay:delayIntrusionAlarmTimeout:1 = 60

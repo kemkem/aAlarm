@@ -10,7 +10,7 @@ use DBI;
 #AAlarm Modules
 use TimerLite;
 
-my $pathConfigFile = "/home/kemkem/Work/arduinoAlarm/conf/aalarm.conf";
+my $pathConfigFile = "/path/to/aAlarm/conf/aalarm.conf";
 
 # Simple line parameters
 # write logfile

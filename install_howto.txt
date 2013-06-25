@@ -6,3 +6,6 @@ sudo apt-get install libmime-lite-perl
 export AALARM_PATH_FOLDER_CONFIG="/path/to/aAlarm/sh"
 cp config.sh.dist config.sh and edit
 
+cp aalarm.conf.dist aalarm.conf and edit
+
+
