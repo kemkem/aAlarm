@@ -1,0 +1,7 @@
+#!/bin/sh
+
+PATH_FOLDER_PID="/path/to/aAlarm/sh"
+PATH_PLAYLIST="/path/to/playlist"
+PATH_ZM_SOURCE="/usr/share/zoneminder/events/Door"
+PATH_ZM_TARGET="/path/to/aAlarm/djangoAAlarm/static/img/zmlast"
+
