@@ -3,3 +3,5 @@ install sendmail/postfix/ssmtp package
 sudo apt-get install libdevice-serialport-perl
 sudo apt-get install libmime-lite-perl
 
+export AALARM_PATH_FOLDER_CONFIG="/path/to/aAlarm/sh"
+
