@@ -8,7 +8,7 @@ use Time::HiRes qw(usleep);
 use DBI;
 
 #AAlarm Modules
-use TimerLite;
+#use TimerLite;
 
 #my $pathConfigFile = $ENV{AALARM_PATH_FOLDER_CONFIG}."/aalarm.conf";
 my $pathConfigFile = "/home/kemkem/Work/aAlarm/conf/aalarm.conf";
@@ -174,8 +174,8 @@ debug("DelayIntrusionWarningTimeout : $delayIntrusionWarningTimeout");
 debug("DelayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout");
 
 #update services status every 5 secs
-TimerLite::setTimer(5, "updateMusicPlaylistStatusInDB") if $enableMusicPlaylist;
-TimerLite::setTimer(5, "updateZMStatusInDB") if $enableZoneMinder;
+setTimer(5, "updateMusicPlaylistStatusInDB") if $enableMusicPlaylist;
+setTimer(5, "updateZMStatusInDB") if $enableZoneMinder;
 
 my $port;
 
@@ -290,7 +290,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 		    $send = $nextCommand;
 		    $port->write($send."\n");
 	        }
-	        TimerLite::runTimers();						
+	        runTimers();						
 		}
 		debug("Connection to board has been lost!");
         #TODO record in db
@@ -315,7 +315,7 @@ sub setOnline
 	#record global state change
 	recordEventGlobal($globalState);
     #timer call ckbOnline
-	$tOnlineTimed = TimerLite::setTimer($delayOnlineTimed, "ckbOnline");
+	$tOnlineTimed = setTimer($delayOnlineTimed, "ckbOnline");
 }
 
 # setOffline (from keypad or command) (any state -> offline)
@@ -324,9 +324,9 @@ sub setOffline
     debug("SetOffline called");
     actionsSetOffline();
 
-	TimerLite::removeTimer($tOnlineTimed);
-	TimerLite::removeTimer($tIntrusionWarning);
-	TimerLite::removeTimer($tIntrusionAlarm);
+	removeTimer($tOnlineTimed);
+	removeTimer($tIntrusionWarning);
+	removeTimer($tIntrusionAlarm);
 	$tOnlineTimed = -1;
 	$tIntrusionWarning = -1;
 	$tIntrusionAlarm = -1;
@@ -341,8 +341,8 @@ sub intrusion()
     debug("Intrusion alert !");
     actionsIntrusion();
 
-    $tIntrusionWarning = TimerLite::setTimer($delayIntrusionWarning, "ckbIntrusionWarning");
-    $tIntrusionAlarm = TimerLite::setTimer($delayIntrusionAlarm, "ckbIntrusionAlarm");
+    $tIntrusionWarning = setTimer($delayIntrusionWarning, "ckbIntrusionWarning");
+    $tIntrusionAlarm = setTimer($delayIntrusionAlarm, "ckbIntrusionAlarm");
     $globalState = $stateGlobalIntrusion;
     #record global state change
     recordEventGlobal($globalState);
@@ -361,7 +361,7 @@ sub ckbOnline
 	$globalState = $stateGlobalOnline;
 	#record global state change
 	recordEventGlobal($globalState);
-	TimerLite::setTimer(2, "ckbOnlineTimeout");
+	setTimer(2, "ckbOnlineTimeout");
 }
 
 # (after timed -> online)
@@ -378,7 +378,7 @@ sub ckbIntrusionWarning
     debug("Callback Warning");
     actionsWarning();
 
-	TimerLite::setTimer($delayIntrusionWarningTimeout, "ckbIntrusionWarningTimeout");
+	setTimer($delayIntrusionWarningTimeout, "ckbIntrusionWarningTimeout");
 	$globalState = $stateGlobalWarning;
 	#record global state change
 	recordEventGlobal($globalState);
@@ -398,7 +398,7 @@ sub ckbIntrusionAlarm
     debug("Callback Alarm");
     actionsAlarm();
 
-	TimerLite::setTimer($delayIntrusionAlarmTimeout, "ckbIntrusionAlarmTimeout");
+	setTimer($delayIntrusionAlarmTimeout, "ckbIntrusionAlarmTimeout");
 	$globalState = $stateGlobalAlert;
 	#record global state change
 	recordEventGlobal($globalState);
@@ -570,7 +570,7 @@ sub updateZMStatusInDB
     {
         #debug("No ZM Status change");
     }
-    TimerLite::setTimer(5, "updateZMStatusInDB");
+    setTimer(5, "updateZMStatusInDB");
 }
 
 sub updateMusicPlaylistStatusInDB
@@ -600,7 +600,7 @@ sub updateMusicPlaylistStatusInDB
     {
         #debug("No MusicPlaylist Status change");
     }
-    TimerLite::setTimer(5, "updateMusicPlaylistStatusInDB");
+    setTimer(5, "updateMusicPlaylistStatusInDB");
 }
 
 #
@@ -968,6 +968,55 @@ sub config
 			die "$key parameter not exists in config file\n";
 		}
 	}
+}
+
+#
+# Timer mini lib
+#
+
+sub setTimer
+{
+	my $delay = shift;
+	my $function = shift;
+	my $timer = time + $delay;
+	#debug("New timer '$function' in $delay s (id $timerNextId)");
+	$timers{$timerNextId} = $timer."|".$function;
+	$timerNextId++;
+	return $timerNextId - 1;
+}
+
+sub removeTimer
+{
+	$key = shift;
+	debug("Remove timer $key");
+	if($key>0)
+	{
+		delete $timers{$key}; 
+	}
+}
+
+sub runTimers
+{
+	#print ">running timers\n";
+	$curTime = time;
+	my @newTimers;
+	foreach my $key (keys %timers)
+	{
+		my $timerDef = $timers{$key};
+		$timerDef =~ /(.*)\|(.*)/;
+
+		my $timer = $1;
+		my $function = $2;
+		
+		#print " >timer id ".$key." time ".$timer." function ".$function."\n";
+		if($curTime >= $timer)
+		{
+			#print " >execute $function\n";
+			delete $timers{$key}; 
+			&{$function}();
+		}
+	}
+	#@timers = @newTimers;
 }
 
 
