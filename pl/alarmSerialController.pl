@@ -10,7 +10,8 @@ use DBI;
 #AAlarm Modules
 use TimerLite;
 
-my $pathConfigFile = $ENV{AALARM_PATH_FOLDER_CONFIG}."/aalarm.conf";
+#my $pathConfigFile = $ENV{AALARM_PATH_FOLDER_CONFIG}."/aalarm.conf";
+my $pathConfigFile = "/home/kemkem/Work/aAlarm/conf/aalarm.conf";
 
 # Simple line parameters
 # write logfile
@@ -173,8 +174,8 @@ debug("DelayIntrusionWarningTimeout : $delayIntrusionWarningTimeout");
 debug("DelayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout");
 
 #update services status every 5 secs
-setTimer(5, "updateMusicPlaylistStatusInDB") if $enableMusicPlaylist;
-setTimer(5, "updateZMStatusInDB") if $enableZoneMinder;
+TimerLite::setTimer(5, "updateMusicPlaylistStatusInDB") if $enableMusicPlaylist;
+TimerLite::setTimer(5, "updateZMStatusInDB") if $enableZoneMinder;
 
 my $port;
 
@@ -289,7 +290,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 		    $send = $nextCommand;
 		    $port->write($send."\n");
 	        }
-	        runTimers();						
+	        TimerLite::runTimers();						
 		}
 		debug("Connection to board has been lost!");
         #TODO record in db
@@ -314,7 +315,7 @@ sub setOnline
 	#record global state change
 	recordEventGlobal($globalState);
     #timer call ckbOnline
-	$tOnlineTimed = setTimer($delayOnlineTimed, "ckbOnline");
+	$tOnlineTimed = TimerLite::setTimer($delayOnlineTimed, "ckbOnline");
 }
 
 # setOffline (from keypad or command) (any state -> offline)
@@ -323,9 +324,9 @@ sub setOffline
     debug("SetOffline called");
     actionsSetOffline();
 
-	removeTimer($tOnlineTimed);
-	removeTimer($tIntrusionWarning);
-	removeTimer($tIntrusionAlarm);
+	TimerLite::removeTimer($tOnlineTimed);
+	TimerLite::removeTimer($tIntrusionWarning);
+	TimerLite::removeTimer($tIntrusionAlarm);
 	$tOnlineTimed = -1;
 	$tIntrusionWarning = -1;
 	$tIntrusionAlarm = -1;
@@ -340,8 +341,8 @@ sub intrusion()
     debug("Intrusion alert !");
     actionsIntrusion();
 
-    $tIntrusionWarning = setTimer($delayIntrusionWarning, "ckbIntrusionWarning");
-    $tIntrusionAlarm = setTimer($delayIntrusionAlarm, "ckbIntrusionAlarm");
+    $tIntrusionWarning = TimerLite::setTimer($delayIntrusionWarning, "ckbIntrusionWarning");
+    $tIntrusionAlarm = TimerLite::setTimer($delayIntrusionAlarm, "ckbIntrusionAlarm");
     $globalState = $stateGlobalIntrusion;
     #record global state change
     recordEventGlobal($globalState);
@@ -360,7 +361,7 @@ sub ckbOnline
 	$globalState = $stateGlobalOnline;
 	#record global state change
 	recordEventGlobal($globalState);
-	setTimer(2, "ckbOnlineTimeout");
+	TimerLite::setTimer(2, "ckbOnlineTimeout");
 }
 
 # (after timed -> online)
@@ -377,7 +378,7 @@ sub ckbIntrusionWarning
     debug("Callback Warning");
     actionsWarning();
 
-	setTimer($delayIntrusionWarningTimeout, "ckbIntrusionWarningTimeout");
+	TimerLite::setTimer($delayIntrusionWarningTimeout, "ckbIntrusionWarningTimeout");
 	$globalState = $stateGlobalWarning;
 	#record global state change
 	recordEventGlobal($globalState);
@@ -397,7 +398,7 @@ sub ckbIntrusionAlarm
     debug("Callback Alarm");
     actionsAlarm();
 
-	setTimer($delayIntrusionAlarmTimeout, "ckbIntrusionAlarmTimeout");
+	TimerLite::setTimer($delayIntrusionAlarmTimeout, "ckbIntrusionAlarmTimeout");
 	$globalState = $stateGlobalAlert;
 	#record global state change
 	recordEventGlobal($globalState);
@@ -569,7 +570,7 @@ sub updateZMStatusInDB
     {
         #debug("No ZM Status change");
     }
-    setTimer(5, "updateZMStatusInDB");
+    TimerLite::setTimer(5, "updateZMStatusInDB");
 }
 
 sub updateMusicPlaylistStatusInDB
@@ -599,7 +600,7 @@ sub updateMusicPlaylistStatusInDB
     {
         #debug("No MusicPlaylist Status change");
     }
-    setTimer(5, "updateMusicPlaylistStatusInDB");
+    TimerLite::setTimer(5, "updateMusicPlaylistStatusInDB");
 }
 
 #
