@@ -12,7 +12,7 @@ fi
 
 if [ -f $PATH_FOLDER_PID/django.pid ];then
 	PID=`/bin/cat $PATH_FOLDER_PID/django.pid`
-	/usr/bin/pkill -9 $PID
+	/usr/bin/pkill -P $PID
 	rm $PATH_FOLDER_PID/django.pid
 else
 	echo "no pid found. django is not running."
