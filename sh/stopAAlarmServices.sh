@@ -2,9 +2,6 @@
 
 . $AALARM_PATH_FOLDER_CONFIG/config.sh
 
-$PATH_FOLDER_SCRIPTS/stopPlaylist.sh
-$PATH_FOLDER_SCRIPTS/stopZM.sh
-
 if [ -f $PATH_FOLDER_PID/controller.pid ];then
 	PID=`/bin/cat $PATH_FOLDER_PID/controller.pid`
 	/bin/kill -9 $PID
@@ -20,3 +17,6 @@ if [ -f $PATH_FOLDER_PID/django.pid ];then
 else
 	echo "no pid found. django is not running."
 fi
+
+$PATH_FOLDER_SCRIPTS/stopPlaylist.sh
+$PATH_FOLDER_SCRIPTS/stopZM.sh
