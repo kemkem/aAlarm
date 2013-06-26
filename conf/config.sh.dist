@@ -2,6 +2,9 @@
 
 PATH_FOLDER_PID="/path/to/aAlarm/sh"
 PATH_PLAYLIST="/path/to/playlist"
+PATH_CONTROLLER="/path/to/aAlarm/pl/alarmSerialController.pl"
+PATH_DJANGO_MANAGER="/path/to/aAlarm/webDj/manage.py"
+PATH_FOLDER_SCRIPTS="/path/to/aAlarm/sh"
 PATH_ZM_SOURCE="/usr/share/zoneminder/events/Door"
 PATH_ZM_TARGET="/path/to/aAlarm/webDj/static/img/zmlast"
 

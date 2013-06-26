@@ -1,0 +1,7 @@
+#!/bin/sh
+
+. $AALARM_PATH_FOLDER_CONFIG/config.sh
+
+$PATH_CONTROLLER &
+$PATH_DJANGO_MANAGER runserver 0.0.0.0:8000 &
+
