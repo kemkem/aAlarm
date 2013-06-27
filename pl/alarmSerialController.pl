@@ -288,7 +288,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 		    $send = $nextCommand;
 		    $port->write($send."\n");
 	        }
-	        runTimers();						
+	        TimerLite::runTimers();						
 		}
 		debug("Connection to board has been lost!");
         #TODO record in db
@@ -322,9 +322,9 @@ sub setOffline
     debug("SetOffline called");
     actionsSetOffline();
 
-	removeTimer($tOnlineTimed);
-	removeTimer($tIntrusionWarning);
-	removeTimer($tIntrusionAlarm);
+	TimerLite::removeTimer($tOnlineTimed);
+	TimerLite::removeTimer($tIntrusionWarning);
+	TimerLite::removeTimer($tIntrusionAlarm);
 	$tOnlineTimed = -1;
 	$tIntrusionWarning = -1;
 	$tIntrusionAlarm = -1;
