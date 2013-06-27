@@ -8,10 +8,9 @@ use Time::HiRes qw(usleep);
 use DBI;
 
 #AAlarm Modules
-#use TimerLite;
+use TimerLite;
 
 my $pathConfigFile = $ENV{AALARM_PATH_FOLDER_CONFIG}."/aalarm.conf";
-#my $pathConfigFile = "/home/kemkem/Work/aAlarm/conf/aalarm.conf";
 
 # Simple line parameters
 # write logfile
@@ -156,9 +155,8 @@ my @sensorsStates;
 my $stateSensorClosed = "closed";
 my $stateSensorOpen = "open";
 
-#my @timers;
-my $timerNextId = 0;
-my %timers = ();
+#my $timerNextId = 0;
+#my %timers = ();
 
 my $sendAlertMails = config("sendEmailAlerts");
 
@@ -174,8 +172,8 @@ debug("DelayIntrusionWarningTimeout : $delayIntrusionWarningTimeout");
 debug("DelayIntrusionAlarmTimeout : $delayIntrusionAlarmTimeout");
 
 #update services status every 5 secs
-setTimer(5, "updateMusicPlaylistStatusInDB") if $enableMusicPlaylist;
-setTimer(5, "updateZMStatusInDB") if $enableZoneMinder;
+setTimer(5, \&updateMusicPlaylistStatusInDB) if $enableMusicPlaylist;
+setTimer(5, \&updateZMStatusInDB) if $enableZoneMinder;
 
 my $port;
 
@@ -315,7 +313,7 @@ sub setOnline
 	#record global state change
 	recordEventGlobal($globalState);
     #timer call ckbOnline
-	$tOnlineTimed = setTimer($delayOnlineTimed, "ckbOnline");
+	$tOnlineTimed = setTimer($delayOnlineTimed, \&ckbOnline);
 }
 
 # setOffline (from keypad or command) (any state -> offline)
@@ -341,8 +339,8 @@ sub intrusion()
     debug("Intrusion alert !");
     actionsIntrusion();
 
-    $tIntrusionWarning = setTimer($delayIntrusionWarning, "ckbIntrusionWarning");
-    $tIntrusionAlarm = setTimer($delayIntrusionAlarm, "ckbIntrusionAlarm");
+    $tIntrusionWarning = setTimer($delayIntrusionWarning, \&ckbIntrusionWarning);
+    $tIntrusionAlarm = setTimer($delayIntrusionAlarm, \&ckbIntrusionAlarm);
     $globalState = $stateGlobalIntrusion;
     #record global state change
     recordEventGlobal($globalState);
@@ -361,7 +359,7 @@ sub ckbOnline
 	$globalState = $stateGlobalOnline;
 	#record global state change
 	recordEventGlobal($globalState);
-	setTimer(2, "ckbOnlineTimeout");
+	setTimer(2, \&ckbOnlineTimeout);
 }
 
 # (after timed -> online)
@@ -378,7 +376,7 @@ sub ckbIntrusionWarning
     debug("Callback Warning");
     actionsWarning();
 
-	setTimer($delayIntrusionWarningTimeout, "ckbIntrusionWarningTimeout");
+	setTimer($delayIntrusionWarningTimeout, \&ckbIntrusionWarningTimeout);
 	$globalState = $stateGlobalWarning;
 	#record global state change
 	recordEventGlobal($globalState);
@@ -398,7 +396,7 @@ sub ckbIntrusionAlarm
     debug("Callback Alarm");
     actionsAlarm();
 
-	setTimer($delayIntrusionAlarmTimeout, "ckbIntrusionAlarmTimeout");
+	setTimer($delayIntrusionAlarmTimeout, \&ckbIntrusionAlarmTimeout);
 	$globalState = $stateGlobalAlert;
 	#record global state change
 	recordEventGlobal($globalState);
@@ -570,7 +568,7 @@ sub updateZMStatusInDB
     {
         #debug("No ZM Status change");
     }
-    setTimer(5, "updateZMStatusInDB");
+    setTimer(5, \&updateZMStatusInDB);
 }
 
 sub updateMusicPlaylistStatusInDB
@@ -600,7 +598,7 @@ sub updateMusicPlaylistStatusInDB
     {
         #debug("No MusicPlaylist Status change");
     }
-    setTimer(5, "updateMusicPlaylistStatusInDB");
+    setTimer(5, \&updateMusicPlaylistStatusInDB);
 }
 
 #
@@ -970,53 +968,6 @@ sub config
 	}
 }
 
-#
-# Timer mini lib
-#
 
-sub setTimer
-{
-	my $delay = shift;
-	my $function = shift;
-	my $timer = time + $delay;
-	#debug("New timer '$function' in $delay s (id $timerNextId)");
-	$timers{$timerNextId} = $timer."|".$function;
-	$timerNextId++;
-	return $timerNextId - 1;
-}
-
-sub removeTimer
-{
-	$key = shift;
-	debug("Remove timer $key");
-	if($key>0)
-	{
-		delete $timers{$key}; 
-	}
-}
-
-sub runTimers
-{
-	#print ">running timers\n";
-	$curTime = time;
-	my @newTimers;
-	foreach my $key (keys %timers)
-	{
-		my $timerDef = $timers{$key};
-		$timerDef =~ /(.*)\|(.*)/;
-
-		my $timer = $1;
-		my $function = $2;
-		
-		#print " >timer id ".$key." time ".$timer." function ".$function."\n";
-		if($curTime >= $timer)
-		{
-			#print " >execute $function\n";
-			delete $timers{$key}; 
-			&{$function}();
-		}
-	}
-	#@timers = @newTimers;
-}
 
 
