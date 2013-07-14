@@ -293,7 +293,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 	        else 
 	        {
 		    usleep($refresh);
-		    #executeCommand();
+		    executeCommand();
 		    $send = $nextCommand;
 		    $port->write($send."\n");
 	        }
@@ -529,9 +529,9 @@ sub zmLast
 sub queryZMStatus
 {
     my $pathStatus = config("pathStatusZM");
-    debugOff();
+    #debugOff();
     debug("Query ZM status, execute $pathStatus");
-    debugOn();
+    #debugOn();
     my $status = `$pathStatus`;
     if ($status =~ /ZoneMinder is running/)
     {
@@ -543,9 +543,9 @@ sub queryZMStatus
 sub queryMusicPlaylistStatus
 {
     my $pathStatus = config("pathStatusMusicPlaylist");
-    debugOff();
+    #debugOff();
     debug("Query Music Playlist status, execute $pathStatus");
-    debugOn();
+    #debugOn();
     my $status = `$pathStatus`;
     if ($status =~ /Music playlist is running/)
     {
@@ -556,7 +556,7 @@ sub queryMusicPlaylistStatus
 
 sub updateZMStatusInDB
 {
-    debugOff();
+    #debugOff();
     my $state = "Stopped";
     if(queryZMStatus())
     {
@@ -582,13 +582,13 @@ sub updateZMStatusInDB
     {
         debug("No ZM Status change");
     }
-    debugOn();
+    #debugOn();
     TimerLite::setTimer(5, \&updateZMStatusInDB);
 }
 
 sub updateMusicPlaylistStatusInDB
 {
-    debugOff();
+    #debugOff();
     my $state = "Stopped";
     if(queryMusicPlaylistStatus())
     {
@@ -614,7 +614,7 @@ sub updateMusicPlaylistStatusInDB
     {
         debug("No MusicPlaylist Status change");
     }
-    debugOn();
+    #debugOn();
     TimerLite::setTimer(5, \&updateMusicPlaylistStatusInDB);
 }
 
