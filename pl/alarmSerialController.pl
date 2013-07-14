@@ -31,7 +31,7 @@ foreach $argnum (0 .. $#ARGV) {
         print "debug : Display debug messages\n";
         print "logfile : Log debug messages in log (path in config file)\n";
         print "dbdebug : Display / Log DB requests\n";
-        print "versbose : Enable maximum debug verbosity\n";
+        print "verbose : Enable maximum debug verbosity\n";
         print "initdb : Init db table parameters (ERASE db parameters ! Required at every config file change)\n";
         exit();
     }
@@ -889,7 +889,7 @@ sub debugDb
 
 sub debugOff
 {
-    if($verbose == 0)
+    if (!$verbose)
     {
         $debug = 0;
         $dbdebug = 0;
