@@ -21,6 +21,7 @@ my $debug = 0;
 my $dbdebug = 0;
 # init db table parameters
 my $initDb = 0;
+#verbosity level
 my $verbose = 0;
 
 foreach $argnum (0 .. $#ARGV) {
