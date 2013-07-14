@@ -19,6 +19,7 @@ my $logInFile = 0;
 my $debug = 0;
 # display db debug
 my $dbdebug = 0;
+my $verbose = 0;
 # init db table parameters
 my $initDb = 0;
 
@@ -30,6 +31,7 @@ foreach $argnum (0 .. $#ARGV) {
         print "debug : Display debug messages\n";
         print "logfile : Log debug messages in log (path in config file)\n";
         print "dbdebug : Display / Log DB requests\n";
+        print "versbose : Enable maximum debug verbosity\n";
         print "initdb : Init db table parameters (ERASE db parameters ! Required at every config file change)\n";
         exit();
     }
@@ -44,6 +46,10 @@ foreach $argnum (0 .. $#ARGV) {
     if ($parameter eq "dbdebug")
     {
         $dbdebug = 1;
+    }
+    if ($parameter eq "verbose")
+    {
+        $verbose = 1;
     }
     if ($parameter eq "initdb")
     {
@@ -638,7 +644,9 @@ sub executeCommand
 	
     #TODO validate available commands
 
+    debugOff();
     my $result = dbSelectFetch("select c.command, e.id from $tableCommand c, $tableExecute e where e.completed = 0 and e.command_id = c.id ORDER BY e.id DESC LIMIT 0 , 1");
+    debugOn();
 	if ($result)
 	{
 		my $command = $result->{command};
@@ -869,6 +877,19 @@ sub debugDb
     {
         recordLog($msg);
     }
+}
+
+sub debugOff
+{
+    if($verbose == 0)
+    {
+        $dbdebug = 0;
+    }
+}
+
+sub debugOn
+{
+    $verbose = 1;
 }
 
 sub recordLog
