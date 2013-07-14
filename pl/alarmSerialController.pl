@@ -526,7 +526,9 @@ sub zmLast
 sub queryZMStatus
 {
     my $pathStatus = config("pathStatusZM");
-    #debug("Query ZM status, execute $pathStatus");
+    debugOff();
+    debug("Query ZM status, execute $pathStatus");
+    debugOn();
     my $status = `$pathStatus`;
     if ($status =~ /ZoneMinder is running/)
     {
@@ -538,7 +540,9 @@ sub queryZMStatus
 sub queryMusicPlaylistStatus
 {
     my $pathStatus = config("pathStatusMusicPlaylist");
-    #debug("Query Music Playlist status, execute $pathStatus");
+    debugOff();
+    debug("Query Music Playlist status, execute $pathStatus");
+    debugOn();
     my $status = `$pathStatus`;
     if ($status =~ /Music playlist is running/)
     {
@@ -549,6 +553,7 @@ sub queryMusicPlaylistStatus
 
 sub updateZMStatusInDB
 {
+    debugOff();
     my $state = "Stopped";
     if(queryZMStatus())
     {
@@ -572,13 +577,15 @@ sub updateZMStatusInDB
     }
     else
     {
-        #debug("No ZM Status change");
+        debug("No ZM Status change");
     }
     TimerLite::setTimer(5, \&updateZMStatusInDB);
+    debugOn();
 }
 
 sub updateMusicPlaylistStatusInDB
 {
+    debugOff();
     my $state = "Stopped";
     if(queryMusicPlaylistStatus())
     {
@@ -602,9 +609,10 @@ sub updateMusicPlaylistStatusInDB
     }
     else
     {
-        #debug("No MusicPlaylist Status change");
+        debug("No MusicPlaylist Status change");
     }
     TimerLite::setTimer(5, \&updateMusicPlaylistStatusInDB);
+    debugOn();
 }
 
 #
