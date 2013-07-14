@@ -57,6 +57,9 @@ foreach $argnum (0 .. $#ARGV) {
     }
 }
 
+my $originalDebug = $debug;
+my $originalDbDebug = $dbdebug;
+
 my $initDbAfterLoadedParameters = 0;
 
 my %hParameters = loadConfigFile($pathConfigFile);
@@ -889,17 +892,17 @@ sub debugDb
 
 sub debugOff
 {
-    #if (!$verbose)
-    #{
-    #    $debug = 0;
-    #    $dbdebug = 0;
-    #}
+    if (!$verbose)
+    {
+        $debug = 0;
+        $dbdebug = 0;
+    }
 }
 
 sub debugOn
 {
-    #$debug = 1;
-    #$dbdebug = 1;
+    $debug = $originalDebug;
+    $dbdebug = $originalDbDebug;
 }
 
 sub recordLog
