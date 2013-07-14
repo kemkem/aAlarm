@@ -509,7 +509,7 @@ sub zmLast
     #insert new zmintrusion
     my $idZmIntrusion = dbInsert("insert into $tableZmIntrusion (date) values (now())");
 
-    open LIST, $pathZmLastTarget."/list" or die "nooot\n";
+    open LIST, $pathZmLastTarget."/list" or die "Cannot open ".$pathZmLastTarget."/list"."\n";
     foreach (<LIST>)
     {
         chomp();
