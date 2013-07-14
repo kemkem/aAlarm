@@ -21,6 +21,7 @@ my $debug = 0;
 my $dbdebug = 0;
 # init db table parameters
 my $initDb = 0;
+my $verbose = 0;
 
 foreach $argnum (0 .. $#ARGV) {
     my $parameter = $ARGV[$argnum];
@@ -44,6 +45,10 @@ foreach $argnum (0 .. $#ARGV) {
     if ($parameter eq "dbdebug")
     {
         $dbdebug = 1;
+    }
+    if ($parameter eq "verbose")
+    {
+        $verbose = 1;
     }
     if ($parameter eq "initdb")
     {
