@@ -889,17 +889,17 @@ sub debugDb
 
 sub debugOff
 {
-    if (!$verbose)
-    {
-        $debug = 0;
-        $dbdebug = 0;
-    }
+    #if (!$verbose)
+    #{
+    #    $debug = 0;
+    #    $dbdebug = 0;
+    #}
 }
 
 sub debugOn
 {
-    $debug = 1;
-    $dbdebug = 1;
+    #$debug = 1;
+    #$dbdebug = 1;
 }
 
 sub recordLog
