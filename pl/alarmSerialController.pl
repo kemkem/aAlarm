@@ -293,7 +293,7 @@ for(my $portNum = $portNumMin; $portNum <= $portNumMax; $portNum++)
 	        else 
 	        {
 		    usleep($refresh);
-		    executeCommand();
+		    #executeCommand();
 		    $send = $nextCommand;
 		    $port->write($send."\n");
 	        }
@@ -582,8 +582,8 @@ sub updateZMStatusInDB
     {
         debug("No ZM Status change");
     }
-    TimerLite::setTimer(5, \&updateZMStatusInDB);
     debugOn();
+    TimerLite::setTimer(5, \&updateZMStatusInDB);
 }
 
 sub updateMusicPlaylistStatusInDB
@@ -614,8 +614,8 @@ sub updateMusicPlaylistStatusInDB
     {
         debug("No MusicPlaylist Status change");
     }
-    TimerLite::setTimer(5, \&updateMusicPlaylistStatusInDB);
     debugOn();
+    TimerLite::setTimer(5, \&updateMusicPlaylistStatusInDB);
 }
 
 #
@@ -892,8 +892,9 @@ sub debugDb
 
 sub debugOff
 {
-    if (!$verbose)
+    if ($verbose == 0)
     {
+        print "debug off\n";
         $debug = 0;
         $dbdebug = 0;
     }
@@ -901,6 +902,7 @@ sub debugOff
 
 sub debugOn
 {
+        print "debug on\n";
     $debug = $originalDebug;
     $dbdebug = $originalDbDebug;
 }
