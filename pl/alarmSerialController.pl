@@ -891,13 +891,15 @@ sub debugOff
 {
     if($verbose == 0)
     {
+        $debug = 0;
         $dbdebug = 0;
     }
 }
 
 sub debugOn
 {
-    $verbose = 1;
+    $debug = 1;
+    $dbdebug = 1;
 }
 
 sub recordLog
