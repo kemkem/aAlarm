@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include "/home/kemkem/Work/arduinoAlarm/ino/libs/i2cKeypadMod/i2ckeypadMod.h"
+#include "i2ckeypadMod.h"
 
 //Keypad
 #define ROWS 4
