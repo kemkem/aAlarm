@@ -2,11 +2,11 @@
 #group:key:showInUi = value
 
 #database uri
-db:dbUrl:0 = DBI:mysql:database=DBNAME;host=localhost
+db:dbUrl:0 = DBI:mysql:database=djaalarm;host=localhost
 #database login
-db:dbLogin:0 = DBLOGIN
+db:dbLogin:0 = djaalarm
 #database password
-db:dbPasswd:0 = DBPASSWD
+db:dbPasswd:0 = djaalarm
 
 #Table names
 db:tableCommand:0 = aalarm_command
@@ -18,6 +18,8 @@ db:tableRefState:0 = aalarm_refstate
 db:tableSensor:0 = aalarm_sensor
 db:tableZmIntrusion:0 = aalarm_zmintrusion
 db:tableZmIntrusionPicture:0 = aalarm_zmintrusionpicture
+db:tableMotionPicture:0 = aalarm_security
+db:tableMotionEventPicture:0 = aalarm_motioneventpicture
 
 #Controller
 
@@ -38,7 +40,7 @@ controller:refreshMs:0 = 200;
 #KeyPad Password
 controller:passwd:1 = 4578
 #Emails to send alerts to
-controller:emailAlerts:1 = EMAIL_FOR_ALERTS_COMMA_SEPARATED
+controller:emailAlerts:1 = marc@kprod.net 
 #Sensors total
 controller:sensorsNb:1 = 1
 

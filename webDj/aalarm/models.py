@@ -63,3 +63,16 @@ class ZMIntrusionPicture(models.Model):
     def __unicode__(self):
         return self.path
 
+class Security(models.Model):
+	camera = models.IntegerField() 
+	filename = models.CharField(max_length=80)
+	frame = models.IntegerField() 
+	file_type = models.IntegerField() 
+	time_stamp = models.DateTimeField()
+	text_event = models.DateTimeField()
+	def __unicode__(self):
+		return self.filename
+		
+class MotionEventPicture(models.Model):
+	event = models.ForeignKey(Event)
+	security = models.ForeignKey(Security)

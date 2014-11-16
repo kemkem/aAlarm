@@ -346,8 +346,8 @@ sub setOffline
 sub intrusion() 
 {
     debug("Intrusion alert !");
-    actionsIntrusion();
-
+    #actionsIntrusion();
+	
     $tIntrusionWarning = TimerLite::setTimer($delayIntrusionWarning, \&ckbIntrusionWarning);
     $tIntrusionAlarm = TimerLite::setTimer($delayIntrusionAlarm, \&ckbIntrusionAlarm);
     $globalState = $stateGlobalIntrusion;
@@ -383,12 +383,13 @@ sub ckbOnlineTimeout
 sub ckbIntrusionWarning
 {
     debug("Callback Warning");
-    actionsWarning();
+    #actionsWarning();
 
 	TimerLite::setTimer($delayIntrusionWarningTimeout, \&ckbIntrusionWarningTimeout);
 	$globalState = $stateGlobalWarning;
 	#record global state change
-	recordEventGlobal($globalState);
+	my $idEvent = recordEventGlobal($globalState);
+	actionsWarning($idEvent);
 }
 
 # (after intrusion -> warning)
@@ -458,6 +459,9 @@ sub actionsOnlineTimeout
 
 sub actionsIntrusion
 {
+	#my $idEvent = shift;
+	
+	#recordMotionEventPictures($idEvent);
     #stop music if enabled
     shellExecute($pathStopPlaylist) if $enableMusicPlaylist;
 }
@@ -468,9 +472,15 @@ sub actionsIntrusionTimeout
 
 sub actionsWarning
 {
+	my $idEvent = shift;
+	
     sendMail("Intrusion Warning");
     #start zmlast script to copy last instrusion pictures
-    zmLast() if $enableZoneMinder && $enableZoneMinderLastIntrusion;
+    #zmLast() if $enableZoneMinder && $enableZoneMinderLastIntrusion;
+	
+	#save motion event associated pictures
+	recordMotionEventPictures($idEvent);
+	
     sendCommand($port, "setLedRedBuzzer") if ($enabledBuzzer);
 }
 
@@ -521,6 +531,20 @@ sub zmLast
 
     }
     close LIST;
+}
+
+sub recordMotionEventPictures
+{
+	my $idEvent = shift;
+	my $tableMotionPicture = configFromFile("tableMotionPicture");
+	my $tableMotionEventPicture = configFromFile("tableMotionEventPicture");
+	
+	my $prepare = dbSelectFetch2("select p.id from $tableMotionPicture p order by p.time_stamp desc limit 0,20");
+	while($result = $prepare->fetchrow_hashref())
+	{
+		#print "fetch pic ".$result->{id}."\n";
+		dbInsert("insert into $tableMotionEventPicture (event_id, security_id) values ($idEvent, '".$result->{id}."')");
+	}
 }
 
 #
@@ -625,7 +649,8 @@ sub recordEventGlobal
    	my $idState = getIdRefState($state);
    	my $idSensor = getIdSensorByName("Global");
     debug("Record Global Event [$state]");
-    dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
+    #dbExecute("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
+	return dbInsert("insert into $tableEvent (date, sensor_id, state_id) values (now(), $idSensor, $idState)");
 }
 
 # Record a sensor event in db
@@ -775,9 +800,21 @@ sub getDbConnection
 	my $dbUrl = configFromFile("dbUrl");
 	my $dbLogin = configFromFile("dbLogin");
 	my $dbPasswd = configFromFile("dbPasswd");
-		
 	my $dbh = DBI->connect($dbUrl, $dbLogin, $dbPasswd, {'RaiseError' => 1});
 	return $dbh;
+}
+
+sub dbSelectFetch2
+{
+	my $req = shift;
+    my $dbh = getDbConnection();
+
+    debugDb("[Fetch] $req");
+    my $prepare = $dbh->prepare($req) or die("[DB fetch] Error when preparing request\n");
+    
+    $prepare->execute() or die("[DB fetch] Error when execute request\n");
+    #my $result = $prepare->fetchrow_hashref();
+    return $prepare;
 }
 
 sub dbSelectFetch
@@ -805,7 +842,8 @@ sub dbExecute
 #insert and return last id
 sub dbInsert
 {
-    my $req = shift;$dbh->{ q{mysql_insertid}};
+    my $req = shift;
+	#$dbh->{ q{mysql_insertid}};
     my $dbh = getDbConnection();
 
     debugDb("[Insert] $req");

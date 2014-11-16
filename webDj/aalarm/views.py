@@ -1,7 +1,7 @@
 from django.template import RequestContext
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from aalarm.models import Command, Execute, RefSensorType, RefState, Sensor, Event, Parameter, ZMIntrusion, ZMIntrusionPicture
+from aalarm.models import Command, Execute, RefSensorType, RefState, Sensor, Event, Parameter, ZMIntrusion, ZMIntrusionPicture, Security, MotionEventPicture
 #from datetime import datetime
 from django.forms.models import modelformset_factory
 #from django.forms.formsets import formset_factory
@@ -9,6 +9,7 @@ from django import forms
 from django.forms import TextInput, BooleanField
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
+import os
 
 class SecondaryItem():
     def __init__(self, pConfig):
@@ -160,6 +161,10 @@ def config(request):
 @login_required
 def history(request):
     return render_to_response('history.html', {}, context_instance=RequestContext(request))
+	
+@login_required
+def liveView(request):
+    return render_to_response('liveView.html', {}, context_instance=RequestContext(request))
 
 @login_required
 def lastZmEvent(request):
@@ -175,3 +180,22 @@ def lastZmEvent(request):
 
     return render_to_response('lastZmEvent.html', {'lastZmIntrusion':lastZmIntrusion, 'lastZmIntrusionPictures':lastZmIntrusionPictures,}, context_instance=RequestContext(request))
 
+@login_required
+def lastMotionEvent(request):
+	try:
+		refStateIntrusion = RefState.objects.filter(state='warning')
+		lastIntrusionEvent = Event.objects.filter(state=refStateIntrusion).latest('id')
+	except Event.DoesNotExist:
+		return HttpResponse("no intrusion event")
+	
+	try:
+		listMotionEventPicture = MotionEventPicture.objects.filter(event=lastIntrusionEvent)
+		listImageFilename = []
+		for motionEventPicture in listMotionEventPicture:
+			security = Security.objects.get(id=motionEventPicture.security_id)
+			filename = os.path.basename(security.filename)
+			listImageFilename.append(filename)
+	except MotionEventPicture.DoesNotExist:
+		return HttpResponse("no motion event")
+	
+	return render_to_response('lastMotionEvent.html', {'lastIntrusionEvent':lastIntrusionEvent,'listImageFilename':listImageFilename}, context_instance=RequestContext(request))

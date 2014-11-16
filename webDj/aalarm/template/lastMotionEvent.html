@@ -1,0 +1,24 @@
+{% extends "templateAAlarm.html" %}
+
+{% block title %}aAlarm - Last Event{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+</script>
+{% endblock %}
+
+{% block mainContentTitle %}Last Event{% endblock %}
+
+{% block mainContent %}
+
+last event : {{lastIntrusionEvent.date}}<br/><br/>
+
+{% for filename in listImageFilename %}
+
+<img src="/site_media/motion/{{filename}}" /><br/>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "templateAAlarm.html" %}
+
+{% block title %}aAlarm - Live View{% endblock %}
+
+{% block css %}
+<link href="/site_media/css/aalarmColors.css" rel="stylesheet" media="screen">
+<link href="/site_media/css/aalarmMain.css" rel="stylesheet" media="screen">
+{% endblock %}
+
+{% block script %}
+
+</script>
+{% endblock %}
+
+{% block mainContentTitle %}Live View{% endblock %}
+
+{% block mainContent %}
+
+<div class="row">
+    <div class="span12">
+    <h2>Main Cam</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="span12">
+        <applet code="com.charliemouse.cambozola.Viewer" archive="/site_media/jar/cambozola.jar" width="1280" height="760">
+			<param name="url" value="http://localhost:8081"/>
+		</applet>
+    </div>
+</div>
+
+{% endblock %}

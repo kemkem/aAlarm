@@ -6,15 +6,44 @@ sudo apt-get install mysql-server mysql-client
 sudo apt-get install python-mysqldb
 
 mysql -u root -p
+create database djaalarm
 grant usage on *.* to djaalarm@localhost identified by 'djaalarm';
 grant all privileges on djaalarm.* to djaalarm@localhost;
 
-manage.py
-runserver
-syncdb
+db init from sql
+mysql -u djaalarm -p --database=djaalarm < djaalarm.sql
+
+db init django (?)
+manage.py syndcb 
+
+cd djangoAAlarm
+mod TEMPLATE_DIRS in settings.py
+mod urls in urls.py
+
+
+prepare perl app
+install sendmail/postfix/ssmtp package ?
+
+sudo apt-get install libdevice-serialport-perl
+sudo apt-get install libmime-lite-perl
+
+mod $pathConfigFile in alarmSerialController.pl
+
+mod aalarm.conf
+(paths, db, usb address)
+
+
+
+init parameters (from perl app)
+
+start dj
+manage.py runserver 0.0.0.0:8000
+
+
+
 
 mysqldump -u djaalarm -p --opt djaalarm > djaalarm.sql
-mysql -u djaalarm -p --database=djaalarm < djaalarm.sql
+
 
 drop table aalarm_parameter, aalarm_execute, aalarm_command, aalarm_event, aalarm_sensor, aalarm_refstate, aalarm_refsensortype;
 
