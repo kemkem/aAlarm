@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. $AALARM_PATH_FOLDER_CONFIG/config.sh
+. AALARM_PATH_FOLDER_CONFIG/config.sh
 
 if [ -f $PATH_FOLDER_PID/controller.pid ];then
 	PID=`/bin/cat $PATH_FOLDER_PID/controller.pid`

@@ -10,7 +10,7 @@ use DBI;
 #AAlarm Modules
 use TimerLite;
 
-my $pathConfigFile = $ENV{AALARM_PATH_FOLDER_CONFIG}."/aalarm.conf";
+my $pathConfigFile = "AALARM_PATH_FOLDER_CONFIG/aalarm.conf";
 
 # Simple line parameters
 # write logfile

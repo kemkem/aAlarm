@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. $AALARM_PATH_FOLDER_CONFIG/config.sh
+. AALARM_PATH_FOLDER_CONFIG/config.sh
 
 cd $AALARM_PATH_FOLDER_CONFIG/../pl
 $PATH_CONTROLLER > /dev/null 2>&1 &

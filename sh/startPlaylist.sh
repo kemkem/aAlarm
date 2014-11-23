@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. $AALARM_PATH_FOLDER_CONFIG/config.sh
+. AALARM_PATH_FOLDER_CONFIG/config.sh
 
 if [ -f $PATH_FOLDER_PID/mpg123.pid ];then
 	echo "pid present : mpg123 already running"

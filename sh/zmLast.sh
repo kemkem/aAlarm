@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. $AALARM_PATH_FOLDER_CONFIG/config.sh
+. AALARM_PATH_FOLDER_CONFIG/config.sh
 
 #TODO maybe init this directory in some install script
 mkdir -p $PATH_ZM_TARGET
