@@ -1,10 +1,10 @@
 #!/bin/sh
 
-PATH_FOLDER_PID="/path/to/aAlarm/sh"
+PATH_FOLDER_PID="PATH_AALARM/aAlarm/pid"
 PATH_PLAYLIST="/home/kemkem/music/list"
-PATH_CONTROLLER="/path/to/aAlarm/pl/alarmSerialController.pl"
-PATH_DJANGO_MANAGER="/path/to/aAlarm/webDj/manage.py"
-PATH_FOLDER_SCRIPTS="/path/to/aAlarm/sh"
-PATH_ZM_SOURCE="/usr/share/zoneminder/events/Door"
-PATH_ZM_TARGET="/path/to/aAlarm/webDj/static/img/zmlast"
-PATH_MOTION_TARGET="/path/to/aAlarm/webDj/static/motion"
+PATH_CONTROLLER="PATH_AALARM/aAlarm/pl/alarmSerialController.pl"
+PATH_DJANGO_MANAGER="PATH_AALARM/aAlarm/webDj/manage.py"
+PATH_FOLDER_SCRIPTS="PATH_AALARM/aAlarm/sh"
+#PATH_ZM_SOURCE="/usr/share/zoneminder/events/Door"
+#PATH_ZM_TARGET="PATH_AALARM/aAlarm/webDj/static/img/zmlast"
+PATH_MOTION_TARGET="PATH_AALARM/aAlarm/webDj/static/motion"

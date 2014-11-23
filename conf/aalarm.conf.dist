@@ -24,7 +24,7 @@ db:tableMotionEventPicture:0 = aalarm_motioneventpicture
 #Controller
 
 #log file path
-controller:pathLog:0 = /path/to/aAlarm/pl/log
+controller:pathLog:0 = PATH_AALARM/aAlarm/pl/log
 #usb port where arduino is connected
 controller:portBase:0 = /dev/ttyACM
 #device number min
@@ -64,30 +64,30 @@ general:zoneMinderLastIntrusionEnable:1 = 0
 #use music playlist
 general:musicPlaylistEnable:1 = 0
 #path to zm last pictures
-general:pathZmLastTarget:0 = /path/to/aAlarm/static/img/zmlast
+general:pathZmLastTarget:0 = PATH_AALARM/aAlarm/static/img/zmlast
 
 #Commands
 #start playlist command
-commands:pathStartPlaylist:0 = /path/to/aAlarm/sh/startPlaylist.sh
+commands:pathStartPlaylist:0 = PATH_AALARM/aAlarm/sh/startPlaylist.sh
 #stop playlist command
-commands:pathStopPlaylist:0 = /path/to/aAlarm/sh/stopPlaylist.sh
+commands:pathStopPlaylist:0 = PATH_AALARM/aAlarm/sh/stopPlaylist.sh
 #start ZoneMinder command
-commands:pathStartZM:0 = /path/to/aAlarm/sh/startZM.sh
+commands:pathStartZM:0 = PATH_AALARM/aAlarm/sh/startZM.sh
 #stop ZoneMinder command
-commands:pathStopZM:0 = /path/to/aAlarm/sh/stopZM.sh
+commands:pathStopZM:0 = PATH_AALARM/aAlarm/sh/stopZM.sh
 #copy last intrusion shots script 
-commands:pathZmLast:0 = /path/to/aAlarm/sh/zmLast.sh
+commands:pathZmLast:0 = PATH_AALARM/aAlarm/sh/zmLast.sh
 #query music playlist status
-commands:pathStatusMusicPlaylist:0 = /path/to/aAlarm/sh/statusPlaylist.sh
+commands:pathStatusMusicPlaylist:0 = PATH_AALARM/aAlarm/sh/statusPlaylist.sh
 #query zm status
 commands:pathStatusZM:0 = /etc/init.d/zoneminder status
 
 #start Motion command
-commands:pathStartMotion:0 = /path/to/aAlarm/sh/startMotion.sh
+commands:pathStartMotion:0 = PATH_AALARM/aAlarm/sh/startMotion.sh
 #stop Motion command
-commands:pathStopMotion:0 = /path/to/aAlarm/sh/stopMotion.sh
+commands:pathStopMotion:0 = PATH_AALARM/aAlarm/sh/stopMotion.sh
 #query Motion status
-commands:pathStatusMotion:0 = /path/to/aAlarm/sh/statusMotion.sh
+commands:pathStatusMotion:0 = PATH_AALARM/aAlarm/sh/statusMotion.sh
 
 #Web Monitor
 
