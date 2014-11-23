@@ -118,6 +118,11 @@ my $pathStopZM = config("pathStopZM");
 my $pathZmLast = config("pathZmLast");
 my $pathZmLastTarget = config("pathZmLastTarget");
 
+#Motion service scripts
+my $pathStartMotion = config("pathStartMotion");
+my $pathStopMotion = config("pathStopMotion");
+my $pathStatusMotion = config("pathStatusMotion");
+
 #Delays
 my $delayOnlineTimed = config("delayOnlineTimed");
 my $delayIntrusionWarning = config("delayIntrusionWarning");
@@ -346,7 +351,7 @@ sub setOffline
 sub intrusion() 
 {
     debug("Intrusion alert !");
-    #actionsIntrusion();
+    actionsIntrusion();
 	
     $tIntrusionWarning = TimerLite::setTimer($delayIntrusionWarning, \&ckbIntrusionWarning);
     $tIntrusionAlarm = TimerLite::setTimer($delayIntrusionAlarm, \&ckbIntrusionAlarm);
@@ -427,7 +432,8 @@ sub ckbIntrusionAlarmTimeout
 sub actionsSetOnline
 {
     #start zm if enabled
-	shellExecute($pathStartZM) if $enableZoneMinder;
+	#shellExecute($pathStartZM) if $enableZoneMinder;
+	shellExecute($pathStartMotion) if $enableZoneMinder;
     #$nextCommand = "setLedRed";
     sendCommand($port, "setLedRed");
 }
@@ -437,7 +443,8 @@ sub actionsSetOffline
     #stop music if enabled
     shellExecute($pathStopPlaylist) if $enableMusicPlaylist;
     #stop Zoneminder if enabled (longer)
-	shellExecute($pathStopZM) if $enableZoneMinder;
+	#shellExecute($pathStopZM) if $enableZoneMinder;
+	shellExecute($pathStopMotion) if $enableZoneMinder;
 	#$nextCommand = "setLedGreen";
     sendCommand($port, "setLedGreen");
 }
@@ -564,6 +571,20 @@ sub queryZMStatus
     return 0;
 }
 
+sub queryMotionStatus
+{
+    my $pathStatus = config("pathStatusMotion");
+    #debugOff();
+    debug("Query Motion status, execute $pathStatus");
+    #debugOn();
+    my $status = `$pathStatus`;
+    if ($status =~ /Motion is running/)
+    {
+        return 1;
+    }
+    return 0;
+}
+
 sub queryMusicPlaylistStatus
 {
     my $pathStatus = config("pathStatusMusicPlaylist");
@@ -579,7 +600,8 @@ sub queryMusicPlaylistStatus
 sub updateZMStatusInDB
 {
     my $state = "Stopped";
-    if(queryZMStatus())
+    #if(queryZMStatus())
+	if(queryMotionStatus())
     {
         $state = "Running";
     }
@@ -693,14 +715,24 @@ sub executeCommand
 	    }
         elsif($command =~ /startZoneMinder/)
 	    {
-	        shellExecute($pathStartZM);
+	        shellExecute($pathStartMotion);
             $executed = 1;
 	    }
         elsif($command =~ /stopZoneMinder/)
 	    {
-            shellExecute($pathStopZM);
+            shellExecute($pathStopMotion);
             $executed = 1;
 	    }
+		#elsif($command =~ /startMotion/)
+	    #{
+	    #    shellExecute($pathStartMotion);
+        #    $executed = 1;
+	    #}
+        #elsif($command =~ /stopMotion/)
+	    #{
+        #    shellExecute($pathStopMotion);
+        #    $executed = 1;
+	    #}
         elsif($command =~ /startMusicPlaylist/)
 	    {
             shellExecute($pathStartPlaylist);
@@ -870,6 +902,12 @@ sub sendMail
 		             Subject  => "AAlarm alert",
 		             Data     => $strBody
 		             );
+		#$msg->attach(
+		#	Encoding => 'base64',
+		#	Type => 'image/jpg',
+		#	Path     => "/home/kemkem/aAlarm/webDj/static/motion/01-20141123003758-00.jpg",
+		#	Id => "image"
+		#);
 		$msg->send;
 	}
 }

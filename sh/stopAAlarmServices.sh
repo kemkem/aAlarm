@@ -19,4 +19,5 @@ else
 fi
 
 $PATH_FOLDER_SCRIPTS/stopPlaylist.sh
-$PATH_FOLDER_SCRIPTS/stopZM.sh
+#$PATH_FOLDER_SCRIPTS/stopZM.sh
+$PATH_FOLDER_SCRIPTS/stopMotion.sh

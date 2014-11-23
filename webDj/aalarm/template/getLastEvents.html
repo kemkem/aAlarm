@@ -10,7 +10,7 @@
     <td><div style="width:20px;"></div></td>
     <td>{{ event.sensor.displayName }}</td>
     <td class="tabState columnCentered {{ event.state.css }}">{{ event.state.displayName }}</td>
-    <td>{{ event.date|date:"d/m/Y H:m:s" }}</td>
+    <td>{{ event.date|date:"d/m/Y H:i:s" }}</td>
 </tr>
 {% endfor %}
 </table>
