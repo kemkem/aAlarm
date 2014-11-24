@@ -1,0 +1,33 @@
+#!/bin/bash
+
+echo Configuring AAlarm...
+
+PATH_INSTALL="/usr/share/aAlarm"
+PATH_INSTALL_BIN="/usr/bin"
+AALARM_PATH_FOLDER_CONFIG="$PATH_INSTALL/conf"
+
+mkdir $PATH_INSTALL/pid
+mkdir $PATH_INSTALL/webDj/static/motion 
+
+cp $PATH_INSTALL/conf/config.sh.dist $PATH_INSTALL/conf/config.sh
+sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL/conf/config.sh
+
+cp $PATH_INSTALL/conf/aalarm.conf.dist $PATH_INSTALL/conf/aalarm.conf
+sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL/conf/aalarm.conf
+
+cp $PATH_INSTALL/webDj/djangoAAlarm/settings.py.dist $PATH_INSTALL/webDj/djangoAAlarm/settings.py
+sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL/webDj/djangoAAlarm/settings.py
+
+cp $PATH_INSTALL/webDj/djangoAAlarm/urls.py.dist $PATH_INSTALL/webDj/djangoAAlarm/urls.py
+sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL/webDj/djangoAAlarm/urls.py
+
+sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL_BIN/cleanMotion.sh
+sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL_BIN/startAAlarmServices.sh
+sed -i "s|AALARM_PATH_FOLDER_CONFIG|$AALARM_PATH_FOLDER_CONFIG|g" $PATH_INSTALL_BIN/startAAlarmServices.sh
+sed -i "s|AALARM_PATH_FOLDER_CONFIG|$AALARM_PATH_FOLDER_CONFIG|g" $PATH_INSTALL_BIN/startPlaylist.sh
+sed -i "s|AALARM_PATH_FOLDER_CONFIG|$AALARM_PATH_FOLDER_CONFIG|g" $PATH_INSTALL_BIN/statusPlaylist.sh
+sed -i "s|AALARM_PATH_FOLDER_CONFIG|$AALARM_PATH_FOLDER_CONFIG|g" $PATH_INSTALL_BIN/stopAAlarmServices.sh
+sed -i "s|AALARM_PATH_FOLDER_CONFIG|$AALARM_PATH_FOLDER_CONFIG|g" $PATH_INSTALL_BIN/stopPlaylist.sh
+sed -i "s|AALARM_PATH_FOLDER_CONFIG|$AALARM_PATH_FOLDER_CONFIG|g" $PATH_INSTALL_BIN/zmLast.sh
+
+sed -i "s|AALARM_PATH_FOLDER_CONFIG|$AALARM_PATH_FOLDER_CONFIG|g" $PATH_INSTALL/pl/alarmSerialController.pl

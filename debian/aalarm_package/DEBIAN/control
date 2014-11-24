@@ -1,0 +1,8 @@
+Package: AAlarm
+Version: 1.0
+Section: base
+Priority: optional
+Architecture: all
+Depends: perl 
+Maintainer: Marc Bourgeois <marc@kprod.net>
+Description: Arduino based alarm with motion support 
