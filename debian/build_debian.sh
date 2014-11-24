@@ -9,4 +9,6 @@ cp -R ../conf aalarm_package/usr/share/aAlarm
 cp -R ../pl aalarm_package/usr/share/aAlarm
 cp -R ../webDj aalarm_package/usr/share/aAlarm
 
+chmod 755 aalarm_package/DEBIAN/*
+
 dpkg --build aalarm_package
