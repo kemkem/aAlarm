@@ -9,3 +9,14 @@ cp config.sh.dist config.sh and edit
 cp aalarm.conf.dist aalarm.conf and edit
 
 
+after package
+
+ssmtp
+
+config mysql
+config db django
+config db pl
+
+config motion
+
+config aalarm

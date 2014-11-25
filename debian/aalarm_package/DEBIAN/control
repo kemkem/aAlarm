@@ -3,6 +3,6 @@ Version: 1.0
 Section: base
 Priority: optional
 Architecture: all
-Depends: libdevice-serialport-perl, libmime-lite-perl, mysql-server, mysql-client, python-django, python-mysqldb
+Depends: libdevice-serialport-perl, libmime-lite-perl, mysql-server, mysql-client, python-django, python-mysqldb, motion
 Maintainer: Marc Bourgeois <marc@kprod.net>
 Description: Arduino based alarm with motion support 
