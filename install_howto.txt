@@ -1,22 +1,40 @@
-install sendmail/postfix/ssmtp package
+Install aAlarm package
+----------------------
 
-sudo apt-get install libdevice-serialport-perl
-sudo apt-get install libmime-lite-perl
+sudo dpkg -i aalarm_package.deb
+sudo apt-get -f install
 
-export AALARM_PATH_FOLDER_CONFIG="/path/to/aAlarm/sh"
-cp config.sh.dist config.sh and edit
+Install Third party
+-------------------
+install ssmtp or other
 
-cp aalarm.conf.dist aalarm.conf and edit
+MySQL Config
+------------
 
+mysql -u root -p
+create database djaalarm;
+grant usage on *.* to djaalarm@localhost identified by 'djaalarm';
+grant all privileges on djaalarm.* to djaalarm@localhost;
 
-after package
+mysql -u djaalarm -p --database=djaalarm < init_aalarm.sql
 
-ssmtp
+Django Config
+-------------
 
-config mysql
 config db django
-config db pl
+edit /usr/shareconf/aalarm.conf
+mod DBNAME, DBLOGIN, DBPASSWD
 
-config motion
+run manage.py syncdb
 
-config aalarm
+Controller Config 
+-----------------
+
+edit /usr/share/webDj/djangoAAlarm/settings.py.dist
+mod DBNAME, DBLOGIN, DBPASSWD
+
+run alarmSerialController.pl initdb debug 
+
+Motion Config
+-------------
+

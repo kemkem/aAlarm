@@ -73,6 +73,8 @@ if($initDb)
     dbExecute("delete from $tableParameter");
     #reload from file to init db
     loadConfigFile($pathConfigFile);
+    debug("Init database done");
+    exit;
 }
 
 #if($initDb)

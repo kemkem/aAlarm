@@ -2,11 +2,11 @@
 #group:key:showInUi = value
 
 #database uri
-db:dbUrl:0 = DBI:mysql:database=djaalarm;host=localhost
+db:dbUrl:0 = DBI:mysql:database=DBNAME;host=localhost
 #database login
-db:dbLogin:0 = djaalarm
+db:dbLogin:0 = DBLOGIN
 #database password
-db:dbPasswd:0 = djaalarm
+db:dbPasswd:0 = DBPASSWD
 
 #Table names
 db:tableCommand:0 = aalarm_command
