@@ -2,9 +2,10 @@
 
 mkdir -p aalarm_package/usr/share/aAlarm
 mkdir -p aalarm_package/usr/bin
+mkdir -p aalarm_package/etc
 
 cp ../sh/* aalarm_package/usr/bin
-cp -R ../conf aalarm_package/usr/share/aAlarm
+cp -R ../conf aalarm_package/etc
 cp -R ../pl aalarm_package/usr/share/aAlarm
 cp -R ../webDj aalarm_package/usr/share/aAlarm
 
