@@ -4,7 +4,7 @@ echo Configuring AAlarm...
 
 PATH_INSTALL="/usr/share/aAlarm"
 PATH_INSTALL_BIN="/usr/bin"
-AALARM_PATH_FOLDER_CONFIG="$PATH_INSTALL/conf"
+AALARM_PATH_FOLDER_CONFIG="/etc"
 
 mkdir $PATH_INSTALL/pid
 mkdir $PATH_INSTALL/webDj/static/motion 
