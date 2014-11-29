@@ -2,25 +2,32 @@
 
 echo Configuring AAlarm...
 
-PATH_INSTALL="/usr/share/aAlarm"
+PATH_INSTALL="/usr/share/aalarm"
 PATH_INSTALL_BIN="/usr/bin"
 AALARM_PATH_FOLDER_CONFIG="/etc"
 
-mkdir $PATH_INSTALL/pid
-mkdir $PATH_INSTALL/webDj/static/motion 
+#create pid dir
+mkdir -p $PATH_INSTALL/pid
+#create motion captures dir
+mkdir -p $PATH_INSTALL/webDj/static/motion 
 
-cp $PATH_INSTALL/conf/config.sh.dist $PATH_INSTALL/conf/config.sh
-sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL/conf/config.sh
+#mod config.sh
+cp $AALARM_PATH_FOLDER_CONFIG/config.sh.dist $AALARM_PATH_FOLDER_CONFIG/config.sh
+sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $AALARM_PATH_FOLDER_CONFIG/config.sh
 
-cp $PATH_INSTALL/conf/aalarm.conf.dist $PATH_INSTALL/conf/aalarm.conf
-sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL/conf/aalarm.conf
+#mod aalarm.conf
+cp $AALARM_PATH_FOLDER_CONFIG/aalarm.conf.dist $AALARM_PATH_FOLDER_CONFIG/aalarm.conf
+sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $AALARM_PATH_FOLDER_CONFIG/aalarm.conf
 
+#mod settings.py
 cp $PATH_INSTALL/webDj/djangoAAlarm/settings.py.dist $PATH_INSTALL/webDj/djangoAAlarm/settings.py
 sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL/webDj/djangoAAlarm/settings.py
 
+#mod urls.py
 cp $PATH_INSTALL/webDj/djangoAAlarm/urls.py.dist $PATH_INSTALL/webDj/djangoAAlarm/urls.py
 sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL/webDj/djangoAAlarm/urls.py
 
+#replace path in sh files
 sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL_BIN/cleanMotion.sh
 sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL_BIN/startAAlarmServices.sh
 sed -i "s|AALARM_PATH_FOLDER_CONFIG|$AALARM_PATH_FOLDER_CONFIG|g" $PATH_INSTALL_BIN/startAAlarmServices.sh
