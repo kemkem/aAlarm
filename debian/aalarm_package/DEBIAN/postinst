@@ -4,7 +4,7 @@ echo Configuring AAlarm...
 
 PATH_INSTALL="/usr/share/aalarm"
 PATH_INSTALL_BIN="/usr/bin"
-AALARM_PATH_FOLDER_CONFIG="/etc"
+AALARM_PATH_FOLDER_CONFIG="/etc/aalarm"
 
 #create pid dir
 mkdir -p $PATH_INSTALL/pid
