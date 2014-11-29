@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mkdir -p aalarm_package/usr/share/aAlarm
+mkdir -p aalarm_package/usr/share/aalarm
 mkdir -p aalarm_package/usr/bin
 mkdir -p aalarm_package/etc/aalarm
 
