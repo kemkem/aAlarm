@@ -17,6 +17,7 @@ grant usage on *.* to djaalarm@localhost identified by 'djaalarm';
 grant all privileges on djaalarm.* to djaalarm@localhost;
 
 mysql -u djaalarm -p --database=djaalarm < init_aalarm.sql
+mysql -u djaalarm -p --database=djaalarm < initSensorsSample.sql
 
 Django Config
 -------------

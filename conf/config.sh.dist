@@ -1,10 +1,8 @@
 #!/bin/sh
 
 PATH_FOLDER_PID="PATH_AALARM/pid"
-PATH_PLAYLIST="/home/kemkem/music/list"
+PATH_PLAYLIST="PATH_PLAYLIST"
 PATH_CONTROLLER="PATH_AALARM/pl/alarmSerialController.pl"
 PATH_DJANGO_MANAGER="PATH_AALARM/webDj/manage.py"
 PATH_FOLDER_SCRIPTS="PATH_AALARM/sh"
-#PATH_ZM_SOURCE="/usr/share/zoneminder/events/Door"
-#PATH_ZM_TARGET="PATH_AALARM/webDj/static/img/zmlast"
 PATH_MOTION_TARGET="PATH_AALARM/webDj/static/motion"

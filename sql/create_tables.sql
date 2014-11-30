@@ -31,7 +31,15 @@ CREATE TABLE `aalarm_command` (
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `aalarm_command`
+--
 
+LOCK TABLES `aalarm_command` WRITE;
+/*!40000 ALTER TABLE `aalarm_command` DISABLE KEYS */;
+INSERT INTO `aalarm_command` VALUES (1,'Set Online','Set alarm to online state','setOnline'),(2,'Set Offline','Set alarm to offline state','setOffline'),(3,'start ZoneMinder','startZoneMinder','startZoneMinder'),(4,'stop ZoneMinder','stopZoneMinder','stopZoneMinder'),(5,'start Music Playlist','startMusicPlaylist','startMusicPlaylist'),(6,'stop Music Playlist','stopMusicPlaylist','stopMusicPlaylist');
+/*!40000 ALTER TABLE `aalarm_command` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `aalarm_event`
