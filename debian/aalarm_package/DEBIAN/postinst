@@ -40,3 +40,16 @@ sed -i "s|AALARM_PATH_FOLDER_CONFIG|$PATH_INSTALL_CONF|g" $PATH_INSTALL_SH/stopP
 sed -i "s|AALARM_PATH_FOLDER_CONFIG|$PATH_INSTALL_CONF|g" $PATH_INSTALL_SH/zmLast.sh
 
 sed -i "s|AALARM_PATH_FOLDER_CONFIG|$PATH_INSTALL_CONF|g" $PATH_INSTALL/pl/alarmSerialController.pl
+
+#permissions
+
+chmod 755 $PATH_INSTALL_SH/*
+chmod 755 $PATH_INSTALL_BIN/startAAlarmServices.sh
+chmod 755 $PATH_INSTALL_BIN/stopAAlarmServices.sh
+chmod 755 $PATH_INSTALL/pl/alarmSerialController.pl
+chmod 755 $PATH_INSTALL/webDj/manage.py
+
+echo Install done
+echo Please edit $PATH_INSTALL/webDj/djangoAAlarm/settings.py with your db settings
+echo Please edit $PATH_INSTALL_CONF/aalarm.conf with your db and other settings
+ 
