@@ -13,11 +13,11 @@ mkdir -p $PATH_INSTALL/pid
 mkdir -p $PATH_INSTALL/webDj/static/motion
 
 #mod config.sh
-cp $AALARM_PATH_FOLDER_CONFIG/config.sh.dist $PATH_INSTALL_CONF/config.sh
+cp $PATH_INSTALL_CONF/config.sh.dist $PATH_INSTALL_CONF/config.sh
 sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL_CONF/config.sh
 
 #mod aalarm.conf
-cp $AALARM_PATH_FOLDER_CONFIG/aalarm.conf.dist $PATH_INSTALL_CONF/aalarm.conf
+cp $PATH_INSTALL_CONF/aalarm.conf.dist $PATH_INSTALL_CONF/aalarm.conf
 sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL_CONF/aalarm.conf
 
 #mod settings.py
@@ -31,9 +31,9 @@ sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL/webDj/djangoAAlarm/urls.py
 #replace path in executable files
 sed -i "s|AALARM_PATH_FOLDER_CONFIG|$PATH_INSTALL_CONF|g" $PATH_INSTALL_BIN/startAAlarmServices.sh
 sed -i "s|AALARM_PATH_FOLDER_CONFIG|$PATH_INSTALL_CONF|g" $PATH_INSTALL_BIN/stopAAlarmServices.sh
+sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL_BIN/startAAlarmServices.sh
 
 sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL_SH/cleanMotion.sh
-sed -i "s|PATH_AALARM|$PATH_INSTALL|g" $PATH_INSTALL_SH/startAAlarmServices.sh
 sed -i "s|AALARM_PATH_FOLDER_CONFIG|$PATH_INSTALL_CONF|g" $PATH_INSTALL_SH/startPlaylist.sh
 sed -i "s|AALARM_PATH_FOLDER_CONFIG|$PATH_INSTALL_CONF|g" $PATH_INSTALL_SH/statusPlaylist.sh
 sed -i "s|AALARM_PATH_FOLDER_CONFIG|$PATH_INSTALL_CONF|g" $PATH_INSTALL_SH/stopPlaylist.sh

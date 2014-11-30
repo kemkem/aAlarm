@@ -1,4 +1,5 @@
 #!/bin/bash
 
 echo removing AAlarm
-sudo rm -rf /usr/share/aalarm/
+sudo rm -rf /usr/share/aalarm
+sudo rm -rf /etc/aalarm
