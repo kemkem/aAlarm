@@ -1,5 +1,7 @@
 #!/bin/bash
 
+chmod -R root:root ../
+
 mkdir -p aalarm_package/usr/bin
 mkdir -p aalarm_package/usr/share/aalarm
 mkdir -p aalarm_package/usr/share/aalarm/sh
