@@ -1,8 +1,10 @@
 Install aAlarm package
 ----------------------
 
+sudo apt-get update
 sudo dpkg -i aalarm_package.deb
 sudo apt-get -f install
+sudo dpkg -i aalarm_package.deb
 
 Install Third party
 -------------------
@@ -18,6 +20,10 @@ grant all privileges on djaalarm.* to djaalarm@localhost;
 
 mysql -u djaalarm -p --database=djaalarm < init_aalarm.sql
 mysql -u djaalarm -p --database=djaalarm < initSensorsSample.sql
+
+User config
+-----------
+sudo usermod -a -G dialout USER
 
 Django Config
 -------------
