@@ -1,5 +1,7 @@
 #!/bin/bash
 
+VERSION=1.0.0
+
 chown -R root:root ../
 
 mkdir -p aalarm_package/usr/bin
@@ -18,3 +20,5 @@ cp -R ../sql aalarm_package/usr/share/aalarm
 chmod 755 aalarm_package/DEBIAN/*
 
 dpkg --build aalarm_package
+
+mv aalarm_package.deb aalarm_$VERSION.deb
