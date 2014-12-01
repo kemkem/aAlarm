@@ -40,7 +40,7 @@ controller:refreshMs:0 = 200;
 #KeyPad Password
 controller:passwd:1 = 4578
 #Emails to send alerts to
-controller:emailAlerts:1 = marc@kprod.net 
+controller:emailAlerts:1 = YOUR_EMAIL@DOMAIN.COM
 #Sensors total
 controller:sensorsNb:1 = 1
 

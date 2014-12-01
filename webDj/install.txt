@@ -47,7 +47,7 @@ mysqldump -u djaalarm -p --opt djaalarm > djaalarm.sql
 
 drop table aalarm_parameter, aalarm_execute, aalarm_command, aalarm_event, aalarm_sensor, aalarm_refstate, aalarm_refsensortype;
 
-sudo /etc/init.d/zoneminder stop ; sudo killall mpg123 ; rm /home/kemkem/Work/arduinoAlarm/sh/mpg123.pid ; sudo ./alarmSerialController.pl debug
+sudo /etc/init.d/zoneminder stop ; sudo killall mpg123 ; rm /PATH/mpg123.pid ; sudo ./alarmSerialController.pl debug
 
 Disable timezone support (perl does not..)
 USE_TZ = False

@@ -907,7 +907,7 @@ sub sendMail
 		#$msg->attach(
 		#	Encoding => 'base64',
 		#	Type => 'image/jpg',
-		#	Path     => "/home/kemkem/aAlarm/webDj/static/motion/01-20141123003758-00.jpg",
+		#	Path     => "PATH/01-20141123003758-00.jpg",
 		#	Id => "image"
 		#);
 		$msg->send;

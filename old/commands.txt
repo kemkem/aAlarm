@@ -1,7 +1,0 @@
-getSensorState [INT]
-getKeys
-
-setLedRed [VARCHAR]
-setLedGreen [VARCHAR]
-setBuzzer [VARCHAR]
-setSiren [VARCHAR]
