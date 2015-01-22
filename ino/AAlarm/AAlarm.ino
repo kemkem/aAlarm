@@ -41,13 +41,13 @@ int tabSensorPin[MAX_NB_SENSORS] = {2, 2};
 void setup()
 {
   Serial.begin(9600);
-  
-  pinMode(buzzerPin, OUTPUT);  
-  pinMode(sirenPin, OUTPUT);  
-  pinMode(sensorPin, INPUT);  
+
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(sirenPin, OUTPUT);
+  pinMode(sensorPin, INPUT);
   Wire.begin();
   kpd.init();
-  
+
   //init sensor tab
   for(int i = 0; i < nbSensors; i++)
   {
@@ -65,13 +65,13 @@ void setup()
 String pollSensor(int nb)
 {
   String newStatus = "";
-  
+
   tabSensorCurrent[nb] = digitalRead(tabSensorPin[nb]);
   if (tabSensorCurrent[nb] != tabSensorLast[nb]) {
     tabSensorLast[nb] = tabSensorCurrent[nb];
     newStatus = getSensorStatus(tabSensorCurrent[nb]);
   }
-  
+
   return newStatus;
 }
 
@@ -107,7 +107,7 @@ void loop()
 {
   serialReader();
   pollSensors();
-  pollKeys();    
+  pollKeys();
 }
 
 /*
@@ -117,14 +117,14 @@ void serialReader()
 {
   int makeSerialStringPosition;
   int inByte;
-  
+
   char serialReadString[50];
   const int charCR = 10; //Terminate lines with CR
   const int charNL = 13; //Terminate lines with NL
 
   inByte = Serial.read();
   makeSerialStringPosition=0;
-  
+
 
   if (inByte > 0 && (inByte != charCR ||  inByte != charNL)) { //If we see data (inByte > 0) and that data isn't a carriage return
 	delay(100); //Allow serial data time to collect (I think. All I know is it doesn't work without this.)
@@ -142,7 +142,7 @@ void serialReader()
 	  //Serial.println(serialReadString);
           execCommand(serialReadString);
 	}
-        
+
   }
 }
 
@@ -177,7 +177,7 @@ void execCommand(String serialReadString)
   String cmdSetSirenOn = "setSirenOn";
   String cmdSetSirenOff = "setSirenOff";
   String cmdSetSensorsNb = "setSensorsNb";
-  
+
   //this 2 statements have to be first
   if(serialReadString.startsWith(cmdSetLedRedBuzzer))
   {
@@ -218,19 +218,19 @@ void execCommand(String serialReadString)
     nbSensors = sensorNb;
     Serial.println("sensors nb set to " + String(sensorNb));
   }
-  
+
 }
 
 
 String getSensorStatus(int value)
 {
   //for now n (sensor number) is unused
-  
+
   //if(statusValue == HIGH) //if sensor connected to "T" (high when pressed)
   if(value == LOW) //if sensor connected to "R" (low when pressed)
   {
     return SENSOR_OPEN;
-    
+
   }
   //else if (statusValue == LOW) //if sensor connected to "T" (high when pressed)
   else if (value == HIGH) //if sensor connected to "R" (low when pressed)
@@ -248,10 +248,10 @@ String getSensorStatus(int value)
 void i2cKeypadWrite(int data)
 {
   Wire.beginTransmission(I2Ck);
-  Wire.write(data); 
+  Wire.write(data);
   Wire.endTransmission();
   Wire.beginTransmission(I2Ck);
-  Wire.write((uint8_t)0x70); 
+  Wire.write((uint8_t)0x70);
   Wire.endTransmission();
 }
 
@@ -272,13 +272,13 @@ void ledGreen()
 
 void ledsAnim()
 {
-  i2cKeypadWrite(aLedRed);
+  ledRed();
   delay(100);
-  i2cKeypadWrite(aLedRed);
+  ledRed();
   delay(100);
-  i2cKeypadWrite(aLedGreen);
+  ledGreen();
   delay(100);
-  i2cKeypadWrite(aLedGreen);
+  ledGreen();
   delay(100);
 }
 
