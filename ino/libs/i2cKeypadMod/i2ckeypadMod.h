@@ -13,6 +13,11 @@ public:
 private:
   void pcf8574_write(int, int);
   int pcf8574_byte_read(int);
+
+private:
+    const int mI2CAddr;
+    const int mNumRows;
+    const int mNumCols;
 };
 
 #endif

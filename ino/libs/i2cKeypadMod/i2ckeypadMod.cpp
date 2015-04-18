@@ -64,6 +64,9 @@
 #define ROW3  6  // P3 of PCF8574, row3 is usually pin 4 of 4x3 keypads
 
 
+#define DEFAULT_I2CKEYBOARDMOD_ROWS 4
+#define DEFAULT_I2CKEYBOARDMOD_COLS 3
+
 /*
  *  KEYPAD KEY MAPPING
  *
@@ -71,12 +74,13 @@
  *  like different keys
  */
 
-const char keymap[4][4] =
+// Default row and col pin counts
+const char keymap[DEFAULT_I2CKEYBOARDMOD_ROWS][DEFAULT_I2CKEYBOARDMOD_COLS] =
 {
-  "123",
-  "456",
-  "789",
-  "*0#"
+  {'1', '2', '3'},
+  {'4', '5', '6'},
+  {'7', '8', '9'},
+  {'*', '0', '#'}
 };
 
 
@@ -84,13 +88,6 @@ const char keymap[4][4] =
  *  VAR AND CONSTANTS DEFINITION. Don't change nothing here
  *
  */
-
-// Default row and col pin counts
-int num_rows = 4;
-int num_cols = 3;
-
-// PCF8574 i2c address
-int pcf8574_i2c_addr;
 
 // Current search row
 static int row_select;
@@ -102,7 +99,7 @@ static int current_data;
 const int hex_data[8] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40};
 
 // Hex data for each row of keypad in PCF8574
-const int pcf8574_row_data[4] = 
+const int pcf8574_row_data[DEFAULT_I2CKEYBOARDMOD_ROWS] =
 {
   hex_data[ROW1] | hex_data[ROW2] | hex_data[ROW3] |
   hex_data[COL0] | hex_data[COL1] | hex_data[COL2],
@@ -115,7 +112,7 @@ const int pcf8574_row_data[4] =
 };
 
 // Hex data for each col of keypad in PCF8574
-int col[3] = {hex_data[COL0], hex_data[COL1], hex_data[COL2]};
+int col[DEFAULT_I2CKEYBOARDMOD_COLS] = {hex_data[COL0], hex_data[COL1], hex_data[COL2]};
 
 
 /*
@@ -123,16 +120,16 @@ int col[3] = {hex_data[COL0], hex_data[COL1], hex_data[COL2]};
  */
 
 i2ckeypad::i2ckeypad(int addr)
-{
-  pcf8574_i2c_addr = addr;
-}
+  : mI2CAddr(addr)
+  , mNumRows(DEFAULT_I2CKEYBOARDMOD_ROWS)
+  , mNumCols(DEFAULT_I2CKEYBOARDMOD_COLS)
+{ }
 
 i2ckeypad::i2ckeypad(int addr, int r, int c)
-{
-  pcf8574_i2c_addr = addr;
-  num_rows = r;
-  num_cols = c;
-}
+  : mI2CAddr(addr)
+  , mNumRows(r)
+  , mNumCols(c)
+{ }
 
 
 /*
@@ -142,8 +139,8 @@ i2ckeypad::i2ckeypad(int addr, int r, int c)
 void i2ckeypad::init()
 {
   // All PCF8574 ports high
-  //pcf8574_write(pcf8574_i2c_addr, 0x7f);
-  pcf8574_write(pcf8574_i2c_addr, 0xff);
+  //pcf8574_write(mI2CAddr, 0x7f);
+  pcf8574_write(mI2CAddr, 0xff);
 
   // Start with the first row
   row_select = 0;
@@ -159,11 +156,11 @@ char i2ckeypad::get_key()
   int key = '\0';
 
   // Search row low
-  pcf8574_write(pcf8574_i2c_addr, pcf8574_row_data[row_select]);
+  pcf8574_write(mI2CAddr, pcf8574_row_data[row_select]);
 
-  for(r=0;r<num_cols;r++) {
+  for(r=0;r<mNumCols;r++) {
     // Read pcf8574 port data
-    tmp_data = pcf8574_byte_read(pcf8574_i2c_addr);
+    tmp_data = pcf8574_byte_read(mI2CAddr);
 
     // XOR to compare obtained data and current data and know
     // if some column are low
@@ -177,7 +174,7 @@ char i2ckeypad::get_key()
   }
 
   // Key was pressed and then released
-  if((key == '\0') && (temp_key != '\0'))    
+  if((key == '\0') && (temp_key != '\0'))
   {
     key = temp_key;
     temp_key = '\0';
@@ -185,12 +182,11 @@ char i2ckeypad::get_key()
   }
 
   // All PCF8574 ports high again
-  //pcf8574_write(pcf8574_i2c_addr, 0x7f);
-  pcf8574_write(pcf8574_i2c_addr, 0x7f);
+  pcf8574_write(mI2CAddr, 0x7f);
 
   // Next row
   row_select++;
-  if(row_select == num_rows) {
+  if(row_select == mNumRows) {
     row_select = 0;
   }
 
